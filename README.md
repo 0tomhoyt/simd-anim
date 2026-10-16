@@ -63,6 +63,10 @@ Every demo page shares the same interactions:
 
 The animation clock and control wiring live in `assets/js/player.js` and are shared by all demos; each demo only draws its own stage.
 
+## Concepts
+
+Alongside the instruction demos, `/concepts/roofline/` is a parallel track: an interactive roofline where peak compute and memory supply are the reader's own sliders, and the ridge between them shows why arithmetic intensity — not raw FLOPs — decides what limits a kernel. No machine-specific numbers.
+
 ## Roadmap
 
 Ideas for the next pages:
