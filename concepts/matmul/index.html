@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="meta.title.matmul">Matrix multiply · simd-anim</title>
+    <meta name="description" data-i18n-content="meta.desc.matmul" content="A short primer: C = AB is M×N, and each entry is a dot product of a row and a column.">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#f2efe8">
+    <script>
+      try {
+        var saved = localStorage.getItem("site-lang");
+        var zh = saved === "zh" || (saved !== "en" && (navigator.language || "en").toLowerCase().indexOf("zh") === 0);
+        if (zh) {
+          document.documentElement.classList.add("i18n-wait");
+          document.documentElement.lang = "zh-Hans";
+        }
+      } catch (error) {}
+    </script>
+    <link rel="stylesheet" href="../../assets/css/site.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skip">Skip to main content</a>
+    <div class="page">
+      <header class="site-header">
+        <a class="brand" href="../../">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="brand-name">simd-anim</span>
+        </a>
+        <div class="header-end">
+          <nav data-i18n-aria="nav.label" aria-label="Primary">
+            <a href="../sme-anatomy/"><span data-i18n="nav.path">Shortest path</span></a>
+            <a href="../../#demos"><span data-i18n="nav.catalog">All demos</span></a>
+          </nav>
+          <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
+            <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang="zh" lang="zh-Hans" aria-pressed="false">中文</button>
+          </div>
+        </div>
+      </header>
+
+      <main id="main" class="demo-main">
+        <a class="back" href="../../quiz/"><span aria-hidden="true">← </span><span data-i18n="matmul.back">Back to the self-check</span></a>
+        <header class="demo-head">
+          <p class="eyebrow" data-i18n="matmul.eyebrow">Linear algebra</p>
+          <h1 data-i18n="matmul.h1">Matrix multiply</h1>
+          <p class="lede" data-i18n="matmul.lede">Three sentences. The self-check scores these ideas.</p>
+        </header>
+
+        <!-- TODO: stub primer linked from the quiz soft-hint. Expand later; keep it linear algebra only. -->
+        <div class="matmul-fig" aria-hidden="true">
+          <div class="anatomy-row">
+            <span class="anatomy-tag" data-i18n="matmul.fig.row">row</span>
+            <span class="anatomy-slot">2</span>
+            <span class="anatomy-slot">3</span>
+          </div>
+          <div class="anatomy-row">
+            <span class="anatomy-tag" data-i18n="matmul.fig.col">col</span>
+            <span class="anatomy-slot">4</span>
+            <span class="anatomy-slot">5</span>
+          </div>
+          <div class="anatomy-row">
+            <span class="anatomy-tag">·</span>
+            <span class="anatomy-op">23</span>
+          </div>
+        </div>
+        <ol class="matmul-points">
+          <li data-i18n="matmul.s1">A is M×K and B is K×N, so C = AB is M×N.</li>
+          <li data-i18n="matmul.s2">C[i, j] is the dot product of row i of A and column j of B.</li>
+          <li data-i18n="matmul.s3">M counts rows, N counts columns, and K is the length of that dot product.</li>
+        </ol>
+      </main>
+
+      <footer class="site-footer">
+        <span data-i18n="footer.by">A lab by Hou Yuteng</span>
+        <a href="https://github.com/0tomhoyt/simd-anim"><span data-i18n="footer.source">Source</span></a>
+      </footer>
+    </div>
+    <script src="../../assets/js/i18n.js"></script>
+  </body>
+</html>
