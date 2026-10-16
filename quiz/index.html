@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="meta.title.quiz">Linear algebra self-check · simd-anim</title>
+    <meta name="description" data-i18n-content="meta.desc.quiz" content="Three optional questions on matrix multiply and the dot product. Not required to start the GEMM path.">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#f2efe8">
+    <script>
+      try {
+        var saved = localStorage.getItem("site-lang");
+        var zh = saved === "zh" || (saved !== "en" && (navigator.language || "en").toLowerCase().indexOf("zh") === 0);
+        if (zh) {
+          document.documentElement.classList.add("i18n-wait");
+          document.documentElement.lang = "zh-Hans";
+        }
+      } catch (error) {}
+    </script>
+    <link rel="stylesheet" href="../assets/css/site.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skip">Skip to main content</a>
+    <div class="page">
+      <header class="site-header">
+        <a class="brand" href="../">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="brand-name">simd-anim</span>
+        </a>
+        <div class="header-end">
+          <nav data-i18n-aria="nav.label" aria-label="Primary">
+            <a href="../demos/fmopa/"><span data-i18n="nav.path">Shortest path</span></a>
+            <a href="../#demos"><span data-i18n="nav.catalog">All demos</span></a>
+          </nav>
+          <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
+            <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang="zh" lang="zh-Hans" aria-pressed="false">中文</button>
+          </div>
+        </div>
+      </header>
+
+      <main id="main">
+        <section class="hero" aria-labelledby="page-title">
+          <p class="eyebrow" data-i18n="quiz.eyebrow">Optional</p>
+          <h1 id="page-title" data-i18n="quiz.title">Linear algebra self-check</h1>
+          <p class="lede" data-i18n="quiz.lede">Three questions on matrix multiply and the dot product. Nothing here is required to start the path.</p>
+          <ol class="quiz-list">
+            <li>
+              <p data-i18n="quiz.q1">A is M×K and B is K×N. What shape is C = AB?</p>
+              <details>
+                <summary data-i18n="quiz.reveal">Show answer</summary>
+                <p data-i18n="quiz.a1">M×N.</p>
+              </details>
+            </li>
+            <li>
+              <p data-i18n="quiz.q2">What is one entry C[i, j] of that product?</p>
+              <details>
+                <summary data-i18n="quiz.reveal">Show answer</summary>
+                <p data-i18n="quiz.a2">The dot product of row i of A and column j of B.</p>
+              </details>
+            </li>
+            <li>
+              <p data-i18n="quiz.q3">FMOPA writes an outer product into a tile. How is that different from a dot product?</p>
+              <details>
+                <summary data-i18n="quiz.reveal">Show answer</summary>
+                <p data-i18n="quiz.a3">An outer product fills a tile: every element of one vector times every element of the other. A dot product collapses one pair of vectors to a single number.</p>
+              </details>
+            </li>
+          </ol>
+          <div class="hero-actions">
+            <a class="button button-primary" href="../demos/fmopa/"><span data-i18n="quiz.skip">Skip and start the path</span></a>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <span data-i18n="footer.by">A lab by Hou Yuteng</span>
+        <a href="https://github.com/0tomhoyt/simd-anim"><span data-i18n="footer.source">Source</span></a>
+      </footer>
+    </div>
+    <script src="../assets/js/i18n.js"></script>
+  </body>
+</html>
