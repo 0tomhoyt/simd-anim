@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="meta.title.addha">ADDHA · simd-anim</title>
+    <meta name="description" data-i18n-content="meta.desc.addha" content="Play the SME broadcast add addha za0.s, p0/m, p1/m, z0.s as one vector lands in every active row of the ZA tile.">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#f2efe8">
+    <script>
+      try {
+        var saved = localStorage.getItem("site-lang");
+        var zh = saved === "zh" || (saved !== "en" && (navigator.language || "en").toLowerCase().indexOf("zh") === 0);
+        if (zh) {
+          document.documentElement.classList.add("i18n-wait");
+          document.documentElement.lang = "zh-Hans";
+        }
+      } catch (error) {}
+    </script>
+    <link rel="stylesheet" href="../../assets/css/site.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skip">Skip to main content</a>
+    <div class="page">
+      <header class="site-header">
+        <a class="brand" href="../../">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="brand-name">simd-anim</span>
+        </a>
+        <div class="header-end">
+          <nav data-i18n-aria="nav.label" aria-label="Primary">
+            <a href="../../#demos"><span data-i18n="nav.demos">Demos</span></a>
+          </nav>
+          <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
+            <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang="zh" lang="zh-Hans" aria-pressed="false">中文</button>
+          </div>
+        </div>
+      </header>
+
+      <main id="main" class="demo-main">
+        <a class="back" href="../../#demos"><span aria-hidden="true">← </span><span data-i18n="ui.back">All demos</span></a>
+        <header class="demo-head">
+          <p class="eyebrow"><span>10</span> <span aria-hidden="true">/</span> <span data-i18n="addha.eyebrow">SME · broadcast into tile</span></p>
+          <h1>ADDHA</h1>
+          <p class="lede" data-i18n="addha.lede">One vector lands in every active row of the ZA tile.</p>
+        </header>
+
+        <figure class="insn">
+          <figcaption data-i18n="ui.insnLabel">Instruction</figcaption>
+          <pre><code><span class="op-name">addha</span> za0.s, p0/m, p1/m, z0.s</code></pre>
+        </figure>
+
+        <p class="spec-note" data-i18n="addha.spec">Types: all 32-bit float — z0.s lanes and the 4 × 4 za0.s tile. Drawn at SVL = 128 bits; at SVL = 512 the tile is 16 × 16 and one vector still lands in every row.</p>
+
+        <section class="bench" data-addha aria-labelledby="addha-name">
+          <div class="bench-scroll">
+            <div class="stage">
+              <div class="stage-top">
+                <p class="col-label label-p0">p1/m</p>
+                <p class="col-label label-z0">z0.s</p>
+                <div class="quad-stack">
+                  <p class="quad-label">p1/m</p>
+                  <div class="quad" role="group" data-i18n-aria="addha.predGroup1" aria-label="p1/m, column predicate">
+                    <button type="button" class="pred" data-pred="1" data-lane="0" aria-pressed="true">1</button>
+                    <button type="button" class="pred" data-pred="1" data-lane="1" aria-pressed="true">1</button>
+                    <button type="button" class="pred" data-pred="1" data-lane="2" aria-pressed="true">1</button>
+                    <button type="button" class="pred" data-pred="1" data-lane="3" aria-pressed="true">1</button>
+                  </div>
+                  <p class="quad-label">z0.s</p>
+                  <div class="quad" aria-hidden="true">
+                    <span class="lane" data-vec="z0" data-lane="0">1</span>
+                    <span class="lane" data-vec="z0" data-lane="1">2</span>
+                    <span class="lane" data-vec="z0" data-lane="2">3</span>
+                    <span class="lane" data-vec="z0" data-lane="3">4</span>
+                  </div>
+                </div>
+              </div>
+              <div class="stage-body">
+                <div class="col-stack" role="group" data-i18n-aria="addha.predGroup0" aria-label="p0/m, row predicate">
+                  <button type="button" class="pred" data-pred="0" data-lane="0" aria-pressed="true">1</button>
+                  <button type="button" class="pred" data-pred="0" data-lane="1" aria-pressed="true">1</button>
+                  <button type="button" class="pred" data-pred="0" data-lane="2" aria-pressed="true">1</button>
+                  <button type="button" class="pred" data-pred="0" data-lane="3" aria-pressed="true">1</button>
+                </div>
+                <div class="tile" data-i18n-aria="addha.tileAria" aria-label="ZA tile za0.s, 4 by 4 single-precision elements">
+                  <div class="cell" data-r="0" data-c="0"><span class="wash" aria-hidden="true"></span><span class="cell-index">0,0</span><span class="cell-value">0</span></div>
+                  <div class="cell" data-r="0" data-c="1"><span class="wash" aria-hidden="true"></span><span class="cell-index">0,1</span><span class="cell-value">1</span></div>
+                  <div class="cell" data-r="0" data-c="2"><span class="wash" aria-hidden="true"></span><span class="cell-index">0,2</span><span class="cell-value">0</span></div>
+                  <div class="cell" data-r="0" data-c="3"><span class="wash" aria-hidden="true"></span><span class="cell-index">0,3</span><span class="cell-value">2</span></div>
+                  <div class="cell" data-r="1" data-c="0"><span class="wash" aria-hidden="true"></span><span class="cell-index">1,0</span><span class="cell-value">1</span></div>
+                  <div class="cell" data-r="1" data-c="1"><span class="wash" aria-hidden="true"></span><span class="cell-index">1,1</span><span class="cell-value">0</span></div>
+                  <div class="cell" data-r="1" data-c="2"><span class="wash" aria-hidden="true"></span><span class="cell-index">1,2</span><span class="cell-value">2</span></div>
+                  <div class="cell" data-r="1" data-c="3"><span class="wash" aria-hidden="true"></span><span class="cell-index">1,3</span><span class="cell-value">0</span></div>
+                  <div class="cell" data-r="2" data-c="0"><span class="wash" aria-hidden="true"></span><span class="cell-index">2,0</span><span class="cell-value">0</span></div>
+                  <div class="cell" data-r="2" data-c="1"><span class="wash" aria-hidden="true"></span><span class="cell-index">2,1</span><span class="cell-value">1</span></div>
+                  <div class="cell" data-r="2" data-c="2"><span class="wash" aria-hidden="true"></span><span class="cell-index">2,2</span><span class="cell-value">0</span></div>
+                  <div class="cell" data-r="2" data-c="3"><span class="wash" aria-hidden="true"></span><span class="cell-index">2,3</span><span class="cell-value">1</span></div>
+                  <div class="cell" data-r="3" data-c="0"><span class="wash" aria-hidden="true"></span><span class="cell-index">3,0</span><span class="cell-value">2</span></div>
+                  <div class="cell" data-r="3" data-c="1"><span class="wash" aria-hidden="true"></span><span class="cell-index">3,1</span><span class="cell-value">0</span></div>
+                  <div class="cell" data-r="3" data-c="2"><span class="wash" aria-hidden="true"></span><span class="cell-index">3,2</span><span class="cell-value">1</span></div>
+                  <div class="cell" data-r="3" data-c="3"><span class="wash" aria-hidden="true"></span><span class="cell-index">3,3</span><span class="cell-value">0</span></div>
+                </div>
+              </div>
+              <div class="stage-foot">
+                <p class="tile-name" id="addha-name">ZA[i, j] += z0.s[j]</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="formula" data-caption>Ready. The tile still holds the values it had before this ADDHA.</p>
+          <p class="sr-only" data-announcer role="status"></p>
+          <div class="controls">
+            <button class="button button-primary" type="button" data-action="play">Play</button>
+            <button class="button" type="button" data-action="replay" data-i18n="ui.replay">Replay</button>
+            <button class="button button-ghost" type="button" data-action="back" data-i18n-aria="ui.stepBack" aria-label="Step back"><span aria-hidden="true">←</span></button>
+            <button class="button button-ghost" type="button" data-action="fwd" data-i18n-aria="ui.stepFwd" aria-label="Step forward"><span aria-hidden="true">→</span></button>
+            <button class="button" type="button" data-action="random" data-i18n="ui.random">Randomize</button>
+            <p class="step-count" data-counter aria-hidden="true">0 / 16</p>
+          </div>
+          <p class="kbd-note" data-i18n="ui.kbdHint">Arrow keys step, space plays or pauses.</p>
+          <p class="motion-note" data-motion-note data-i18n="ui.motion" hidden>This browser prefers reduced motion. Play still runs the instruction and jumps straight to the result.</p>
+        </section>
+
+        <section class="notes" aria-labelledby="notes-title">
+          <h2 id="notes-title" data-i18n="ui.notesTitle">Reading the picture</h2>
+          <ol>
+            <li>
+              <h3 data-i18n="addha.note1.title">Broadcast into every row</h3>
+              <p data-i18n="addha.note1.body">For each active pair, ZA[i, j] gains z0.s[j]: the vector is added to every horizontal slice that the row predicate allows. One instruction, a whole-tile update.</p>
+            </li>
+            <li>
+              <h3 data-i18n="addha.note2.title">Two predicates, like FMOPA</h3>
+              <p data-i18n="addha.note2.body">p0/m governs rows and p1/m governs columns — the same shape as FMOPA. There the product depends on both i and j; here only the column picks the value, and it is the same in every row.</p>
+            </li>
+            <li>
+              <h3 data-i18n="addha.note3.title">ADDVA is the twin</h3>
+              <p data-i18n="addha.note3.body">ADDVA is the vertical twin: ZA[i, j] gains z0.s[i], so the vector runs down every active column instead of along every row.</p>
+            </li>
+          </ol>
+          <p class="section-note values-line"><span data-values>This pass broadcasts z0.s = {1, 2, 3, 4} into the tile.</span></p>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <span data-i18n="footer.by">A lab by Hou Yuteng</span>
+        <a href="https://github.com/0tomhoyt/simd-anim"><span data-i18n="footer.source">Source</span></a>
+      </footer>
+    </div>
+    <script src="../../assets/js/i18n.js"></script>
+    <script src="../../assets/js/player.js"></script>
+    <script src="../../assets/js/addha.js"></script>
+  </body>
+</html>

@@ -147,6 +147,42 @@
                 <p class="mnemonic">ld1w { z0.s }, p0/z, [x0, z1.s, sxtw #2]</p>
               </a>
             </li>
+            <li>
+              <a class="catalog-link" href="demos/fmlal/">
+                <span class="num">09</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.fmlal.family">SME2</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.fmlal.title">FMLAL</h3>
+                  <p data-i18n="cat.fmlal.blurb">Half-precision operands, single-precision tile: a widening multiply-add with an indexed vector.</p>
+                  <span class="go" data-i18n="cat.fmlal.go">Play this instruction</span>
+                </span>
+                <p class="mnemonic">fmlal za.s[w11, 4:5], z0.h, z1.h[2]</p>
+              </a>
+            </li>
+            <li>
+              <a class="catalog-link" href="demos/addha/">
+                <span class="num">10</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.addha.family">SME</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.addha.title">ADDHA</h3>
+                  <p data-i18n="cat.addha.blurb">One vector lands in every active row of the ZA tile.</p>
+                  <span class="go" data-i18n="cat.addha.go">Play this instruction</span>
+                </span>
+                <p class="mnemonic">addha za0.s, p0/m, p1/m, z0.s</p>
+              </a>
+            </li>
+            <li>
+              <a class="catalog-link" href="demos/tbl/">
+                <span class="num">11</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.tbl.family">SVE</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.tbl.title">TBL</h3>
+                  <p data-i18n="cat.tbl.blurb">Each lane picks any element of an eight-entry table — out of range gives zero.</p>
+                  <span class="go" data-i18n="cat.tbl.go">Play this instruction</span>
+                </span>
+                <p class="mnemonic">tbl z0.s, { z1.s, z2.s }, z3.s</p>
+              </a>
+            </li>
           </ol>
         </section>
       </main>
