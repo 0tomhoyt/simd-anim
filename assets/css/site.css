@@ -1210,6 +1210,8 @@ span.pred:hover {
 
 .roofline-table tbody th {
   font-weight: 600;
+}
+
 /* Microkernel page: source grids, panels, vector strips, slots. */
 .mk-flow {
   display: grid;
@@ -1520,4 +1522,153 @@ span.pred:hover {
 .diag-table td {
   color: var(--muted);
   font-size: 0.88rem;
+}
+
+/* Memory-in-flight concept page: a four-row cache-traffic timeline. */
+.mflow {
+  display: grid;
+  grid-template-columns: 8.5rem repeat(10, minmax(3.4rem, auto));
+  gap: 3px;
+  width: max-content;
+}
+
+.mflow-band {
+  display: contents;
+}
+
+.mflow-band-k {
+  margin: 0 0 0.3rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.mflow-band-k2 {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.mflow-head {
+  display: grid;
+  align-content: start;
+  gap: 0.18rem;
+  padding: 0.3rem 0.5rem 0.3rem 0;
+}
+
+.mflow-name {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.mflow-budget {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+}
+
+.mflow-quietnote {
+  color: var(--line-strong);
+}
+
+.mflow-meter {
+  height: 5px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--paper);
+}
+
+.mflow-meter i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--accent);
+  transition: width 260ms ease;
+}
+
+.mflow-meter i.is-over {
+  background: var(--ink);
+}
+
+.mflow-use {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mflow-use.is-over {
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.mflow-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 3.2rem;
+  padding: 3px;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  transition: border-color 200ms ease, background-color 200ms ease;
+}
+
+.mflow-cell.is-done {
+  border-style: solid;
+  border-color: var(--line-strong);
+}
+
+.mflow-cell.is-active {
+  border-color: var(--accent);
+  border-style: solid;
+  background: color-mix(in srgb, var(--accent) 6%, var(--paper));
+}
+
+.mflow-chip {
+  display: block;
+  padding: 0.12rem 0.28rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.mflow-chip.is-read {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--paper));
+  color: var(--accent);
+}
+
+.mflow-chip.is-write {
+  border: 1px solid var(--accent);
+  border-style: dashed;
+  background: color-mix(in srgb, var(--accent) 18%, var(--paper));
+  color: var(--ink);
+}
+
+.mflow-chip.is-flight {
+  border-style: dashed;
+  color: var(--muted);
+}
+
+.mflow-chip.is-done {
+  color: var(--muted);
+  background: color-mix(in srgb, var(--muted) 8%, var(--paper));
+}
+
+.mflow-chip.is-op {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--bg);
+  font-weight: 650;
 }
