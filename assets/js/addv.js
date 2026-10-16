@@ -8,7 +8,7 @@
   if (!root) return;
 
   var Z0 = [3, 1, 4, 2];
-  var P0 = [1, 1, 1, 1];
+  var P0 = [1, 1, 0, 1];
 
   var playBtn = root.querySelector("[data-action='play']");
   var randomBtn = root.querySelector("[data-action='random']");

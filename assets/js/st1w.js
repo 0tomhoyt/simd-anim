@@ -14,7 +14,7 @@
     [3, 2, 1, 0]
   ];
   var MEM = [8, 3, 6, 1, 7]; /* words 0..3 receive the slice; 4 stays out */
-  var P0 = [1, 1, 1, 1];
+  var P0 = [1, 1, 0, 1];
   var W12 = 0;
 
   var playBtn = root.querySelector("[data-action='play']");

@@ -9,7 +9,7 @@
 
   var MEM = [5, 7, 2, 9, 6, 4]; /* words 0..3 are the 16-byte window; 4..5 stay out */
   var Z0 = [3, 1, 4, 2]; /* garbage, so /z zeroing is visible */
-  var P0 = [1, 1, 1, 1];
+  var P0 = [1, 1, 0, 1];
 
   var playBtn = root.querySelector("[data-action='play']");
   var randomBtn = root.querySelector("[data-action='random']");

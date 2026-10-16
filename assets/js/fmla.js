@@ -10,7 +10,7 @@
   var Z0 = [1, 2, 0, 3];
   var Z1 = [2, 1, 3, 2];
   var Z2 = [1, 3, 2, 2];
-  var P0 = [1, 1, 1, 1];
+  var P0 = [1, 0, 1, 1];
 
   var playBtn = root.querySelector("[data-action='play']");
   var randomBtn = root.querySelector("[data-action='random']");
