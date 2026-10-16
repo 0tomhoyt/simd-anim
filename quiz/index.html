@@ -29,7 +29,7 @@
         </a>
         <div class="header-end">
           <nav data-i18n-aria="nav.label" aria-label="Primary">
-            <a href="../demos/fmopa/"><span data-i18n="nav.path">Shortest path</span></a>
+            <a href="../concepts/sme-anatomy/"><span data-i18n="nav.path">Shortest path</span></a>
             <a href="../#demos"><span data-i18n="nav.catalog">All demos</span></a>
           </nav>
           <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
@@ -44,31 +44,48 @@
           <p class="eyebrow" data-i18n="quiz.eyebrow">Optional</p>
           <h1 id="page-title" data-i18n="quiz.title">Linear algebra self-check</h1>
           <p class="lede" data-i18n="quiz.lede">Three questions on matrix multiply and the dot product. Nothing here is required to start the path.</p>
-          <ol class="quiz-list">
-            <li>
-              <p data-i18n="quiz.q1">A is M×K and B is K×N. What shape is C = AB?</p>
-              <details>
-                <summary data-i18n="quiz.reveal">Show answer</summary>
-                <p data-i18n="quiz.a1">M×N.</p>
-              </details>
-            </li>
-            <li>
-              <p data-i18n="quiz.q2">What is one entry C[i, j] of that product?</p>
-              <details>
-                <summary data-i18n="quiz.reveal">Show answer</summary>
-                <p data-i18n="quiz.a2">The dot product of row i of A and column j of B.</p>
-              </details>
-            </li>
-            <li>
-              <p data-i18n="quiz.q3">FMOPA writes an outer product into a tile. How is that different from a dot product?</p>
-              <details>
-                <summary data-i18n="quiz.reveal">Show answer</summary>
-                <p data-i18n="quiz.a3">An outer product fills a tile: every element of one vector times every element of the other. A dot product collapses one pair of vectors to a single number.</p>
-              </details>
-            </li>
-          </ol>
-          <div class="hero-actions">
-            <a class="button button-primary" href="../demos/fmopa/"><span data-i18n="quiz.skip">Skip and start the path</span></a>
+          <form data-quiz>
+            <ol class="quiz-list">
+              <li>
+                <fieldset>
+                  <legend data-i18n="quiz.q1">A is M×K and B is K×N. What shape is C = AB?</legend>
+                  <label class="quiz-choice"><input type="radio" name="q1" required> <span data-i18n="quiz.q1.b">K×K</span></label>
+                  <label class="quiz-choice"><input type="radio" name="q1" data-correct> <span data-i18n="quiz.q1.a">M×N</span></label>
+                  <label class="quiz-choice"><input type="radio" name="q1"> <span data-i18n="quiz.q1.c">M×K</span></label>
+                  <p class="quiz-mark" data-mark-right hidden data-i18n="quiz.right">Correct</p>
+                  <p class="quiz-mark" data-mark-wrong hidden data-i18n="quiz.wrong">Not this one</p>
+                </fieldset>
+              </li>
+              <li>
+                <fieldset>
+                  <legend data-i18n="quiz.q2">What is one entry C[i, j] of that product?</legend>
+                  <label class="quiz-choice"><input type="radio" name="q2" required> <span data-i18n="quiz.q2.b">Row i of A added to column j of B.</span></label>
+                  <label class="quiz-choice"><input type="radio" name="q2" data-correct> <span data-i18n="quiz.q2.a">The dot product of row i of A and column j of B.</span></label>
+                  <label class="quiz-choice"><input type="radio" name="q2"> <span data-i18n="quiz.q2.c">A[i, i] times B[j, j].</span></label>
+                  <p class="quiz-mark" data-mark-right hidden data-i18n="quiz.right">Correct</p>
+                  <p class="quiz-mark" data-mark-wrong hidden data-i18n="quiz.wrong">Not this one</p>
+                </fieldset>
+              </li>
+              <li>
+                <fieldset>
+                  <legend data-i18n="quiz.q3">Which dimension does that dot product run along?</legend>
+                  <label class="quiz-choice"><input type="radio" name="q3" required> <span data-i18n="quiz.q3.b">M, the number of rows in C.</span></label>
+                  <label class="quiz-choice"><input type="radio" name="q3"> <span data-i18n="quiz.q3.c">N, the number of columns in C.</span></label>
+                  <label class="quiz-choice"><input type="radio" name="q3" data-correct> <span data-i18n="quiz.q3.a">K, the shared dimension.</span></label>
+                  <p class="quiz-mark" data-mark-right hidden data-i18n="quiz.right">Correct</p>
+                  <p class="quiz-mark" data-mark-wrong hidden data-i18n="quiz.wrong">Not this one</p>
+                </fieldset>
+              </li>
+            </ol>
+            <div class="hero-actions">
+              <button class="button button-primary" type="submit" data-i18n="quiz.check">Check</button>
+              <a class="button" href="../concepts/sme-anatomy/"><span data-i18n="quiz.skip">Skip and start the path</span></a>
+            </div>
+          </form>
+          <div class="quiz-result" data-quiz-result hidden role="status">
+            <p class="quiz-score"><span data-i18n="quiz.scoreLabel">Score</span> <span data-score-value>0</span>/3</p>
+            <p class="path-hint" data-pass hidden><a href="../concepts/matmul/" data-i18n="quiz.passHint">Two or more is enough to start. Optional primer on matrix multiply and the dot product.</a></p>
+            <p class="path-hint" data-miss hidden><a href="../concepts/matmul/" data-i18n="quiz.missHint">Below two. The primer walks through rows, columns, and the dot product.</a></p>
           </div>
         </section>
       </main>
@@ -79,5 +96,34 @@
       </footer>
     </div>
     <script src="../assets/js/i18n.js"></script>
+    <script>
+      (function () {
+        var form = document.querySelector("[data-quiz]");
+        if (!form) return;
+        var result = document.querySelector("[data-quiz-result]");
+        var value = document.querySelector("[data-score-value]");
+        var pass = document.querySelector("[data-pass]");
+        var miss = document.querySelector("[data-miss]");
+
+        form.addEventListener("submit", function (event) {
+          event.preventDefault();
+          var n = 0;
+          form.querySelectorAll("fieldset").forEach(function (fs) {
+            var ok = fs.querySelector("input[data-correct]:checked") != null;
+            if (ok) n += 1;
+            fs.classList.toggle("is-right", ok);
+            fs.classList.toggle("is-wrong", !ok);
+            var right = fs.querySelector("[data-mark-right]");
+            var wrong = fs.querySelector("[data-mark-wrong]");
+            if (right) right.hidden = !ok;
+            if (wrong) wrong.hidden = ok;
+          });
+          if (value) value.textContent = String(n);
+          if (result) result.hidden = false;
+          if (pass) pass.hidden = n < 2;
+          if (miss) miss.hidden = n >= 2;
+        });
+      })();
+    </script>
   </body>
 </html>

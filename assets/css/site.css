@@ -1765,8 +1765,172 @@ a.button {
   margin: 0.35rem 0 0;
 }
 
-.quiz-list summary {
+.quiz-list fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.quiz-list legend {
+  padding: 0;
+  font-weight: 650;
+}
+
+.quiz-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin-top: 0.45rem;
   cursor: pointer;
+}
+
+.quiz-choice input {
+  margin-top: 0.4rem;
+}
+
+.quiz-list fieldset.is-right,
+.quiz-list fieldset.is-wrong {
+  padding-left: 0.75rem;
+}
+
+.quiz-list fieldset.is-right {
+  box-shadow: inset 3px 0 0 var(--ink);
+}
+
+.quiz-list fieldset.is-wrong {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.quiz-mark {
+  margin: 0.45rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+
+.quiz-list .is-wrong .quiz-mark {
   color: var(--accent);
+}
+
+.quiz-score {
+  margin: 1rem 0 0;
+  font-family: var(--mono);
   font-size: 0.92rem;
+}
+
+.anatomy-terms {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.anatomy-terms li {
+  margin: 0;
+  padding: 0.95rem 0.95rem 1rem;
+  background: color-mix(in srgb, var(--surface) 48%, var(--bg));
+  border-radius: 12px;
+}
+
+.anatomy-terms h2 {
+  margin: 0.85rem 0 0.35rem;
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.anatomy-terms p,
+.anatomy-svl {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.anatomy-svl {
+  margin-top: 0.9rem;
+}
+
+.anatomy-fig,
+.matmul-fig {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 7.5rem;
+  padding: 0.75rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.matmul-fig {
+  max-width: 16rem;
+  min-height: 0;
+}
+
+.anatomy-row,
+.anatomy-flow {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.anatomy-tag {
+  flex: none;
+  width: 3.4rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+
+.anatomy-slot,
+.anatomy-grid i,
+.anatomy-op {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.7rem;
+  height: 1.7rem;
+  padding: 0 0.35rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--bg);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-style: normal;
+}
+
+.anatomy-scalar {
+  min-width: 3.4rem;
+}
+
+.anatomy-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1.35rem);
+  gap: 0.28rem;
+}
+
+.anatomy-grid i.is-write,
+.anatomy-op {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+  font-weight: 650;
+}
+
+.matmul-points {
+  max-width: 38rem;
+  margin: 1rem 0 0;
+  padding: 0 0 0 1.2rem;
+}
+
+.matmul-points li + li {
+  margin-top: 0.55rem;
+}
+
+@media (max-width: 800px) {
+  .anatomy-terms {
+    grid-template-columns: 1fr;
+  }
 }

@@ -36,6 +36,11 @@ Then visit <http://localhost:8080/>. No build step. The site is plain HTML, CSS,
 | `/demos/addha/` | SME broadcast add `addha za0.s, p0/m, p1/m, z0.s` — one vector into every active row |
 | `/demos/tbl/` | SVE table lookup `tbl z0.s, { z1.s, z2.s }, z3.s` — any element, out of range gives zero |
 | `/concepts/` | Concept pages — the machine-level ideas behind the demos |
+| `/concepts/sme-anatomy/` | First step of the shortest path: register, ZA tile, compute unit |
+| `/concepts/matmul/` | Optional primer: matrix multiply as rows, columns, and dot products |
+| `/quiz/` | Optional three-question linear-algebra self-check |
+
+The shortest path is five pages, sharing the badge M=4 · N=4 · K=2 · SVL=128: `/concepts/sme-anatomy/` → `/demos/fmopa/` → `/demos/microkernel/` → `/concepts/roofline/` → `/concepts/memory-flow/`.
 
 The FMOPA page draws a single-precision ZA tile at a streaming vector length of 128 bits, so the tile is 4×4. `z0.s` is the column operand, `z1.s` is the row operand, and each active pair does `ZA[i, j] += z0.s[i] × z1.s[j]`. LD1W walks contiguous words from memory into a Z register and zeroes inactive lanes; FMLA pairs two vectors lane by lane and merges; ST1W writes one W12-selected slice of ZA back to memory; WHILELT shows where predicates come from; ADDV collapses lanes into a scalar; UZP1 shuffles whole vectors with no predicate at all.
 
