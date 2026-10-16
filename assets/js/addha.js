@@ -15,7 +15,7 @@
     [2, 0, 1, 0]
   ];
   var P0 = [1, 1, 1, 1];
-  var P1 = [1, 1, 1, 1];
+  var P1 = [1, 1, 0, 1];
 
   var playBtn = root.querySelector("[data-action='play']");
   var randomBtn = root.querySelector("[data-action='random']");

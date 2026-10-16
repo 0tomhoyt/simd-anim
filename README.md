@@ -34,7 +34,6 @@ Then visit <http://localhost:8080/>. No build step. The site is plain HTML, CSS,
 | `/demos/fmlal/` | SME2 widening multiply-add `fmlal za.s[w11, 4:5], z0.h, z1.h[2]` — half in, single out |
 | `/demos/addha/` | SME broadcast add `addha za0.s, p0/m, p1/m, z0.s` — one vector into every active row |
 | `/demos/tbl/` | SVE table lookup `tbl z0.s, { z1.s, z2.s }, z3.s` — any element, out of range gives zero |
-| `/demos/roofline/` | Concepts: an interactive roofline — peak, supply, and the ridge where arithmetic intensity decides the limit |
 
 The FMOPA page draws a single-precision ZA tile at a streaming vector length of 128 bits, so the tile is 4×4. `z0.s` is the column operand, `z1.s` is the row operand, and each active pair does `ZA[i, j] += z0.s[i] × z1.s[j]`. LD1W walks contiguous words from memory into a Z register and zeroes inactive lanes; FMLA pairs two vectors lane by lane and merges; ST1W writes one W12-selected slice of ZA back to memory; WHILELT shows where predicates come from; ADDV collapses lanes into a scalar; UZP1 shuffles whole vectors with no predicate at all.
 
@@ -57,12 +56,12 @@ Scalars `x0`, `x1`, `w11`, `w12` live in 64-bit general-purpose registers; gathe
 
 Every demo page shares the same interactions:
 
-- Predicate bits are clickable. `/m` pages show inactive elements keeping their values; the `/z` page shows them reset to zero.
+- Predicate bits are clickable. `/m` pages show inactive elements keeping their values; the `/z` page shows them reset to zero. Several pages start with one bit already off, so that behavior shows on the first play.
 - Play is a play/pause toggle, Replay restarts, and the arrow keys (or the ← → buttons) step one element at a time, backwards included. Space plays or pauses.
 - Randomize re-rolls the operands. The ST1W page adds a W12 selector for the slice to store.
 - If the browser prefers reduced motion, Play jumps straight to the result.
 
-The animation clock and control wiring live in `assets/js/player.js` and are shared by all demos; each demo only draws its own stage. The roofline page is a concepts page instead of a played instruction: it teaches the compute-vs-memory balance generically, with both roofs set by the reader's own sliders — no machine-specific numbers.
+The animation clock and control wiring live in `assets/js/player.js` and are shared by all demos; each demo only draws its own stage.
 
 ## Roadmap
 

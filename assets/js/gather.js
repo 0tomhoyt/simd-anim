@@ -10,7 +10,7 @@
   var MEM = [5, 2, 9, 7, 4, 8];
   var Z1 = [0, 3, 0, 4]; /* element indices into MEM; 0 appears twice on purpose */
   var Z0 = [3, 6, 1, 5]; /* garbage, so /z zeroing is visible */
-  var P0 = [1, 1, 1, 1];
+  var P0 = [1, 1, 1, 0];
 
   var playBtn = root.querySelector("[data-action='play']");
   var randomBtn = root.querySelector("[data-action='random']");
