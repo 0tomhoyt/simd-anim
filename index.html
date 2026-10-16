@@ -30,6 +30,7 @@
         <div class="header-end">
           <nav data-i18n-aria="nav.label" aria-label="Primary">
             <a href="#demos" aria-current="page"><span data-i18n="nav.demos">Demos</span></a>
+            <a href="#concepts"><span data-i18n="home.concepts">Concepts</span></a>
           </nav>
           <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
             <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
@@ -183,11 +184,20 @@
                 <p class="mnemonic">tbl z0.s, { z1.s, z2.s }, z3.s</p>
               </a>
             </li>
+          </ol>
+        </section>
+
+        <section class="section" id="concepts" aria-labelledby="concepts-title">
+          <div class="section-head">
+            <h2 id="concepts-title" data-i18n="home.concepts">Concepts</h2>
+            <p class="section-note" data-i18n="home.conceptsNote">The machine-level ideas behind the instructions.</p>
+          </div>
+          <ol class="catalog">
             <li>
-              <a class="catalog-link" href="demos/roofline/">
-                <span class="num">12</span>
+              <a class="catalog-link" href="concepts/roofline/">
+                <span class="num">01</span>
                 <span>
-                  <span class="kicker"><span data-i18n="cat.roofline.family">Concepts</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <span class="kicker"><span data-i18n="cat.roofline.family">Performance model</span> · <span class="live" data-i18n="status.live">Live</span></span>
                   <h3 data-i18n="cat.roofline.title">Roofline</h3>
                   <p data-i18n="cat.roofline.blurb">Why reuse, not just FLOPs, decides speed — the memory wall in one picture.</p>
                   <span class="go" data-i18n="cat.roofline.go">Open this page</span>
