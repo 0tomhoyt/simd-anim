@@ -44,26 +44,26 @@
         <header class="demo-head">
           <p class="eyebrow"><span>12</span> <span aria-hidden="true">/</span> <span data-i18n="mk.eyebrow">SME · GEMM microkernel</span></p>
           <h1 data-i18n="mk.h1">Microkernel</h1>
-          <p class="lede" data-i18n="mk.lede">A real kernel is a fixed choreography: pack absorbs every layout question, and the K loop is nothing but loads, FMOPAs, and prefetch.</p>
+          <p class="lede" data-i18n="mk.lede">One kernel, three moves: pack fixes the layout, the K loop does ldr + fmopa, the store writes C out. Follow where each value goes.</p>
         </header>
 
         <figure class="insn">
           <figcaption data-i18n="ui.insnLabel">Instruction</figcaption>
           <pre><code><span class="op-name">pack</span>   ldnt1w / ld1w → (ZA transpose) → st1w
 <span class="op-name">loop</span>   ldr zA, [pa, #mul vl] ; ldr zB, [pb, #mul vl]
-       fmopa za0.s … za3.s, p0/m, p0/m, zA.s, zB.s
+       fmopa za0.s, p0/m, p0/m, zA.s, zB.s
        pldl2keep [pb] ; pldl1strm [pc]
 <span class="op-name">store</span>  st1w { za0h.s[w12, 0] }, p0, [pc] → stnt1w</code></pre>
         </figure>
 
-        <p class="spec-note" data-i18n="mk.spec">Types: everything is f32. Drawn at SVL = 128, scaled down: C is 8 × 8 = 2 × 2 ZA tiles of 4 × 4, K = 4 groups, 4 load slots. On the real machine (SVL = 512): the same 2 × 2 grid covers 32 × 32, K_BLK = 512, and the wide pack reads 512 B per k-row.</p>
+        <p class="spec-note" data-i18n="mk.spec">Types: everything is f32. Deliberately small: C is one 4 × 4 ZA tile, A is 4 × 2, B is 2 × 4, K = 2 groups. The real kernel is the same choreography at 32 × 32 with a 2 × 2 tile grid, four load slots, and K_BLK = 512.</p>
 
         <section class="bench" data-mk aria-labelledby="mk-name">
           <div class="bench-scroll">
             <div class="stage">
               <div class="mk-flow">
                 <div class="mk-sect">
-                  <p class="mk-phase" data-i18n="mk.phase.pack">Pack · once per K block</p>
+                  <p class="mk-phase"><span data-i18n="mk.phase.pack">Pack · once per K block</span><span class="mk-tag" data-i18n="mk.tagPack">changes with the layout</span></p>
                   <div class="mk-pack-row">
                     <div class="mk-box">
                       <p class="mk-box-title" data-a-title>A source · M×K row-major</p>
@@ -71,8 +71,8 @@
                     </div>
                     <p class="mk-arrow" aria-hidden="true">→</p>
                     <div class="mk-box">
-                      <p class="mk-box-title" data-i18n="mk.panelA">A panel · k-major</p>
-                      <p class="mk-path" data-path-a>ld1w → ZA → st1w</p>
+                      <p class="mk-box-title" data-i18n="mk.panelA">A panel · one column per k</p>
+                      <p class="mk-path" data-path-a>ldnt1w → st1w</p>
                       <div class="mk-cells mk-panel" data-panel="a" aria-hidden="true"></div>
                     </div>
                     <div class="mk-box">
@@ -81,7 +81,7 @@
                     </div>
                     <p class="mk-arrow" aria-hidden="true">→</p>
                     <div class="mk-box">
-                      <p class="mk-box-title" data-i18n="mk.panelB">B panel · k-major</p>
+                      <p class="mk-box-title" data-i18n="mk.panelB">B panel · one column per k</p>
                       <p class="mk-path" data-path-b>ldnt1w → st1w</p>
                       <div class="mk-cells mk-panel" data-panel="b" aria-hidden="true"></div>
                     </div>
@@ -89,44 +89,30 @@
                 </div>
 
                 <div class="mk-sect">
-                  <p class="mk-phase" data-i18n="mk.phase.loop">Main loop · per k group</p>
+                  <p class="mk-phase"><span data-i18n="mk.phase.loop">Main loop · per k group</span><span class="mk-tag mk-tag-core" data-i18n="mk.tagLoop">the core · identical in all four states</span></p>
                   <div class="mk-loop-row">
-                    <div class="mk-box">
-                      <p class="mk-box-title" data-i18n="mk.slotTitle">Load slots × 4 (parallel = 4)</p>
+                    <div class="mk-box" data-box-loop>
+                      <p class="mk-box-title" data-i18n="mk.slotTitle">Load slots</p>
                       <div class="mk-slots" data-slots aria-hidden="true"></div>
                       <div class="mk-vecs">
                         <div class="mk-vec">
                           <span class="mk-vec-label">zA.s</span>
-                          <div class="mk-vec-half" data-z="a-0" aria-hidden="true"></div>
-                          <div class="mk-vec-half" data-z="a-1" aria-hidden="true"></div>
+                          <div class="mk-vec-half" data-z="a" aria-hidden="true"></div>
                         </div>
                         <div class="mk-vec">
                           <span class="mk-vec-label">zB.s</span>
-                          <div class="mk-vec-half" data-z="b-0" aria-hidden="true"></div>
-                          <div class="mk-vec-half" data-z="b-1" aria-hidden="true"></div>
+                          <div class="mk-vec-half" data-z="b" aria-hidden="true"></div>
                         </div>
                       </div>
                     </div>
                     <p class="mk-arrow" aria-hidden="true">→</p>
-                    <div class="mk-box">
-                      <p class="mk-box-title" data-i18n="mk.cTitle">C · 2 × 2 ZA tiles</p>
+                    <div class="mk-box" data-box-c>
+                      <p class="mk-box-title" data-i18n="mk.cTitle">C · one 4 × 4 ZA tile</p>
                       <p class="mk-path" data-cbadge hidden>st1w → stnt1w → C</p>
                       <div class="mk-tiles">
                         <div class="mk-tile-col">
                           <p class="quad-label">za0</p>
                           <div class="tile" data-za="0"></div>
-                        </div>
-                        <div class="mk-tile-col">
-                          <p class="quad-label">za1</p>
-                          <div class="tile" data-za="1"></div>
-                        </div>
-                        <div class="mk-tile-col">
-                          <p class="quad-label">za2</p>
-                          <div class="tile" data-za="2"></div>
-                        </div>
-                        <div class="mk-tile-col">
-                          <p class="quad-label">za3</p>
-                          <div class="tile" data-za="3"></div>
                         </div>
                       </div>
                     </div>
@@ -134,7 +120,7 @@
                 </div>
               </div>
               <div class="stage-foot">
-                <p class="tile-name" id="mk-name">C = A × B · 8 × 8 · K 累加</p>
+                <p class="tile-name" id="mk-name">C = A × B · 4 × 4 · K 累加</p>
               </div>
             </div>
           </div>
@@ -155,7 +141,7 @@
             <button class="button button-ghost" type="button" data-action="back" data-i18n-aria="ui.stepBack" aria-label="Step back"><span aria-hidden="true">←</span></button>
             <button class="button button-ghost" type="button" data-action="fwd" data-i18n-aria="ui.stepFwd" aria-label="Step forward"><span aria-hidden="true">→</span></button>
             <button class="button" type="button" data-action="random" data-i18n="ui.random">Randomize</button>
-            <p class="step-count" data-counter aria-hidden="true">0 / 11</p>
+            <p class="step-count" data-counter aria-hidden="true">0 / 9</p>
           </div>
           <p class="kbd-note" data-i18n="ui.kbdHint">Arrow keys step, space plays or pauses.</p>
           <p class="motion-note" data-motion-note data-i18n="ui.motion" hidden>This browser prefers reduced motion. Play still runs the instruction and jumps straight to the result.</p>
@@ -165,19 +151,19 @@
           <h2 id="notes-title" data-i18n="ui.notesTitle">Reading the picture</h2>
           <ol>
             <li>
-              <h3 data-i18n="mk.note1.title">What a microkernel is</h3>
-              <p data-i18n="mk.note1.body">A fixed-size C block (32 × 32 in the real kernel, 8 × 8 here) accumulated across all of K. Inside the loop there is no layout branch, no shape check — just loads, FMOPAs, and prefetch. Everything else was settled before the loop started.</p>
+              <h3 data-i18n="mk.note1.title">The smallest honest picture</h3>
+              <p data-i18n="mk.note1.body">The real kernel runs a 2 × 2 grid of tiles covering 32 × 32, four FMOPAs per k group, four load slots. Everything here is the same choreography, scaled down — one 4 × 4 tile, two k groups — so you can follow every single value.</p>
             </li>
             <li>
               <h3 data-i18n="mk.note2.title">Transpose is absorbed by pack</h3>
-              <p data-i18n="mk.note2.body">Four transpose states collapse into two pack routes: row-strided reads through a ZA transpose (gather), or contiguous reads with a straight copy (stride). The panels come out byte-identical, so the loop never learns which state you chose.</p>
+              <p data-i18n="mk.note2.body">Only the highlighted read pattern changes: gather takes one element per source row (row-strided ld1w, transposed in the ZA), copy takes one contiguous run (ldnt1w). Both produce the same panels, so the tagged core — the loop — never learns which layout you chose.</p>
             </li>
             <li>
               <h3 data-i18n="mk.note3.title">Software pipelining</h3>
-              <p data-i18n="mk.note3.body">Four load slots carry the next k group while the FMOPAs run; B pages are pulled into L2 with pldl2keep and C is streamed with pldl1strm. A leftover K tail runs its own small ldr + fmopa loop, and C leaves through st1w slices plus a non-temporal stnt1w flush.</p>
+              <p data-i18n="mk.note3.body">Each load slot carries one k group; in the real kernel there are four, with pldl2keep pulling B into L2 and pldl1strm streaming C. A leftover K tail runs its own small ldr + fmopa loop, and C leaves through st1w slices plus a non-temporal stnt1w flush.</p>
             </li>
           </ol>
-          <p class="section-note values-line"><span data-values>A and B hold small integers 0–2; C = A × B.</span></p>
+          <p class="section-note values-line"><span data-values>A and B hold small integers; C = A × B.</span></p>
         </section>
       </main>
 

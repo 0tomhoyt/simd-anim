@@ -1,37 +1,32 @@
-/* A real GEMM microkernel, scaled to SVL = 128: C (8×8) = A (8×4) × B (4×8)
-   computed by 2×2 ZA tiles in a K loop. The animation follows the data:
-   sources → pack (gather or stride route) → panels → z registers → FMOPA
-   accumulation → store. The A/B layout toggles only change the pack route;
-   the loop itself never moves. */
+/* A GEMM microkernel in its smallest honest form, following unigemm_sme:
+   C (4×4, one ZA tile) = A (4×2) × B (2×4), two k groups, two load slots.
+   The animation is a guided walk: pack reads and writes (two routes), then
+   the layout-independent loop (ldr + fmopa), then the store. The A/B layout
+   toggles only change how pack READS; everything downstream is identical. */
 (function () {
   "use strict";
 
   var root = document.querySelector("[data-mk]");
   if (!root) return;
 
-  var M = 8;
-  var N = 8;
-  var K = 4;
+  var M = 4;
+  var N = 4;
+  var K = 2;
 
   var A = [
-    [1, 2, 1, 0],
-    [2, 1, 0, 1],
-    [1, 0, 2, 1],
-    [0, 1, 1, 2],
-    [2, 2, 0, 1],
-    [1, 1, 1, 0],
-    [0, 2, 1, 1],
-    [2, 0, 2, 1]
+    [1, 2],
+    [0, 1],
+    [2, 1],
+    [1, 0]
   ];
   var B = [
-    [1, 0, 2, 1, 0, 2, 1, 0],
-    [0, 1, 2, 1, 2, 0, 1, 1],
-    [2, 2, 0, 0, 1, 1, 2, 0],
-    [1, 0, 1, 2, 0, 1, 0, 2]
+    [1, 2, 0, 1],
+    [2, 0, 1, 1]
   ];
   var stateA = "norm"; /* norm = M×K row-major, trans = K×M */
   var stateB = "norm"; /* norm = K×N row-major, trans = N×K */
 
+  var flow = root.querySelector(".mk-flow");
   var playBtn = root.querySelector("[data-action='play']");
   var randomBtn = root.querySelector("[data-action='random']");
   var caption = root.querySelector("[data-caption]");
@@ -49,11 +44,16 @@
   var bTitleEl = root.querySelector("[data-b-title]");
   var cBadgeEl = root.querySelector("[data-cbadge]");
   var slotsEl = root.querySelector("[data-slots]");
-  var zCells = {
-    a: [],
-    b: []
-  };
-  var zaCells = []; /* zaCells[t][r][c] */
+  var zAEl = root.querySelector('[data-z="a"]');
+  var zBEl = root.querySelector('[data-z="b"]');
+  var boxA = srcAEl.closest(".mk-box");
+  var boxAPanel = panelAEl.closest(".mk-box");
+  var boxB = srcBEl.closest(".mk-box");
+  var boxBPanel = panelBEl.closest(".mk-box");
+  var boxLoop = root.querySelector("[data-box-loop]");
+  var boxC = root.querySelector("[data-box-c]");
+  var zCells = { a: [], b: [] };
+  var zaRefs = []; /* zaRefs[r][c] */
   var lastState = "idle";
 
   function t(key) {
@@ -71,13 +71,17 @@
   }
 
   function buildSteps() {
-    var list = [{ t: "pack", m: "a" }, { t: "pack", m: "b" }];
-    for (var k = 0; k < K; k++) {
-      list.push({ t: "load", k: k, g: k + 1 });
-      list.push({ t: "fmopa", k: k, g: k + 1 });
-    }
-    list.push({ t: "store" });
-    return list;
+    return [
+      { t: "pack", m: "a", phase: "read" },
+      { t: "pack", m: "a", phase: "write" },
+      { t: "pack", m: "b", phase: "read" },
+      { t: "pack", m: "b", phase: "write" },
+      { t: "load", k: 0, g: 1 },
+      { t: "fmopa", k: 0, g: 1 },
+      { t: "load", k: 1, g: 2 },
+      { t: "fmopa", k: 1, g: 2 },
+      { t: "store" }
+    ];
   }
 
   var steps = buildSteps();
@@ -90,58 +94,76 @@
   }
 
   function buildGrids() {
-    var el;
-    for (var i = 0; i < M * K; i++) srcAEl.appendChild(mkCell("0"));
-    for (var j = 0; j < K * N; j++) srcBEl.appendChild(mkCell("0"));
-    for (var p = 0; p < K * M; p++) panelAEl.appendChild(mkCell("·"));
-    for (var q = 0; q < K * N; q++) panelBEl.appendChild(mkCell("·"));
-    ["a-0", "a-1", "b-0", "b-1"].forEach(function (key) {
-      var host = root.querySelector('[data-z="' + key + '"]');
-      var cells = [];
-      for (var n = 0; n < 4; n++) {
-        el = mkCell("·");
+    var i;
+    for (i = 0; i < M * K; i++) srcAEl.appendChild(mkCell("0"));
+    for (i = 0; i < K * N; i++) srcBEl.appendChild(mkCell("0"));
+    for (i = 0; i < M * K; i++) panelAEl.appendChild(mkCell("·"));
+    for (i = 0; i < K * N; i++) panelBEl.appendChild(mkCell("·"));
+    ["a", "b"].forEach(function (name) {
+      var host = root.querySelector('[data-z="' + name + '"]');
+      for (var n = 0; n < M; n++) {
+        var el = mkCell("·");
         host.appendChild(el);
-        cells.push(el);
+        zCells[name].push(el);
       }
-      zCells[key.charAt(0)].push(cells);
     });
-    for (var tile = 0; tile < 4; tile++) {
-      var grid = root.querySelector('[data-za="' + tile + '"]');
-      var rows = [];
-      var rBase = tile >= 2 ? 4 : 0;
-      var cBase = tile % 2 === 1 ? 4 : 0;
-      for (var r = 0; r < 4; r++) {
-        var row = [];
-        for (var c = 0; c < 4; c++) {
-          var cell = document.createElement("div");
-          cell.className = "cell";
-          cell.setAttribute("data-r", rBase + r);
-          cell.setAttribute("data-c", cBase + c);
-          var wash = document.createElement("span");
-          wash.className = "wash";
-          wash.setAttribute("aria-hidden", "true");
-          var idx = document.createElement("span");
-          idx.className = "cell-index";
-          idx.textContent = rBase + r + "," + (cBase + c);
-          var val = document.createElement("span");
-          val.className = "cell-value";
-          val.textContent = "0";
-          cell.appendChild(wash);
-          cell.appendChild(idx);
-          cell.appendChild(val);
-          grid.appendChild(cell);
-          row.push(cell);
-        }
-        rows.push(row);
+    var grid = root.querySelector('[data-za="0"]');
+    for (var r = 0; r < M; r++) {
+      var row = [];
+      for (var c = 0; c < N; c++) {
+        var cell = document.createElement("div");
+        cell.className = "cell";
+        cell.setAttribute("data-r", r);
+        cell.setAttribute("data-c", c);
+        var wash = document.createElement("span");
+        wash.className = "wash";
+        wash.setAttribute("aria-hidden", "true");
+        var idx = document.createElement("span");
+        idx.className = "cell-index";
+        idx.textContent = r + "," + c;
+        var val = document.createElement("span");
+        val.className = "cell-value";
+        val.textContent = "0";
+        cell.appendChild(wash);
+        cell.appendChild(idx);
+        cell.appendChild(val);
+        grid.appendChild(cell);
+        row.push(cell);
       }
-      zaCells.push(rows);
+      zaRefs.push(row);
     }
-    for (var s = 0; s < 4; s++) {
-      el = document.createElement("span");
-      el.className = "mk-slot";
-      el.textContent = String(s);
-      slotsEl.appendChild(el);
+    for (var s = 0; s < K; s++) {
+      var slot = document.createElement("span");
+      slot.className = "mk-slot";
+      slot.textContent = String(s);
+      slotsEl.appendChild(slot);
     }
+  }
+
+  /* The example run: which panel column we build, and where its values
+     come from in the source. */
+  function srcPattern(which) {
+    var el = which === "a" ? srcAEl : srcBEl;
+    var state = which === "a" ? stateA : stateB;
+    var cols = which === "a" ? (state === "norm" ? K : M) : state === "norm" ? N : K;
+    var cells = el.children;
+    var out = [];
+    var i;
+    if ((which === "a" && state === "norm") || (which === "b" && state === "trans")) {
+      /* gather: one element from each row — a source column */
+      for (i = 0; i < cells.length; i += cols) out.push(cells[i]);
+    } else {
+      /* copy: one contiguous source row */
+      for (i = 0; i < cols; i++) out.push(cells[i]);
+    }
+    return out;
+  }
+
+  function panelColPattern(el, k) {
+    var cols = K;
+    var out = [];
+    for (var m = 0; m < M; m++) out.push(el.children[m * cols + k]);
+    return out;
   }
 
   function srcTitleA() {
@@ -160,13 +182,13 @@
     return t(stateB === "norm" ? "mk.pathStride" : "mk.pathGather");
   }
 
-  /* Sources are the same logical matrices shown in whatever layout they are stored in. */
   function renderSources() {
     var i;
+    var k;
     if (stateA === "norm") {
       srcAEl.className = "mk-cells mk-src-a-norm";
       for (i = 0; i < M; i++) {
-        for (var k = 0; k < K; k++) {
+        for (k = 0; k < K; k++) {
           srcAEl.children[i * K + k].textContent = String(A[i][k]);
         }
       }
@@ -203,30 +225,34 @@
     pathBEl.textContent = pathB();
   }
 
-  function cVal(m, n) {
-    var v = 0;
-    for (var k = 0; k < K; k++) v += A[m][k] * B[k][n];
-    return v;
-  }
-
   function labelC(cell, r, c, v) {
     cell.setAttribute("aria-label", fill(t("mk.cellAria"), { r: r, c: c, value: v }));
   }
 
   function clearTransient() {
-    root
-      .querySelectorAll(".mk-cell.is-live, .mk-cell.is-armed, .mk-cell.is-hot")
-      .forEach(function (node) {
-        node.classList.remove("is-live", "is-armed", "is-hot");
-      });
+    flow.classList.remove("has-focus");
+    root.querySelectorAll(".mk-box.is-focus").forEach(function (node) {
+      node.classList.remove("is-focus");
+    });
+    root.querySelectorAll(".mk-cell.is-live, .mk-cell.is-armed, .mk-cell.is-hot, .mk-cell.is-pattern").forEach(function (node) {
+      node.classList.remove("is-live", "is-armed", "is-hot", "is-pattern");
+    });
   }
 
   function clearAll() {
+    clearTransient();
     root.querySelectorAll(".mk-cell").forEach(function (node) {
-      node.classList.remove("is-live", "is-armed", "is-hot", "is-done", "is-read");
+      node.classList.remove("is-done", "is-read");
     });
     root.querySelectorAll(".mk-slot").forEach(function (node) {
       node.classList.remove("is-live", "is-done");
+    });
+  }
+
+  function focus(boxes) {
+    flow.classList.add("has-focus");
+    boxes.forEach(function (box) {
+      if (box) box.classList.add("is-focus");
     });
   }
 
@@ -234,97 +260,120 @@
     clearAll();
     renderSources();
     var i;
-    for (i = 0; i < panelAEl.children.length; i++) {
-      panelAEl.children[i].textContent = "·";
-    }
-    for (i = 0; i < panelBEl.children.length; i++) {
-      panelBEl.children[i].textContent = "·";
-    }
-    zCells.a.forEach(function (half) {
-      half.forEach(function (cell) {
-        cell.textContent = "·";
-      });
+    for (i = 0; i < panelAEl.children.length; i++) panelAEl.children[i].textContent = "·";
+    for (i = 0; i < panelBEl.children.length; i++) panelBEl.children[i].textContent = "·";
+    zCells.a.forEach(function (cell) {
+      cell.textContent = "·";
     });
-    zCells.b.forEach(function (half) {
-      half.forEach(function (cell) {
-        cell.textContent = "·";
-      });
+    zCells.b.forEach(function (cell) {
+      cell.textContent = "·";
     });
-    zaCells.forEach(function (rows) {
-      rows.forEach(function (row) {
-        row.forEach(function (cell) {
-          var value = cell.querySelector(".cell-value");
-          value.textContent = "0";
-          labelC(cell, +cell.getAttribute("data-r"), +cell.getAttribute("data-c"), 0);
-        });
+    zaRefs.forEach(function (row) {
+      row.forEach(function (cell) {
+        var value = cell.querySelector(".cell-value");
+        value.textContent = "0";
+        labelC(cell, +cell.getAttribute("data-r"), +cell.getAttribute("data-c"), 0);
       });
     });
     if (cBadgeEl) cBadgeEl.hidden = true;
   }
 
-  /* One committed step, drawn without transient marks. */
+  function fillPanel(el, which) {
+    var k;
+    var i;
+    for (k = 0; k < K; k++) {
+      for (i = 0; i < M; i++) {
+        var panelCell = el.children[i * K + k];
+        panelCell.textContent = String(which === "a" ? A[i][k] : B[k][i]);
+        panelCell.classList.add("is-done");
+      }
+    }
+  }
+
   function applyStep(step) {
     if (step.t === "pack") {
       var src = step.m === "a" ? srcAEl : srcBEl;
       var panel = step.m === "a" ? panelAEl : panelBEl;
-      Array.prototype.forEach.call(src.children, function (cell) {
-        cell.classList.add("is-read");
+      srcPattern(step.m).forEach(function (cell) {
+        cell.classList.add("is-pattern");
       });
-      for (var k = 0; k < K; k++) {
-        for (var i = 0; i < M; i++) {
-          var panelCell = panel.children[k * M + i];
-          panelCell.textContent = String(step.m === "a" ? A[i][k] : B[k][i]);
-          panelCell.classList.add("is-done");
-        }
+      if (step.phase === "read") {
+        Array.prototype.forEach.call(src.children, function (cell) {
+          cell.classList.add("is-read");
+        });
+      } else {
+        fillPanel(panel, step.m);
+        panelColPattern(panel, 0).forEach(function (cell) {
+          cell.classList.add("is-pattern");
+        });
       }
       return;
     }
     if (step.t === "load") {
-      var kk = step.k;
+      var k = step.k;
+      panelColPattern(panelAEl, k).forEach(function (cell) {
+        cell.classList.add("is-read");
+      });
+      panelColPattern(panelBEl, k).forEach(function (cell) {
+        cell.classList.add("is-read");
+      });
       for (var m = 0; m < M; m++) {
-        panelAEl.children[kk * M + m].classList.add("is-read");
-        zCells.a[m < 4 ? 0 : 1][m % 4].textContent = String(A[m][kk]);
-        zCells.a[m < 4 ? 0 : 1][m % 4].classList.add("is-done");
+        zCells.a[m].textContent = String(A[m][k]);
+        zCells.a[m].classList.add("is-done");
       }
       for (var n = 0; n < N; n++) {
-        panelBEl.children[kk * N + n].classList.add("is-read");
-        zCells.b[n < 4 ? 0 : 1][n % 4].textContent = String(B[kk][n]);
-        zCells.b[n < 4 ? 0 : 1][n % 4].classList.add("is-done");
+        zCells.b[n].textContent = String(B[k][n]);
+        zCells.b[n].classList.add("is-done");
       }
-      slotsEl.children[kk].classList.add("is-live");
+      slotsEl.children[k].classList.add("is-live");
       return;
     }
     if (step.t === "fmopa") {
-      var fk = step.k;
       for (var r = 0; r < M; r++) {
         for (var c = 0; c < N; c++) {
-          var cell = zaCells[Math.floor(r / 4) * 2 + Math.floor(c / 4)][r % 4][c % 4];
+          var cell = zaRefs[r][c];
           var total = 0;
-          for (var q = 0; q <= fk; q++) total += A[r][q] * B[q][c];
+          for (var q = 0; q <= step.k; q++) total += A[r][q] * B[q][c];
           cell.querySelector(".cell-value").textContent = String(total);
           labelC(cell, r, c, total);
           cell.classList.add("is-done");
         }
       }
-      slotsEl.children[fk].classList.remove("is-live");
-      slotsEl.children[fk].classList.add("is-done");
+      slotsEl.children[step.k].classList.remove("is-live");
+      slotsEl.children[step.k].classList.add("is-done");
       return;
     }
-    if (step.t === "store") {
-      if (cBadgeEl) cBadgeEl.hidden = false;
+    if (step.t === "store" && cBadgeEl) {
+      cBadgeEl.hidden = false;
+    }
+  }
+
+  function seekFocus(step) {
+    if (!step) return;
+    if (step.t === "pack" && step.phase === "read") {
+      focus([step.m === "a" ? boxA : boxB]);
+    } else if (step.t === "pack") {
+      focus([step.m === "a" ? boxA : boxB, step.m === "a" ? boxAPanel : boxBPanel]);
+    } else if (step.t === "load") {
+      focus([boxAPanel, boxBPanel, boxLoop]);
+    } else if (step.t === "fmopa") {
+      focus([boxLoop, boxC]);
+    } else {
+      focus([boxC]);
     }
   }
 
   function drawPrefix(count) {
     reset();
     for (var i = 0; i < count; i++) applyStep(steps[i]);
+    if (count > 0) seekFocus(steps[count - 1]);
   }
 
   buildGrids();
 
   var player = window.simdPlayer({
     steps: steps,
-    gapMs: 340,
+    gapMs: 360,
     onReset: function () {
       drawPrefix(0);
     },
@@ -333,82 +382,105 @@
       if (step.t === "pack") {
         var src = step.m === "a" ? srcAEl : srcBEl;
         var panel = step.m === "a" ? panelAEl : panelBEl;
-        Array.prototype.forEach.call(src.children, function (cell) {
+        if (step.phase === "read") {
+          focus([step.m === "a" ? boxA : boxB]);
+          Array.prototype.forEach.call(src.children, function (cell) {
+            cell.classList.add("is-live");
+          });
+          srcPattern(step.m).forEach(function (cell) {
+            cell.classList.add("is-pattern");
+          });
+        } else {
+          focus([step.m === "a" ? boxA : boxB, step.m === "a" ? boxAPanel : boxBPanel]);
+          Array.prototype.forEach.call(panel.children, function (cell) {
+            cell.classList.add("is-armed");
+          });
+          srcPattern(step.m).forEach(function (cell) {
+            cell.classList.add("is-pattern");
+          });
+        }
+      } else if (step.t === "load") {
+        focus([boxAPanel, boxBPanel, boxLoop]);
+        panelColPattern(panelAEl, step.k).forEach(function (cell) {
           cell.classList.add("is-live");
         });
-        Array.prototype.forEach.call(panel.children, function (cell) {
+        panelColPattern(panelBEl, step.k).forEach(function (cell) {
+          cell.classList.add("is-live");
+        });
+        zCells.a.forEach(function (cell) {
           cell.classList.add("is-armed");
         });
-      } else if (step.t === "load") {
-        var k = step.k;
-        for (var m = 0; m < M; m++) {
-          panelAEl.children[k * M + m].classList.add("is-live");
-          zCells.a[m < 4 ? 0 : 1][m % 4].classList.add("is-armed");
-        }
-        for (var n = 0; n < N; n++) {
-          panelBEl.children[k * N + n].classList.add("is-live");
-          zCells.b[n < 4 ? 0 : 1][n % 4].classList.add("is-armed");
-        }
+        zCells.b.forEach(function (cell) {
+          cell.classList.add("is-armed");
+        });
       } else if (step.t === "fmopa") {
-        zCells.a.forEach(function (half) {
-          half.forEach(function (cell) {
-            cell.classList.add("is-live");
-          });
+        focus([boxLoop, boxC]);
+        zCells.a.forEach(function (cell) {
+          cell.classList.add("is-live");
         });
-        zCells.b.forEach(function (half) {
-          half.forEach(function (cell) {
-            cell.classList.add("is-live");
-          });
+        zCells.b.forEach(function (cell) {
+          cell.classList.add("is-live");
         });
-        root.querySelectorAll(".mk-tiles .cell").forEach(function (cell) {
-          cell.classList.add("is-armed");
+        zaRefs.forEach(function (row) {
+          row.forEach(function (cell) {
+            cell.classList.add("is-armed");
+          });
         });
       } else if (step.t === "store") {
-        root.querySelectorAll(".mk-tiles .cell").forEach(function (cell) {
-          cell.classList.add("is-live");
+        focus([boxC]);
+        zaRefs.forEach(function (row) {
+          row.forEach(function (cell) {
+            cell.classList.add("is-live");
+          });
         });
       }
     },
     onCommit: function (step) {
       if (step.t === "pack") {
         var src = step.m === "a" ? srcAEl : srcBEl;
-        Array.prototype.forEach.call(src.children, function (cell) {
-          cell.classList.remove("is-live");
-          cell.classList.add("is-read");
-        });
-        applyStep(step);
+        if (step.phase === "read") {
+          Array.prototype.forEach.call(src.children, function (cell) {
+            cell.classList.remove("is-live");
+            cell.classList.add("is-read");
+          });
+        } else {
+          var panel = step.m === "a" ? panelAEl : panelBEl;
+          Array.prototype.forEach.call(panel.children, function (cell) {
+            cell.classList.remove("is-armed");
+          });
+          fillPanel(panel, step.m);
+        }
       } else if (step.t === "load") {
         var k = step.k;
         for (var m = 0; m < M; m++) {
-          panelAEl.children[k * M + m].classList.remove("is-live");
-          var za = zCells.a[m < 4 ? 0 : 1][m % 4];
-          za.textContent = String(A[m][k]);
-          za.classList.remove("is-armed");
-          za.classList.add("is-hot");
+          zCells.a[m].textContent = String(A[m][k]);
+          zCells.a[m].classList.remove("is-armed");
+          zCells.a[m].classList.add("is-hot");
+          zCells.b[m].textContent = String(B[k][m]);
+          zCells.b[m].classList.remove("is-armed");
+          zCells.b[m].classList.add("is-hot");
         }
-        for (var n = 0; n < N; n++) {
-          panelBEl.children[k * N + n].classList.remove("is-live");
-          var zb = zCells.b[n < 4 ? 0 : 1][n % 4];
-          zb.textContent = String(B[k][n]);
-          zb.classList.remove("is-armed");
-          zb.classList.add("is-hot");
-        }
+        panelColPattern(panelAEl, k).forEach(function (cell) {
+          cell.classList.remove("is-live");
+        });
+        panelColPattern(panelBEl, k).forEach(function (cell) {
+          cell.classList.remove("is-live");
+        });
         slotsEl.children[k].classList.add("is-live");
       } else if (step.t === "fmopa") {
-        var fk = step.k;
         for (var r = 0; r < M; r++) {
           for (var c = 0; c < N; c++) {
-            var cell = zaCells[Math.floor(r / 4) * 2 + Math.floor(c / 4)][r % 4][c % 4];
+            var cell = zaRefs[r][c];
             var total = 0;
-            for (var q = 0; q <= fk; q++) total += A[r][q] * B[q][c];
+            for (var q = 0; q <= step.k; q++) total += A[r][q] * B[q][c];
             cell.querySelector(".cell-value").textContent = String(total);
             labelC(cell, r, c, total);
             cell.classList.remove("is-armed");
             cell.classList.add("is-hot");
           }
         }
-        slotsEl.children[fk].classList.remove("is-live");
-        slotsEl.children[fk].classList.add("is-done");
+        slotsEl.children[step.k].classList.remove("is-live");
+        slotsEl.children[step.k].classList.add("is-done");
       } else if (step.t === "store") {
         if (cBadgeEl) cBadgeEl.hidden = false;
       }
@@ -445,6 +517,17 @@
     return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   }
 
+  function packCaption(step) {
+    var gatherA = stateA === "norm";
+    var gatherB = stateB === "trans";
+    if (step.m === "a") {
+      if (step.phase === "read") return t(gatherA ? "mk.packA.read.gather" : "mk.packA.read.copy");
+      return t(gatherA ? "mk.packA.write.gather" : "mk.packA.write.copy");
+    }
+    if (step.phase === "read") return t(gatherB ? "mk.packB.read.gather" : "mk.packB.read.copy");
+    return t(gatherB ? "mk.packB.write.gather" : "mk.packB.write.copy");
+  }
+
   function renderCaption(state, committed, armed) {
     if (!caption) return;
     if (state === "done") {
@@ -457,7 +540,7 @@
     } else if (!step) {
       caption.textContent = t(state === "playing" ? "ui.starting" : "mk.idle");
     } else if (step.t === "pack") {
-      caption.textContent = t(step.m === "a" ? (stateA === "norm" ? "mk.packA.gather" : "mk.packA.copy") : stateB === "norm" ? "mk.packB.copy" : "mk.packB.gather");
+      caption.textContent = packCaption(step);
     } else if (step.t === "load") {
       caption.textContent = fill(t("mk.load"), step);
     } else if (step.t === "fmopa") {

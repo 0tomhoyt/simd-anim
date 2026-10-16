@@ -31,7 +31,7 @@ Then visit <http://localhost:8080/>. No build step. The site is plain HTML, CSS,
 | `/demos/addv/` | SVE reduction `addv d0, p0/m, z0.s` — active lanes collapse into one scalar |
 | `/demos/uzp1/` | SVE deinterleave `uzp1 z0.s, z1.s, z2.s` — even elements of two vectors gather into one |
 | `/demos/gather/` | SVE gather load `ld1w { z0.s }, p0/z, [x0, z1.s, sxtw #2]` — each lane reads the word its own index selects |
-| `/demos/microkernel/` | A real GEMM microkernel (scaled to SVL = 128): pack → K loop (ldr + fmopa ×4 + prefetch) → st1w / stnt1w store, animated across all four transpose states |
+| `/demos/microkernel/` | A GEMM microkernel in miniature (C = one 4 × 4 tile): pack (read → write, gather vs copy routes) → ldr + fmopa loop → st1w / stnt1w store; every value follows the four transpose states |
 | `/demos/fmlal/` | SME2 widening multiply-add `fmlal za.s[w11, 4:5], z0.h, z1.h[2]` — half in, single out |
 | `/demos/addha/` | SME broadcast add `addha za0.s, p0/m, p1/m, z0.s` — one vector into every active row |
 | `/demos/tbl/` | SVE table lookup `tbl z0.s, { z1.s, z2.s }, z3.s` — any element, out of range gives zero |
