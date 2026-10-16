@@ -209,4 +209,59 @@
       }
     };
   };
+
+  /* Shared control wiring for demo pages: play/pause toggle, replay,
+     single-step buttons, and keyboard shortcuts (arrows step, space toggles). */
+  window.simdControls = function (options) {
+    var root = options.root;
+    var player = options.player;
+    var onPlayToggle = options.onPlayToggle || function () {
+      if (player.getState() === "playing") player.pause();
+      else player.play();
+    };
+    var onReplay = options.onReplay || function () {
+      player.reset();
+      player.play();
+    };
+    var canStep = options.canStep || function () {
+      return true;
+    };
+
+    var playBtn = root.querySelector("[data-action='play']");
+    if (playBtn) playBtn.addEventListener("click", onPlayToggle);
+    var replayBtn = root.querySelector("[data-action='replay']");
+    if (replayBtn) replayBtn.addEventListener("click", onReplay);
+    var backBtn = root.querySelector("[data-action='back']");
+    if (backBtn) {
+      backBtn.addEventListener("click", function () {
+        if (canStep()) player.stepBack();
+      });
+    }
+    var fwdBtn = root.querySelector("[data-action='fwd']");
+    if (fwdBtn) {
+      fwdBtn.addEventListener("click", function () {
+        if (canStep()) player.stepForward();
+      });
+    }
+
+    document.addEventListener("keydown", function (event) {
+      if (event.defaultPrevented) return;
+      var tag = event.target && event.target.tagName;
+      if ((event.key === " " || event.key === "Enter") && tag === "BUTTON") return;
+      if (event.key === "ArrowRight") {
+        if (canStep()) {
+          event.preventDefault();
+          player.stepForward();
+        }
+      } else if (event.key === "ArrowLeft") {
+        if (canStep()) {
+          event.preventDefault();
+          player.stepBack();
+        }
+      } else if (event.key === " ") {
+        event.preventDefault();
+        onPlayToggle();
+      }
+    });
+  };
 })();
