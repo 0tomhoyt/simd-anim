@@ -234,12 +234,14 @@
       });
       announce(t(mode === "parallel" ? "fmopa.parallelDone" : reducedMotion() ? "fmopa.doneReduced" : "fmopa.done"));
     },
-    onState: function (state, committed) {
+    onState: function (state, committed, total, armed) {
       if (state === "paused" && lastState === "playing") {
-        announce(fill(t("fmopa.annPaused"), { n: committed, total: steps.length }));
+        announce(fill(t("fmopa.annPaused"), { n: committed, total: total }));
       }
+      if (state === "playing") root.setAttribute("aria-busy", "true");
+      else root.removeAttribute("aria-busy");
       lastState = state;
-      render(state, committed);
+      render(state, committed, armed);
     },
     onMotionChange: function (reducedNow) {
       if (motionNote) motionNote.hidden = !reducedNow;
@@ -258,7 +260,7 @@
     return !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   }
 
-  function renderCaption(state, committed) {
+  function renderCaption(state, committed, armed) {
     if (!caption) return;
     if (mode === "parallel") {
       var key = "fmopa.idle";
@@ -268,37 +270,40 @@
       return;
     }
     if (state === "done") {
-      caption.textContent = t(player.reduced() ? "fmopa.doneReduced" : "fmopa.done");
+      caption.textContent = t(reducedMotion() ? "fmopa.doneReduced" : "fmopa.done");
       return;
     }
-    var step = committed > 0 ? steps[committed - 1] : null;
+    /* While a step is armed, explain the cell being highlighted, not the last one. */
+    var step = state === "playing" && armed >= 0 ? steps[armed] : committed > 0 ? steps[committed - 1] : null;
     if (state !== "playing" && state !== "paused") {
       caption.textContent = t("fmopa.idle");
     } else if (!step) {
-      caption.textContent = t("fmopa.starting");
+      caption.textContent = t(state === "playing" ? "fmopa.starting" : "fmopa.idle");
     } else {
       caption.textContent = fill(t(step.active ? "fmopa.stepCaption" : "fmopa.skipCaption"), step);
     }
   }
 
-  function renderChrome(state, committed) {
+  function renderChrome(state, committed, armed) {
     if (playBtn) {
       playBtn.textContent = t(state === "playing" ? "fmopa.pause" : state === "paused" ? "fmopa.resume" : "fmopa.play");
     }
     if (counter) {
+      var shown = state === "playing" && armed >= 0 ? armed + 1 : committed;
       counter.textContent =
         mode === "parallel"
           ? t("fmopa.parallelCounter")
-          : fill(t("fmopa.step"), { n: committed, total: steps.length });
+          : fill(t("fmopa.step"), { n: shown, total: steps.length });
     }
     if (motionNote) motionNote.hidden = !reducedMotion();
   }
 
-  function render(state, committed) {
+  function render(state, committed, armed) {
     state = state || player.getState();
     committed = committed != null ? committed : player.getCommitted();
-    renderChrome(state, committed);
-    renderCaption(state, committed);
+    armed = armed != null ? armed : player.getArmed();
+    renderChrome(state, committed, armed);
+    renderCaption(state, committed, armed);
   }
 
   function renderAll() {
