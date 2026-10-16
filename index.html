@@ -9,7 +9,9 @@
     <meta name="theme-color" content="#f2efe8">
     <script>
       try {
-        if (localStorage.getItem("site-lang") === "zh") {
+        var saved = localStorage.getItem("site-lang");
+        var zh = saved === "zh" || (saved !== "en" && (navigator.language || "en").toLowerCase().indexOf("zh") === 0);
+        if (zh) {
           document.documentElement.classList.add("i18n-wait");
           document.documentElement.lang = "zh-Hans";
         }
