@@ -31,6 +31,10 @@ Then visit <http://localhost:8080/>. No build step. The site is plain HTML, CSS,
 | `/demos/addv/` | SVE reduction `addv d0, p0/m, z0.s` — active lanes collapse into one scalar |
 | `/demos/uzp1/` | SVE deinterleave `uzp1 z0.s, z1.s, z2.s` — even elements of two vectors gather into one |
 | `/demos/gather/` | SVE gather load `ld1w { z0.s }, p0/z, [x0, z1.s, sxtw #2]` — each lane reads the word its own index selects |
+| `/demos/fmlal/` | SME2 widening multiply-add `fmlal za.s[w11, 4:5], z0.h, z1.h[2]` — half in, single out |
+| `/demos/addha/` | SME broadcast add `addha za0.s, p0/m, p1/m, z0.s` — one vector into every active row |
+| `/demos/tbl/` | SVE table lookup `tbl z0.s, { z1.s, z2.s }, z3.s` — any element, out of range gives zero |
+| `/demos/roofline/` | Concepts: an interactive roofline — peak, supply, and the ridge where arithmetic intensity decides the limit |
 
 The FMOPA page draws a single-precision ZA tile at a streaming vector length of 128 bits, so the tile is 4×4. `z0.s` is the column operand, `z1.s` is the row operand, and each active pair does `ZA[i, j] += z0.s[i] × z1.s[j]`. LD1W walks contiguous words from memory into a Z register and zeroes inactive lanes; FMLA pairs two vectors lane by lane and merges; ST1W writes one W12-selected slice of ZA back to memory; WHILELT shows where predicates come from; ADDV collapses lanes into a scalar; UZP1 shuffles whole vectors with no predicate at all.
 
@@ -46,6 +50,8 @@ Every page draws one streaming vector length — SVL = 128 bits — and each pag
 | `st1w` slice selector `w12` | 0…3 | 0…15 |
 | Contiguous load/store window | 16 bytes | 64 bytes |
 | `addv` destination `d0` | 64-bit scalar | 64-bit scalar |
+| `fmlal` half-precision operands | 8 × 16-bit | 32 × 16-bit |
+| `tbl` two-register table entries | 8 | 32 |
 
 Scalars `x0`, `x1`, `w11`, `w12` live in 64-bit general-purpose registers; gather indices in `z1.s` are 32-bit signed and scaled ×4 (`sxtw #2`).
 
@@ -56,16 +62,15 @@ Every demo page shares the same interactions:
 - Randomize re-rolls the operands. The ST1W page adds a W12 selector for the slice to store.
 - If the browser prefers reduced motion, Play jumps straight to the result.
 
-The animation clock and control wiring live in `assets/js/player.js` and are shared by all demos; each demo only draws its own stage.
+The animation clock and control wiring live in `assets/js/player.js` and are shared by all demos; each demo only draws its own stage. The roofline page is a concepts page instead of a played instruction: it teaches the compute-vs-memory balance generically, with both roofs set by the reader's own sliders — no machine-specific numbers.
 
 ## Roadmap
 
 Ideas for the next pages:
 
-- Widening multiply-accumulate, for example `fmlal za.s[w11, 0], z0.h, z1.h[2]`
-- Broadcast a vector into ZA, for example `addha za0.s, p0/m, p1/m, z0.s`
-- Table lookup, for example `tbl z0.s, { z1.s, z2.s }, z3.s`
 - A kernel tour stitching whilelt → ld1w → fmla → st1w into one played loop
+- Vertical broadcast, for example `addva za0.s, p0/m, p1/m, z0.s`
+- Interleave back, for example `zip1 z0.s, z1.s, z2.s`
 
 ## Deploy
 
