@@ -44,7 +44,7 @@
         <header class="demo-head">
           <p class="eyebrow"><span data-i18n="roofline.eyebrow">Concepts · compute vs memory</span></p>
           <h1>Roofline</h1>
-          <p class="lede" data-i18n="roofline.lede">A core is only as fast as its data supply. Slide the two roofs and watch where each shape of work lands.</p>
+          <p class="lede" data-i18n="roofline.lede">A core is only as fast as its data supply. Slide the two roofs, then find — and work around — the wall you are actually hitting.</p>
         </header>
 
         <p class="spec-note" data-i18n="roofline.disclaimer">Illustrative values — set peak compute and memory supply to your own hardware. The model is generic: performance = min(peak, supply × intensity).</p>
@@ -150,6 +150,74 @@
           </table>
         </section>
 
+        <section class="notes" aria-labelledby="probe-title">
+          <h2 id="probe-title" data-i18n="roofline.probeTitle">Find the wall first</h2>
+          <p class="probe-lede" data-i18n="roofline.probeLede">Halve the clock. If the work takes the same time, it never depended on compute — that is the signature of a bandwidth wall.</p>
+          <div class="bench probe-bench" data-probe>
+            <div class="controls">
+              <label class="slider-row">
+                <span data-i18n="roofline.clock">Clock</span>
+                <input type="range" data-slider="clock" min="0.25" max="2" step="0.25" value="1">
+                <output data-out="clock">×1</output>
+              </label>
+            </div>
+            <div class="probe-bars">
+              <div class="probe-row" data-kind="compute">
+                <span class="probe-label" data-i18n="roofline.barCompute">Compute time</span>
+                <span class="probe-track"><span class="probe-fill" data-bar="compute"></span></span>
+                <span class="probe-value" data-val="compute">—</span>
+              </div>
+              <div class="probe-row" data-kind="memory">
+                <span class="probe-label" data-i18n="roofline.barMemory">Memory time</span>
+                <span class="probe-track"><span class="probe-fill" data-bar="memory"></span></span>
+                <span class="probe-value" data-val="memory">—</span>
+              </div>
+              <div class="probe-row" data-kind="total">
+                <span class="probe-label" data-i18n="roofline.barTotal">Total</span>
+                <span class="probe-track"><span class="probe-fill" data-bar="total"></span></span>
+                <span class="probe-value" data-val="total">—</span>
+              </div>
+            </div>
+            <p class="formula" data-verdict role="status"></p>
+            <p class="kbd-note" data-i18n="roofline.probeNote">Illustrative normalized units — compute time scales with the clock, memory time does not.</p>
+          </div>
+        </section>
+
+        <section class="notes" aria-labelledby="diag-title">
+          <h2 id="diag-title" data-i18n="roofline.diagTitle">Wall → signature → lever</h2>
+          <table class="roofline-table diag-table">
+            <thead>
+              <tr>
+                <th data-i18n="roofline.diagWall">Wall</th>
+                <th data-i18n="roofline.diagSign">Signature</th>
+                <th data-i18n="roofline.diagLever">Levers</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th data-i18n="roofline.diag1.wall">Bandwidth</th>
+                <td data-i18n="roofline.diag1.sign">Halving the clock changes nothing</td>
+                <td data-i18n="roofline.diag1.lever">Block for reuse, pack to contiguous layouts, non-temporal stores, narrower dtypes</td>
+              </tr>
+              <tr>
+                <th data-i18n="roofline.diag2.wall">Latency</th>
+                <td data-i18n="roofline.diag2.sign">Utilisation far below peak even when everything fits in cache</td>
+                <td data-i18n="roofline.diag2.lever">Prefetch ahead, unroll to keep more misses in flight, large pages</td>
+              </tr>
+              <tr>
+                <th data-i18n="roofline.diag3.wall">Capacity</th>
+                <td data-i18n="roofline.diag3.sign">Throughput falls off a cliff as the working set grows</td>
+                <td data-i18n="roofline.diag3.lever">Shrink tiles to fit L1/L2, keep accumulators in registers, stream in segments</td>
+              </tr>
+              <tr>
+                <th data-i18n="roofline.diag4.wall">Scaling</th>
+                <td data-i18n="roofline.diag4.sign">Extra cores stop helping before bandwidth saturates</td>
+                <td data-i18n="roofline.diag4.lever">Cut per-core traffic, keep data local, plan for the per-core share</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
         <section class="notes" aria-labelledby="notes-title">
           <h2 id="notes-title" data-i18n="ui.notesTitle">Reading the picture</h2>
           <ol>
@@ -164,6 +232,21 @@
             <li>
               <h3 data-i18n="roofline.note3.title">Latency is bandwidth’s shadow</h3>
               <p data-i18n="roofline.note3.body">A bandwidth number only becomes real when latency is hidden: prefetching ahead, enough outstanding misses in flight, large pages so TLB walks do not eat the pipeline, and non-temporal stores for write-once results. Same math on any machine — the techniques are generic.</p>
+            <li>
+              <h3 data-i18n="roofline.note4.title">More probes</h3>
+              <p data-i18n="roofline.note4.body">Grow the working set until throughput drops — that cliff is a cache capacity boundary (L1, then L2, then memory). Add cores until scaling flattens — that is a shared resource, not a core limit. And read the counters: cycles, misses per level, bytes per second. Measure, then trust the roofline.</p>
+            </li>
+            <li>
+              <h3 data-i18n="roofline.note5.title">Tuning: move bytes smartly</h3>
+              <p data-i18n="roofline.note5.body">Packing a strided matrix into contiguous panels turns many small reads into few wide ones; prefetching with the right distance starts fills early; non-temporal stores skip the read-for-ownership a write-once result never needs. Same algorithm, better supply.</p>
+            </li>
+            <li>
+              <h3 data-i18n="roofline.note6.title">Tuning: overlap and unroll</h3>
+              <p data-i18n="roofline.note6.body">Software pipelining lets packing and computing run at the same time on different data. Unrolling keeps enough independent loads in flight: the bandwidth you can use equals concurrency ÷ latency, so hiding latency is the price of the number on the memory roof.</p>
+            </li>
+            <li>
+              <h3 data-i18n="roofline.note7.title">Tuning: shrink the data</h3>
+              <p data-i18n="roofline.note7.body">Half precision halves the bytes; 8-bit integers quarter them — the same kernel shape with two to four times the intensity, for free. Let predicates own the tails too, so no padding or scalar cleanup is fetched and never used.</p>
             </li>
           </ol>
         </section>

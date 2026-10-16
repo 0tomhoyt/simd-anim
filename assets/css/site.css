@@ -1451,3 +1451,73 @@ span.pred:hover {
 .mk-tiles .cell-index {
   font-size: 0.58rem;
 }
+
+/* Roofline clock probe */
+.probe-lede {
+  max-width: 46rem;
+  margin: 0 0 0.9rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.probe-bench {
+  width: auto;
+}
+
+.probe-bars {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.95rem;
+}
+
+.probe-row {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(8rem, 1fr) 4rem;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 0.85rem;
+}
+
+.probe-label {
+  color: var(--muted);
+}
+
+.probe-track {
+  display: block;
+  height: 0.9rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 60%, var(--bg));
+  overflow: hidden;
+}
+
+.probe-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 200ms ease;
+}
+
+.probe-row[data-kind="memory"] .probe-fill {
+  background: var(--ink);
+}
+
+.probe-row[data-kind="total"] .probe-fill {
+  background: var(--line-strong);
+}
+
+.probe-value {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.diag-table {
+  max-width: 52rem;
+}
+
+.diag-table td {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
