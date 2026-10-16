@@ -51,6 +51,8 @@
           <pre><code><span class="op-name">ld1w</span> { z0.s }, p0/z, [x0, z1.s, sxtw #2]</code></pre>
         </figure>
 
+        <p class="spec-note" data-i18n="gather.spec">Types: z0.s — 32-bit float, 4 lanes; z1.s — 32-bit signed indices, scaled ×4; mem words are 32 bits. Drawn at SVL = 128 bits; at SVL = 512 sixteen lanes each read their chosen word.</p>
+
         <section class="bench" data-gather aria-labelledby="gather-name">
           <div class="bench-scroll">
             <div class="stage">

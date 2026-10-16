@@ -34,6 +34,21 @@ Then visit <http://localhost:8080/>. No build step. The site is plain HTML, CSS,
 
 The FMOPA page draws a single-precision ZA tile at a streaming vector length of 128 bits, so the tile is 4×4. `z0.s` is the column operand, `z1.s` is the row operand, and each active pair does `ZA[i, j] += z0.s[i] × z1.s[j]`. LD1W walks contiguous words from memory into a Z register and zeroes inactive lanes; FMLA pairs two vectors lane by lane and merges; ST1W writes one W12-selected slice of ZA back to memory; WHILELT shows where predicates come from; ADDV collapses lanes into a scalar; UZP1 shuffles whole vectors with no predicate at all.
 
+## Sizes and types
+
+Every page draws one streaming vector length — SVL = 128 bits — and each page carries a note under the instruction naming the data types it shows. The arithmetic is uniform, so the same drawings scale cleanly to wider hardware:
+
+| Quantity | SVL 128 (drawn) | SVL 512 |
+| --- | --- | --- |
+| `.s` lanes per Z register | 4 × 32-bit float | 16 |
+| Predicate bits (`p0.s`, `whilelt` output) | 4 | 16 |
+| FMOPA / ZA `.s` tile | 4 × 4 | 16 × 16 |
+| `st1w` slice selector `w12` | 0…3 | 0…15 |
+| Contiguous load/store window | 16 bytes | 64 bytes |
+| `addv` destination `d0` | 64-bit scalar | 64-bit scalar |
+
+Scalars `x0`, `x1`, `w11`, `w12` live in 64-bit general-purpose registers; gather indices in `z1.s` are 32-bit signed and scaled ×4 (`sxtw #2`).
+
 Every demo page shares the same interactions:
 
 - Predicate bits are clickable. `/m` pages show inactive elements keeping their values; the `/z` page shows them reset to zero.

@@ -1050,3 +1050,12 @@ span.pred:hover {
   min-width: 1.6ch;
   text-align: center;
 }
+
+/* Data-type and size note under the instruction figure. */
+.spec-note {
+  margin: -0.35rem 0 1.15rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
