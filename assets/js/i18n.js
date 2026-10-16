@@ -37,10 +37,31 @@
       "fmopa.lede": "z0.s runs down the rows, z1.s runs across the columns, and each product is added into the ZA tile.",
       "fmopa.insnLabel": "Instruction",
       "fmopa.play": "Play",
+      "fmopa.pause": "Pause",
+      "fmopa.resume": "Resume",
       "fmopa.replay": "Replay",
+      "fmopa.random": "Randomize",
+      "fmopa.starting": "Running FMOPA…",
+      "fmopa.modeLabel": "View",
+      "fmopa.modeStep": "Step-by-step",
+      "fmopa.modeParallel": "Parallel",
+      "fmopa.stepBack": "Step back",
+      "fmopa.stepFwd": "Step forward",
+      "fmopa.kbdHint": "Arrow keys step, space plays or pauses (step-by-step view).",
+      "fmopa.parallelCounter": "1 instruction",
+      "fmopa.parallelCaption": "One instruction: every active pair is multiplied and added in the same step.",
+      "fmopa.parallelDone": "Done in one instruction. ZA[i, j] = start + z0.s[i] × z1.s[j] wherever both lanes are active; the other elements keep their values.",
+      "fmopa.predGroup0": "p0/m, row predicate. Click a bit to toggle it.",
+      "fmopa.predGroup1": "p1/m, column predicate. Click a bit to toggle it.",
+      "fmopa.predLane0": "p0 lane {n}",
+      "fmopa.predLane1": "p1 lane {n}",
+      "fmopa.annReset": "Predicate changed. The tile is back to its starting values.",
+      "fmopa.annRandom": "New values drawn. The tile starts over.",
+      "fmopa.annPaused": "Paused at step {n} of {total}.",
       "fmopa.step": "{n} / {total}",
       "fmopa.idle": "Ready. The tile still holds the values it had before this FMOPA.",
       "fmopa.stepCaption": "Row {r}, column {c}: ZA ← {before} + {a} × {b} = {after}.",
+      "fmopa.skipCaption": "Row {r}, column {c}: a predicate lane is 0, so /m keeps ZA at {before}.",
       "fmopa.done": "Done. Each ZA[i, j] is its starting value plus z0.s[i] × z1.s[j]. Replay runs the same FMOPA again from those starting values.",
       "fmopa.doneReduced": "Done, without motion. Each ZA[i, j] is its starting value plus z0.s[i] × z1.s[j].",
       "fmopa.motion": "This browser prefers reduced motion. Play still runs the instruction, and the tile jumps straight to the result.",
@@ -50,10 +71,12 @@
       "fmopa.note1.title": "Outer product, then add",
       "fmopa.note1.body": "For each row i and column j the instruction does ZA[i, j] += z0.s[i] × z1.s[j]. It accumulates. It does not wipe the tile first. Lanes are numbered from 0.",
       "fmopa.note2.title": "Predicates",
-      "fmopa.note2.body": "p0/m governs rows, one lane for each element of z0.s. p1/m governs columns, one lane for each element of z1.s. The tile element changes only when both lanes are active. Otherwise /m leaves it as it was. Here every lane is 1.",
+      "fmopa.note2.body": "p0/m governs rows, one lane for each element of z0.s. p1/m governs columns, one lane for each element of z1.s. The tile element changes only when both lanes are active; otherwise /m leaves it as it was. Click a predicate bit to switch that lane off and watch it happen.",
       "fmopa.note3.title": "Why 4×4",
       "fmopa.note3.body": "za.s[w11, 0] names the single-precision ZA tile selected by W11 plus offset 0. Drawn at a streaming vector length of 128 bits, a .s vector has four lanes and that tile is 4×4.",
-      "fmopa.values": "This pass uses z0.s = {1, 2, 3, 4} and z1.s = {2, 1, 3, 1}."
+      "fmopa.note4.title": "On real hardware",
+      "fmopa.note4.body": "FMOPA accumulates in single precision with rounding, and it is one instruction: every active pair is multiplied and added in the same step. This page uses small integers so every value stays exact and readable.",
+      "fmopa.valuesTpl": "This pass uses z0.s = {z0} and z1.s = {z1}."
     },
     zh: {
       "meta.title.home": "simd-anim",
@@ -89,10 +112,31 @@
       "fmopa.lede": "z0.s 沿行向下，z1.s 沿列向右，每个乘积都加进 ZA tile。",
       "fmopa.insnLabel": "指令",
       "fmopa.play": "播放",
+      "fmopa.pause": "暂停",
+      "fmopa.resume": "继续",
       "fmopa.replay": "重播",
+      "fmopa.random": "换一组数",
+      "fmopa.starting": "正在执行 FMOPA…",
+      "fmopa.modeLabel": "视角",
+      "fmopa.modeStep": "逐格",
+      "fmopa.modeParallel": "并行",
+      "fmopa.stepBack": "上一步",
+      "fmopa.stepFwd": "下一步",
+      "fmopa.kbdHint": "方向键单步，空格播放或暂停（逐格视角）。",
+      "fmopa.parallelCounter": "1 条指令",
+      "fmopa.parallelCaption": "一条指令：所有有效的行列配对在同一步里同时乘加。",
+      "fmopa.parallelDone": "一条指令完成。两路谓词都有效处 ZA[i, j] = 起始值 + z0.s[i] × z1.s[j]；其余元素保持原值。",
+      "fmopa.predGroup0": "p0/m，行谓词。点击某一位即可开关。",
+      "fmopa.predGroup1": "p1/m，列谓词。点击某一位即可开关。",
+      "fmopa.predLane0": "p0 第 {n} 路",
+      "fmopa.predLane1": "p1 第 {n} 路",
+      "fmopa.annReset": "谓词已修改，tile 已回到起始值。",
+      "fmopa.annRandom": "已换一组数，tile 从头开始。",
+      "fmopa.annPaused": "已暂停在第 {n} / {total} 步。",
       "fmopa.step": "{n} / {total}",
       "fmopa.idle": "准备好了。tile 里还是这条 FMOPA 执行前的数值。",
       "fmopa.stepCaption": "第 {r} 行、第 {c} 列：ZA ← {before} + {a} × {b} = {after}。",
+      "fmopa.skipCaption": "第 {r} 行、第 {c} 列：有一路谓词为 0，/m 保持 ZA 原值 {before}。",
       "fmopa.done": "完成。每个 ZA[i, j] 等于起始值加上 z0.s[i] × z1.s[j]。重播会从同一组起始值再执行一次这条 FMOPA。",
       "fmopa.doneReduced": "完成，没有动画。每个 ZA[i, j] 等于起始值加上 z0.s[i] × z1.s[j]。",
       "fmopa.motion": "这个浏览器偏好减少动态效果。播放仍会执行这条指令，tile 会直接跳到结果。",
@@ -102,10 +146,12 @@
       "fmopa.note1.title": "先外积，再累加",
       "fmopa.note1.body": "对每个行 i、列 j，指令做的是 ZA[i, j] += z0.s[i] × z1.s[j]。这是累加，不会先把 tile 清掉。通道从 0 开始编号。",
       "fmopa.note2.title": "谓词",
-      "fmopa.note2.body": "p0/m 管行，对应 z0.s 的每个元素；p1/m 管列，对应 z1.s 的每个元素。只有两路都有效，tile 上的那个元素才会改写，否则 /m 保持原值。这一次每一路都是 1。",
+      "fmopa.note2.body": "p0/m 管行，对应 z0.s 的每个元素；p1/m 管列，对应 z1.s 的每个元素。只有两路都有效，tile 上的那个元素才会改写，否则 /m 保持原值。点击谓词上的某一位把它关掉，亲眼看它保持不变。",
       "fmopa.note3.title": "为什么是 4×4",
       "fmopa.note3.body": "za.s[w11, 0] 指的是由 W11 加上偏移 0 选出的单精度 ZA tile。按 128 位的 streaming 向量长度来画，一条 .s 向量有四个通道，这块 tile 就是 4×4。",
-      "fmopa.values": "这一次 z0.s = {1, 2, 3, 4}，z1.s = {2, 1, 3, 1}。"
+      "fmopa.note4.title": "真实硬件上",
+      "fmopa.note4.body": "真实 FMOPA 按单精度累加、有舍入，而且它是一条指令：所有有效配对在同一步里同时乘加。本页特意用小整数，让每个值都精确可读。",
+      "fmopa.valuesTpl": "这一次 z0.s = {z0}，z1.s = {z1}。"
     }
   };
 
@@ -114,9 +160,10 @@
       var saved = localStorage.getItem(STORAGE_KEY);
       if (saved === "zh" || saved === "en") return saved;
     } catch (error) {
-      return "en";
+      /* fall through to the browser language */
     }
-    return "en";
+    var nav = navigator.language || (navigator.languages && navigator.languages[0]) || "en";
+    return String(nav).toLowerCase().indexOf("zh") === 0 ? "zh" : "en";
   }
 
   function storeLang(lang) {
@@ -168,7 +215,9 @@
     },
     t: function (key) {
       var pack = STRINGS[current] || STRINGS.en;
-      return pack[key] != null ? pack[key] : STRINGS.en[key];
+      if (pack[key] != null) return pack[key];
+      if (STRINGS.en[key] != null) return STRINGS.en[key];
+      return key;
     }
   };
 
