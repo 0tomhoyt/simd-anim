@@ -39,6 +39,28 @@ for (const file of htmlFiles) {
   }
 }
 
+/* CSS sanity: braces must balance and never close early. A dropped "}"
+   silently swallows every later rule (it happened once — PR #14 repaired it). */
+for (const file of files.filter((f) => f.endsWith(".css"))) {
+  const css = readFileSync(file, "utf8");
+  let depth = 0;
+  let line = 1;
+  for (const ch of css) {
+    if (ch === "\n") line++;
+    else if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth < 0) {
+        errors.push(`${file}:${line}: stray closing brace`);
+        break;
+      }
+    }
+  }
+  if (depth > 0) {
+    errors.push(`${file}: ${depth} unclosed block(s) at end of file (rules after the break will not apply)`);
+  }
+}
+
 /* 2. and 3. i18n keys. */
 const i18nSource = readFileSync(join(root, "assets/js/i18n.js"), "utf8");
 const defined = new Map(); // key -> occurrence count in STRINGS
