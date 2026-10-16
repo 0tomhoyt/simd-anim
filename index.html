@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="meta.title.home">simd-anim</title>
+    <meta name="description" data-i18n-content="meta.desc.home" content="A static lab that animates real SIMD and SME instructions so you can see data move through registers and tiles.">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#f2efe8">
+    <script>
+      try {
+        if (localStorage.getItem("site-lang") === "zh") {
+          document.documentElement.classList.add("i18n-wait");
+          document.documentElement.lang = "zh-Hans";
+        }
+      } catch (error) {}
+    </script>
+    <link rel="stylesheet" href="assets/css/site.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skip">Skip to main content</a>
+    <div class="page">
+      <header class="site-header">
+        <a class="brand" href="./">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="brand-name">simd-anim</span>
+        </a>
+        <div class="header-end">
+          <nav data-i18n-aria="nav.label" aria-label="Primary">
+            <a href="#demos" aria-current="page"><span data-i18n="nav.demos">Demos</span></a>
+          </nav>
+          <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
+            <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang="zh" lang="zh-Hans" aria-pressed="false">中文</button>
+          </div>
+        </div>
+      </header>
+
+      <main id="main">
+        <section class="hero" aria-labelledby="page-title">
+          <p class="eyebrow" data-i18n="home.eyebrow">Instruction lab</p>
+          <h1 id="page-title">simd-anim</h1>
+          <p class="lede" data-i18n="home.lede">A small static lab that animates real SIMD and SME instructions, so you can see data move through registers and tiles.</p>
+        </section>
+
+        <section class="section" id="demos" aria-labelledby="demos-title">
+          <div class="section-head">
+            <h2 id="demos-title" data-i18n="home.catalog">Demos</h2>
+            <p class="section-note" data-i18n="home.more">More pages will follow.</p>
+          </div>
+          <ol class="catalog">
+            <li>
+              <a class="catalog-link" href="demos/fmopa/">
+                <span class="num">01</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.fmopa.family">SME</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3>FMOPA</h3>
+                  <p data-i18n="cat.fmopa.blurb">Outer product of z0.s and z1.s, accumulated into a 4×4 ZA tile.</p>
+                  <span class="go" data-i18n="cat.fmopa.go">Play this instruction</span>
+                </span>
+                <p class="mnemonic"><span class="op-name">fmopa</span> za.s[w11, 0], p0/m, p1/m, z0.s, z1.s</p>
+              </a>
+            </li>
+            <li>
+              <article class="catalog-item is-planned">
+                <span class="num">02</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.load.family">SVE</span> · <span data-i18n="status.planned">Planned</span></span>
+                  <h3 data-i18n="cat.load.title">Vector load / pack</h3>
+                  <p data-i18n="cat.load.blurb">Bring memory into a Z register, lane by lane, then pack those lanes.</p>
+                </span>
+                <p class="mnemonic">ld1w { z0.s }, p0/z, [x0]</p>
+              </article>
+            </li>
+            <li>
+              <article class="catalog-item is-planned">
+                <span class="num">03</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.fmla.family">SVE</span> · <span data-i18n="status.planned">Planned</span></span>
+                  <h3 data-i18n="cat.fmla.title">FMLA</h3>
+                  <p data-i18n="cat.fmla.blurb">A fused multiply-add along a predicated vector.</p>
+                </span>
+                <p class="mnemonic">fmla z0.s, p0/m, z1.s, z2.s</p>
+              </article>
+            </li>
+            <li>
+              <article class="catalog-item is-planned">
+                <span class="num">04</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.store.family">SME</span> · <span data-i18n="status.planned">Planned</span></span>
+                  <h3 data-i18n="cat.store.title">Store</h3>
+                  <p data-i18n="cat.store.blurb">Write one horizontal slice of a ZA tile back to memory.</p>
+                </span>
+                <p class="mnemonic">st1w { za0h.s[w12, 0] }, p0, [x0]</p>
+              </article>
+            </li>
+          </ol>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <span data-i18n="footer.by">A lab by Hou Yuteng</span>
+        <a href="https://github.com/0tomhoyt/simd-anim"><span data-i18n="footer.source">Source</span></a>
+      </footer>
+    </div>
+    <script src="assets/js/i18n.js"></script>
+  </body>
+</html>
