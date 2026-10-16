@@ -34,6 +34,7 @@ Then visit <http://localhost:8080/>. No build step. The site is plain HTML, CSS,
 | `/demos/fmlal/` | SME2 widening multiply-add `fmlal za.s[w11, 4:5], z0.h, z1.h[2]` — half in, single out |
 | `/demos/addha/` | SME broadcast add `addha za0.s, p0/m, p1/m, z0.s` — one vector into every active row |
 | `/demos/tbl/` | SVE table lookup `tbl z0.s, { z1.s, z2.s }, z3.s` — any element, out of range gives zero |
+| `/concepts/` | Concept pages — the machine-level ideas behind the demos |
 
 The FMOPA page draws a single-precision ZA tile at a streaming vector length of 128 bits, so the tile is 4×4. `z0.s` is the column operand, `z1.s` is the row operand, and each active pair does `ZA[i, j] += z0.s[i] × z1.s[j]`. LD1W walks contiguous words from memory into a Z register and zeroes inactive lanes; FMLA pairs two vectors lane by lane and merges; ST1W writes one W12-selected slice of ZA back to memory; WHILELT shows where predicates come from; ADDV collapses lanes into a scalar; UZP1 shuffles whole vectors with no predicate at all.
 
@@ -65,7 +66,7 @@ The animation clock and control wiring live in `assets/js/player.js` and are sha
 
 ## Concepts
 
-Alongside the instruction demos, `/concepts/roofline/` is a parallel track: an interactive roofline where peak compute and memory supply are the reader's own sliders, and the ridge between them shows why arithmetic intensity — not raw FLOPs — decides what limits a kernel. No machine-specific numbers.
+The header nav carries a second track: `/concepts/` lists concept pages, reached from any page by the top navigation. The first is `/concepts/roofline/` — an interactive roofline where peak compute and memory supply are the reader's own sliders, and the ridge between them shows why arithmetic intensity, not raw FLOPs, decides what limits a kernel. No machine-specific numbers.
 
 ## Roadmap
 
