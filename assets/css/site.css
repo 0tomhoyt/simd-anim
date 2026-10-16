@@ -1009,3 +1009,44 @@ button.pred:focus-visible {
 .mem-value.is-out {
   opacity: 0.4;
 }
+
+/* Predicate bits drawn as a result (whilelt): not clickable. */
+span.pred {
+  cursor: default;
+}
+
+span.pred:hover {
+  border-color: var(--line-strong);
+}
+
+/* A lane that this instruction does not select (uzp odd elements). */
+.lane.is-out {
+  opacity: 0.4;
+}
+
+/* Scalar stepper (whilelt x0 / x1). */
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.stepper-label {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+
+.stepper .button-ghost {
+  min-width: 2.3rem;
+  min-height: 2.3rem;
+  padding: 0.2rem 0.5rem;
+}
+
+.stepper-value {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+  min-width: 1.6ch;
+  text-align: center;
+}

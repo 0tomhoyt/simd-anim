@@ -27,8 +27,11 @@ Then visit <http://localhost:8080/>. No build step. The site is plain HTML, CSS,
 | `/demos/ld1w/` | SVE predicated load `ld1w { z0.s }, p0/z, [x0]` — `/z` zeroing |
 | `/demos/fmla/` | SVE fused multiply-add `fmla z0.s, p0/m, z1.s, z2.s` — `/m` merging |
 | `/demos/st1w/` | SME slice store `st1w { za0h.s[w12, 0] }, p0, [x0]` — W12 picks the slice |
+| `/demos/whilelt/` | SVE predicate setup `whilelt p0.s, x0, x1` — scalar bounds become bits, with live x0/x1 steppers |
+| `/demos/addv/` | SVE reduction `addv d0, p0/m, z0.s` — active lanes collapse into one scalar |
+| `/demos/uzp1/` | SVE deinterleave `uzp1 z0.s, z1.s, z2.s` — even elements of two vectors gather into one |
 
-The FMOPA page draws a single-precision ZA tile at a streaming vector length of 128 bits, so the tile is 4×4. `z0.s` is the column operand, `z1.s` is the row operand, and each active pair does `ZA[i, j] += z0.s[i] × z1.s[j]`. LD1W walks contiguous words from memory into a Z register and zeroes inactive lanes; FMLA pairs two vectors lane by lane and merges; ST1W writes one W12-selected slice of ZA back to memory. Together they cover the `/m` merge, `/z` zeroing, and bare-predicate forms.
+The FMOPA page draws a single-precision ZA tile at a streaming vector length of 128 bits, so the tile is 4×4. `z0.s` is the column operand, `z1.s` is the row operand, and each active pair does `ZA[i, j] += z0.s[i] × z1.s[j]`. LD1W walks contiguous words from memory into a Z register and zeroes inactive lanes; FMLA pairs two vectors lane by lane and merges; ST1W writes one W12-selected slice of ZA back to memory; WHILELT shows where predicates come from; ADDV collapses lanes into a scalar; UZP1 shuffles whole vectors with no predicate at all.
 
 Every demo page shares the same interactions:
 
@@ -43,10 +46,11 @@ The animation clock and control wiring live in `assets/js/player.js` and are sha
 
 Ideas for the next pages:
 
-- Predicate setup, for example `whilelt p0.s, x0, x1`
-- Deinterleaving, for example `uzp1 z0.s, z1.s, z2.s`
-- Horizontal reduction, for example `addv d0, p0/m, z0.s`
 - Widening multiply-accumulate, for example `fmlal za.s[w11, 0], z0.h, z1.h[2]`
+- Broadcast a vector into ZA, for example `addha za0.s, p0/m, p1/m, z0.s`
+- Table lookup, for example `tbl z0.s, { z1.s, z2.s }, z3.s`
+- Gather load, for example `ld1w { z0.s }, p0/z, [x0, x1, lsl #2]`
+- A kernel tour stitching whilelt → ld1w → fmla → st1w into one played loop
 
 ## Deploy
 
