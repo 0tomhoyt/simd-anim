@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title data-i18n="meta.title.home">simd-anim</title>
-    <meta name="description" data-i18n-content="meta.desc.home" content="A static lab that animates real SIMD and SME instructions so you can see data move through registers and tiles.">
+    <meta name="description" data-i18n-content="meta.desc.home" content="ARM HPC along one GEMM shortest path: the instruction, the microkernel, then the bottleneck.">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <meta name="theme-color" content="#f2efe8">
     <script>
@@ -29,8 +29,8 @@
         </a>
         <div class="header-end">
           <nav data-i18n-aria="nav.label" aria-label="Primary">
-            <a href="#demos" aria-current="page"><span data-i18n="nav.demos">Demos</span></a>
-            <a href="concepts/"><span data-i18n="home.concepts">Concepts</span></a>
+            <a href="demos/fmopa/"><span data-i18n="nav.path">Shortest path</span></a>
+            <a href="#demos"><span data-i18n="nav.catalog">All demos</span></a>
           </nav>
           <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
             <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
@@ -41,15 +41,20 @@
 
       <main id="main">
         <section class="hero" aria-labelledby="page-title">
-          <p class="eyebrow" data-i18n="home.eyebrow">Instruction lab</p>
+          <p class="eyebrow" data-i18n="home.eyebrow">ARM HPC</p>
           <h1 id="page-title">simd-anim</h1>
-          <p class="lede" data-i18n="home.lede">A small static lab that animates real SIMD and SME instructions, so you can see data move through registers and tiles.</p>
+          <p class="lede" data-i18n="home.lede">This site teaches ARM HPC along one GEMM shortest path: instruction, then microkernel, then the bottleneck.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="demos/fmopa/"><span data-i18n="home.cta">Start shortest path</span></a>
+            <a class="button" href="quiz/"><span data-i18n="home.ctaQuiz">Linear algebra self-check</span></a>
+          </div>
+          <p class="hero-note" data-i18n="home.optional">Optional. Skipping the self-check still reaches the path.</p>
         </section>
 
         <section class="section" id="demos" aria-labelledby="demos-title">
           <div class="section-head">
-            <h2 id="demos-title" data-i18n="home.catalog">Demos</h2>
-            <p class="section-note" data-i18n="home.more">More pages will follow.</p>
+            <h2 id="demos-title" data-i18n="home.catalog">All demos</h2>
+            <p class="section-note" data-i18n="home.more">Appendix: every demo, plus the concept pages.</p>
           </div>
           <ol class="catalog">
             <li>
@@ -196,10 +201,34 @@
                 <p class="mnemonic">pack → ldr + fmopa ×4 → st1w / stnt1w</p>
               </a>
             </li>
+            <li>
+              <a class="catalog-link" href="concepts/roofline/">
+                <span class="num">13</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.roofline.family">Performance model</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.roofline.title">Roofline</h3>
+                  <p data-i18n="cat.roofline.blurb">Why reuse, not just FLOPs, decides speed — the memory wall in one picture.</p>
+                  <span class="go" data-i18n="cat.roofline.go">Open this page</span>
+                </span>
+                <p class="mnemonic">performance = min(peak, supply × intensity)</p>
+              </a>
+            </li>
+            <li>
+              <a class="catalog-link" href="concepts/memory-flow/">
+                <span class="num">14</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.mflow.family">Cache choreography</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.mflow.title">Memory in flight</h3>
+                  <p data-i18n="cat.mflow.blurb">Prefetch and store traffic across two kernels, level by level — and the one slot where HBM reads and writes collide.</p>
+                  <span class="go" data-i18n="cat.mflow.go">Open this page</span>
+                </span>
+                <p class="mnemonic">pldl2keep / pldl1strm / stnt1w</p>
+              </a>
+            </li>
           </ol>
         </section>
 
-      </main>      </main>
+      </main>
 
       <footer class="site-footer">
         <span data-i18n="footer.by">A lab by Hou Yuteng</span>
