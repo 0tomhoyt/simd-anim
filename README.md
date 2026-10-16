@@ -67,7 +67,7 @@ The animation clock and control wiring live in `assets/js/player.js` and are sha
 
 ## Concepts
 
-The header nav carries a second track: `/concepts/` lists concept pages, reached from any page by the top navigation. The first is `/concepts/roofline/` — an interactive roofline where peak compute and memory supply are the reader's own sliders, and the ridge between them shows why arithmetic intensity, not raw FLOPs, decides what limits a kernel. No machine-specific numbers.
+The header nav carries a second track: `/concepts/` lists concept pages, reached from any page by the top navigation. The first two: `/concepts/roofline/` — an interactive roofline where peak compute and memory supply are the reader's own sliders, and the ridge between them shows why arithmetic intensity, not raw FLOPs, decides what limits a kernel. And `/concepts/memory-flow/` — a four-row timeline (Core / L1 / L2 / HBM) that plays one kernel's store drain and the next kernel's prefetch across the cache hierarchy, with per-slot bandwidth meters showing the one slot where HBM reads and writes collide.
 
 ## Roadmap
 
