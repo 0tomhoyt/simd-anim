@@ -132,12 +132,54 @@
         });
       }
     }
+
+    updateProbe(peak, supply);
+  }
+
+  /* Clock probe: a fixed workload (512 FLOP at 0.5 FLOP/byte) timed two
+     ways. Compute time scales with the clock; memory time does not. */
+  var WORK_FLOPS = 512;
+  var WORK_BYTES = 1024;
+  var probe = document.querySelector("[data-probe]");
+  var clockSlider = probe ? probe.querySelector("[data-slider='clock']") : null;
+  var clockOut = probe ? probe.querySelector("[data-out='clock']") : null;
+  var verdict = probe ? probe.querySelector("[data-verdict]") : null;
+
+  function setBar(name, value, scale) {
+    var fillEl = probe.querySelector("[data-bar='" + name + "']");
+    var valueEl = probe.querySelector("[data-val='" + name + "']");
+    var pct = scale > 0 ? Math.max(2, (value / scale) * 100) : 0;
+    if (fillEl) fillEl.style.width = pct.toFixed(1) + "%";
+    if (valueEl) valueEl.textContent = String(Math.round(value));
+  }
+
+  function updateProbe(peak, supply) {
+    if (!probe) return;
+    var f = clockSlider ? +clockSlider.value : 1;
+    var computeTime = WORK_FLOPS / (peak * f);
+    var memoryTime = WORK_BYTES / supply;
+    var total = Math.max(computeTime, memoryTime);
+    var scale = Math.max(computeTime, memoryTime);
+    setBar("compute", computeTime, scale);
+    setBar("memory", memoryTime, scale);
+    setBar("total", total, scale);
+    if (clockOut) clockOut.textContent = "×" + f;
+    if (verdict) {
+      verdict.textContent = t(memoryTime >= computeTime ? "roofline.verdictMemory" : "roofline.verdictCompute");
+    }
   }
 
   [peakSlider, supplySlider].forEach(function (slider) {
     if (slider) slider.addEventListener("input", update);
   });
+  if (clockSlider) {
+    clockSlider.addEventListener("input", function () {
+      updateProbe(+peakSlider.value, +supplySlider.value);
+    });
+  }
 
   update();
-  document.addEventListener("site-lang", update);
+  document.addEventListener("site-lang", function () {
+    update();
+  });
 })();
