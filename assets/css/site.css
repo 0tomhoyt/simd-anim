@@ -1098,3 +1098,116 @@ span.pred:hover {
 .tile.tile-d2 {
   grid-template-rows: repeat(2, var(--lane));
 }
+
+/* Roofline concept page */
+.bench-wide {
+  width: auto;
+}
+
+.roofline-chart {
+  display: block;
+  width: 100%;
+  max-width: 720px;
+  height: auto;
+}
+
+.roofline-chart text {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--muted);
+}
+
+.roofline-chart .grid .axis {
+  stroke: var(--line-strong);
+}
+
+.roofline-chart .grid .tick {
+  stroke: var(--line);
+}
+
+#roof-compute {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+#roof-memory {
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+}
+
+#ridge-line {
+  stroke: var(--line-strong);
+}
+
+#ridge-dot {
+  fill: var(--ink);
+}
+
+#ridge-text {
+  fill: var(--muted);
+}
+
+.roof-dot circle {
+  fill: var(--accent);
+}
+
+.roof-dot text {
+  fill: var(--ink);
+}
+
+.roof-dot.is-compute circle {
+  fill: var(--ink);
+}
+
+.slider-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+}
+
+.slider-row input[type="range"] {
+  width: 11rem;
+  accent-color: var(--accent);
+}
+
+.slider-row output {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  min-width: 2.4ch;
+  text-align: right;
+}
+
+.slider-unit {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+
+.roofline-table {
+  border-collapse: collapse;
+  margin-top: 0.9rem;
+  font-size: 0.88rem;
+}
+
+.roofline-table th,
+.roofline-table td {
+  padding: 0.35rem 0.9rem 0.35rem 0;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+
+.roofline-table thead th {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.roofline-table td.num {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.roofline-table tbody th {
+  font-weight: 600;
+}

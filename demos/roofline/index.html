@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="meta.title.roofline">Roofline · simd-anim</title>
+    <meta name="description" data-i18n-content="meta.desc.roofline" content="An interactive roofline: peak compute, memory supply, and the ridge where arithmetic intensity decides what limits a kernel.">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#f2efe8">
+    <script>
+      try {
+        var saved = localStorage.getItem("site-lang");
+        var zh = saved === "zh" || (saved !== "en" && (navigator.language || "en").toLowerCase().indexOf("zh") === 0);
+        if (zh) {
+          document.documentElement.classList.add("i18n-wait");
+          document.documentElement.lang = "zh-Hans";
+        }
+      } catch (error) {}
+    </script>
+    <link rel="stylesheet" href="../../assets/css/site.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skip">Skip to main content</a>
+    <div class="page">
+      <header class="site-header">
+        <a class="brand" href="../../">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="brand-name">simd-anim</span>
+        </a>
+        <div class="header-end">
+          <nav data-i18n-aria="nav.label" aria-label="Primary">
+            <a href="../../#demos"><span data-i18n="nav.demos">Demos</span></a>
+          </nav>
+          <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
+            <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang="zh" lang="zh-Hans" aria-pressed="false">中文</button>
+          </div>
+        </div>
+      </header>
+
+      <main id="main" class="demo-main">
+        <a class="back" href="../../#demos"><span aria-hidden="true">← </span><span data-i18n="ui.back">All demos</span></a>
+        <header class="demo-head">
+          <p class="eyebrow"><span>12</span> <span aria-hidden="true">/</span> <span data-i18n="roofline.eyebrow">Concepts · compute vs memory</span></p>
+          <h1>Roofline</h1>
+          <p class="lede" data-i18n="roofline.lede">A core is only as fast as its data supply. Slide the two roofs and watch where each shape of work lands.</p>
+        </header>
+
+        <p class="spec-note" data-i18n="roofline.disclaimer">Illustrative values — set peak compute and memory supply to your own hardware. The model is generic: performance = min(peak, supply × intensity).</p>
+
+        <section class="bench bench-wide" data-roofline aria-labelledby="roofline-title">
+          <div class="bench-scroll">
+            <svg class="roofline-chart" viewBox="0 0 720 420" role="img" aria-labelledby="roofline-title roofline-desc">
+              <title id="roofline-title" data-i18n="meta.title.roofline">Roofline · simd-anim</title>
+              <desc id="roofline-desc" data-i18n="roofline.svgDesc">Roofline chart: a rising memory roof and a flat compute roof meet at the ridge point; shapes of work are plotted by their arithmetic intensity.</desc>
+              <g class="grid" aria-hidden="true">
+                <line class="axis" x1="70" y1="356" x2="690" y2="356"></line>
+                <line class="axis" x1="70" y1="24" x2="70" y2="356"></line>
+                <line class="tick" x1="70" y1="273" x2="690" y2="273"></line>
+                <line class="tick" x1="70" y1="190" x2="690" y2="190"></line>
+                <line class="tick" x1="70" y1="107" x2="690" y2="107"></line>
+                <line class="tick" x1="70" y1="24" x2="690" y2="24"></line>
+                <text x="62" y="360" text-anchor="end">0</text>
+                <text x="62" y="277" text-anchor="end">16</text>
+                <text x="62" y="194" text-anchor="end">32</text>
+                <text x="62" y="111" text-anchor="end">48</text>
+                <text x="62" y="28" text-anchor="end">64</text>
+                <text x="70" y="372">0.125</text>
+                <text x="143" y="372">0.25</text>
+                <text x="232" y="372">0.5</text>
+                <text x="321" y="372">1</text>
+                <text x="409" y="372">2</text>
+                <text x="498" y="372">4</text>
+                <text x="587" y="372">8</text>
+                <text x="666" y="372">16</text>
+              </g>
+              <polyline id="roof-memory" fill="none"></polyline>
+              <line id="roof-compute" x1="70" y1="24" x2="690" y2="24"></line>
+              <g id="ridge" aria-hidden="true">
+                <line id="ridge-line" y1="24" y2="356" stroke-dasharray="4 4"></line>
+                <circle id="ridge-dot" r="4"></circle>
+                <text id="ridge-text" dy="-8" text-anchor="middle" data-i18n="roofline.ridgeLabel">Ridge</text>
+              </g>
+              <g id="roof-dots">
+                <g class="roof-dot" data-insn="fmla">
+                  <circle r="6"></circle>
+                  <text dx="10" dy="4">FMLA</text>
+                </g>
+                <g class="roof-dot" data-insn="fmopa128">
+                  <circle r="6"></circle>
+                  <text dx="10" dy="4">FMOPA @128</text>
+                </g>
+                <g class="roof-dot" data-insn="fmopa512">
+                  <circle r="6"></circle>
+                  <text dx="10" dy="4">FMOPA @512</text>
+                </g>
+              </g>
+              <text class="axis-title" x="380" y="404" text-anchor="middle" data-i18n="roofline.axisIntensity">Arithmetic intensity — FLOP per byte</text>
+              <text class="axis-title" x="18" y="190" text-anchor="middle" transform="rotate(-90 18 190)" data-i18n="roofline.axisPerf">Performance — FLOP per cycle</text>
+            </svg>
+          </div>
+
+          <div class="controls">
+            <label class="slider-row">
+              <span data-i18n="roofline.labelPeak">Peak compute</span>
+              <input type="range" data-slider="peak" min="8" max="64" step="8" value="32">
+              <output data-out="peak">32</output>
+              <span class="slider-unit">FLOP/cycle</span>
+            </label>
+            <label class="slider-row">
+              <span data-i18n="roofline.labelSupply">Memory supply</span>
+              <input type="range" data-slider="supply" min="4" max="64" step="4" value="16">
+              <output data-out="supply">16</output>
+              <span class="slider-unit">B/cycle</span>
+            </label>
+          </div>
+
+          <p class="formula" data-readout role="status"></p>
+
+          <table class="roofline-table">
+            <thead>
+              <tr>
+                <th data-i18n="roofline.colWork">Work</th>
+                <th data-i18n="roofline.colIntensity">Intensity (FLOP/B)</th>
+                <th data-i18n="roofline.colReach">Reachable (FLOP/cycle)</th>
+                <th data-i18n="roofline.colBound">Limited by</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-row="fmla">
+                <th data-i18n="roofline.rowFmla">FMLA (element pair)</th>
+                <td class="num">0.25</td>
+                <td class="num" data-cell="reach">—</td>
+                <td data-cell="bound">—</td>
+              </tr>
+              <tr data-row="fmopa128">
+                <th data-i18n="roofline.rowFmopa128">FMOPA @ SVL 128</th>
+                <td class="num">1</td>
+                <td class="num" data-cell="reach">—</td>
+                <td data-cell="bound">—</td>
+              </tr>
+              <tr data-row="fmopa512">
+                <th data-i18n="roofline.rowFmopa512">FMOPA @ SVL 512</th>
+                <td class="num">4</td>
+                <td class="num" data-cell="reach">—</td>
+                <td data-cell="bound">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="notes" aria-labelledby="notes-title">
+          <h2 id="notes-title" data-i18n="ui.notesTitle">Reading the picture</h2>
+          <ol>
+            <li>
+              <h3 data-i18n="roofline.note1.title">Intensity is the currency</h3>
+              <p data-i18n="roofline.note1.body">Count the bytes a piece of work reads for every FLOP it produces. Element-wise work reads four bytes per FLOP (0.25 FLOP/byte); an outer product reuses each element across a whole row or column, lifting FMOPA to 1 FLOP/byte at SVL 128 and 4 at SVL 512. Loads, stores and shuffles spend bytes and produce nothing — they are pure traffic.</p>
+            </li>
+            <li>
+              <h3 data-i18n="roofline.note2.title">Crossing the ridge</h3>
+              <p data-i18n="roofline.note2.body">The ridge sits at peak ÷ supply. Work to its left is bandwidth-bound: the only way over is more FLOPs per byte — blocking the K loop so caches keep serving reused data, and keeping accumulators in registers (a wide ZA tile is architectural space for exactly that). This is the general reason ARM v9 keeps pushing wide vectors and outer products.</p>
+            </li>
+            <li>
+              <h3 data-i18n="roofline.note3.title">Latency is bandwidth’s shadow</h3>
+              <p data-i18n="roofline.note3.body">A bandwidth number only becomes real when latency is hidden: prefetching ahead, enough outstanding misses in flight, large pages so TLB walks do not eat the pipeline, and non-temporal stores for write-once results. Same math on any machine — the techniques are generic.</p>
+            </li>
+          </ol>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <span data-i18n="footer.by">A lab by Hou Yuteng</span>
+        <a href="https://github.com/0tomhoyt/simd-anim"><span data-i18n="footer.source">Source</span></a>
+      </footer>
+    </div>
+    <script src="../../assets/js/i18n.js"></script>
+    <script src="../../assets/js/roofline.js"></script>
+  </body>
+</html>
