@@ -1210,4 +1210,207 @@ span.pred:hover {
 
 .roofline-table tbody th {
   font-weight: 600;
+/* Microkernel page: source grids, panels, vector strips, slots. */
+.mk-flow {
+  display: grid;
+  gap: 1.1rem;
+  width: max-content;
+}
+
+.mk-sect {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.mk-phase {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mk-pack-row,
+.mk-loop-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.mk-box {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--paper) 60%, var(--paper));
+}
+
+.mk-box-title {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+
+.mk-path {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+
+.mk-arrow {
+  margin: 0;
+  color: var(--line-strong);
+  font-family: var(--mono);
+  font-size: 1rem;
+}
+
+.mk-cells {
+  display: grid;
+  gap: 3px;
+  --mk: 2.1rem;
+}
+
+.mk-src-a-norm {
+  grid-template-columns: repeat(4, var(--mk));
+}
+
+.mk-src-a-trans {
+  grid-template-columns: repeat(8, var(--mk));
+}
+
+.mk-src-b-norm {
+  grid-template-columns: repeat(8, var(--mk));
+}
+
+.mk-src-b-trans {
+  grid-template-columns: repeat(4, var(--mk));
+}
+
+.mk-panel {
+  grid-template-columns: repeat(4, var(--mk));
+}
+
+.mk-cell {
+  display: grid;
+  place-items: center;
+  width: var(--mk);
+  height: var(--mk);
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  background: var(--paper);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 200ms ease, border-color 200ms ease, opacity 200ms ease, color 200ms ease;
+}
+
+.mk-cell.is-live {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--paper));
+  color: var(--accent);
+}
+
+.mk-cell.is-armed {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.mk-cell.is-hot {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.mk-cell.is-done {
+  background: color-mix(in srgb, var(--accent) 14%, var(--paper));
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.mk-cell.is-read {
+  opacity: 0.42;
+  border-style: dashed;
+}
+
+.mk-vecs {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.mk-vec {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mk-vec-label {
+  min-width: 3.1rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+
+.mk-vec-half {
+  display: flex;
+  gap: 3px;
+}
+
+.mk-slots {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.mk-slot {
+  display: grid;
+  place-items: center;
+  min-width: 2.4rem;
+  height: 1.6rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: 5px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  transition: border-color 200ms ease, background-color 200ms ease, color 200ms ease;
+}
+
+.mk-slot.is-live {
+  border-style: solid;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mk-slot.is-done {
+  border-style: solid;
+  border-color: var(--line-strong);
+  background: color-mix(in srgb, var(--accent) 10%, var(--paper));
+  color: var(--ink);
+}
+
+.mk-tiles {
+  --lane: 2.7rem;
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+}
+
+.mk-tile-col {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.mk-tile-col .quad-label {
+  text-align: center;
+}
+
+.mk-tiles .cell {
+  font-size: 0.85rem;
+}
+
+.mk-tiles .cell-index {
+  font-size: 0.55rem;
 }

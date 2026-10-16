@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="meta.title.mk">Microkernel · simd-anim</title>
+    <meta name="description" data-i18n-content="meta.desc.mk" content="Watch pack, the K loop, and the store compose a real SME GEMM microkernel — in all four transpose states.">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#f2efe8">
+    <script>
+      try {
+        var saved = localStorage.getItem("site-lang");
+        var zh = saved === "zh" || (saved !== "en" && (navigator.language || "en").toLowerCase().indexOf("zh") === 0);
+        if (zh) {
+          document.documentElement.classList.add("i18n-wait");
+          document.documentElement.lang = "zh-Hans";
+        }
+      } catch (error) {}
+    </script>
+    <link rel="stylesheet" href="../../assets/css/site.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skip">Skip to main content</a>
+    <div class="page">
+      <header class="site-header">
+        <a class="brand" href="../../">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="brand-name">simd-anim</span>
+        </a>
+        <div class="header-end">
+          <nav data-i18n-aria="nav.label" aria-label="Primary">
+            <a href="../../#demos"><span data-i18n="nav.demos">Demos</span></a>
+            <a href="../../concepts/"><span data-i18n="home.concepts">Concepts</span></a>
+          </nav>
+          <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
+            <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang="zh" lang="zh-Hans" aria-pressed="false">中文</button>
+          </div>
+        </div>
+      </header>
+
+      <main id="main" class="demo-main">
+        <a class="back" href="../../#demos"><span aria-hidden="true">← </span><span data-i18n="ui.back">All demos</span></a>
+        <header class="demo-head">
+          <p class="eyebrow"><span>12</span> <span aria-hidden="true">/</span> <span data-i18n="mk.eyebrow">SME · GEMM microkernel</span></p>
+          <h1 data-i18n="mk.h1">Microkernel</h1>
+          <p class="lede" data-i18n="mk.lede">A real kernel is a fixed choreography: pack absorbs every layout question, and the K loop is nothing but loads, FMOPAs, and prefetch.</p>
+        </header>
+
+        <figure class="insn">
+          <figcaption data-i18n="ui.insnLabel">Instruction</figcaption>
+          <pre><code><span class="op-name">pack</span>   ldnt1w / ld1w → (ZA transpose) → st1w
+<span class="op-name">loop</span>   ldr zA, [pa, #mul vl] ; ldr zB, [pb, #mul vl]
+       fmopa za0.s … za3.s, p0/m, p0/m, zA.s, zB.s
+       pldl2keep [pb] ; pldl1strm [pc]
+<span class="op-name">store</span>  st1w { za0h.s[w12, 0] }, p0, [pc] → stnt1w</code></pre>
+        </figure>
+
+        <p class="spec-note" data-i18n="mk.spec">Types: everything is f32. Drawn at SVL = 128, scaled down: C is 8 × 8 = 2 × 2 ZA tiles of 4 × 4, K = 4 groups, 4 load slots. On the real machine (SVL = 512): the same 2 × 2 grid covers 32 × 32, K_BLK = 512, and the wide pack reads 512 B per k-row.</p>
+
+        <section class="bench" data-mk aria-labelledby="mk-name">
+          <div class="bench-scroll">
+            <div class="stage">
+              <div class="mk-flow">
+                <div class="mk-sect">
+                  <p class="mk-phase" data-i18n="mk.phase.pack">Pack · once per K block</p>
+                  <div class="mk-pack-row">
+                    <div class="mk-box">
+                      <p class="mk-box-title" data-a-title>A source · M×K row-major</p>
+                      <div class="mk-cells" data-matrix="a" role="img" aria-label="A matrix"></div>
+                    </div>
+                    <p class="mk-arrow" aria-hidden="true">→</p>
+                    <div class="mk-box">
+                      <p class="mk-box-title" data-i18n="mk.panelA">A panel · k-major</p>
+                      <p class="mk-path" data-path-a>ld1w → ZA → st1w</p>
+                      <div class="mk-cells mk-panel" data-panel="a" aria-hidden="true"></div>
+                    </div>
+                    <div class="mk-box">
+                      <p class="mk-box-title" data-b-title>B source · K×N row-major</p>
+                      <div class="mk-cells" data-matrix="b" role="img" aria-label="B matrix"></div>
+                    </div>
+                    <p class="mk-arrow" aria-hidden="true">→</p>
+                    <div class="mk-box">
+                      <p class="mk-box-title" data-i18n="mk.panelB">B panel · k-major</p>
+                      <p class="mk-path" data-path-b>ldnt1w → st1w</p>
+                      <div class="mk-cells mk-panel" data-panel="b" aria-hidden="true"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mk-sect">
+                  <p class="mk-phase" data-i18n="mk.phase.loop">Main loop · per k group</p>
+                  <div class="mk-loop-row">
+                    <div class="mk-box">
+                      <p class="mk-box-title" data-i18n="mk.slotTitle">Load slots × 4 (parallel = 4)</p>
+                      <div class="mk-slots" data-slots aria-hidden="true"></div>
+                      <div class="mk-vecs">
+                        <div class="mk-vec">
+                          <span class="mk-vec-label">zA.s</span>
+                          <div class="mk-vec-half" data-z="a-0" aria-hidden="true"></div>
+                          <div class="mk-vec-half" data-z="a-1" aria-hidden="true"></div>
+                        </div>
+                        <div class="mk-vec">
+                          <span class="mk-vec-label">zB.s</span>
+                          <div class="mk-vec-half" data-z="b-0" aria-hidden="true"></div>
+                          <div class="mk-vec-half" data-z="b-1" aria-hidden="true"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="mk-arrow" aria-hidden="true">→</p>
+                    <div class="mk-box">
+                      <p class="mk-box-title" data-i18n="mk.cTitle">C · 2 × 2 ZA tiles</p>
+                      <p class="mk-path" data-cbadge hidden>st1w → stnt1w → C</p>
+                      <div class="mk-tiles">
+                        <div class="mk-tile-col">
+                          <p class="quad-label">za0</p>
+                          <div class="tile" data-za="0"></div>
+                        </div>
+                        <div class="mk-tile-col">
+                          <p class="quad-label">za1</p>
+                          <div class="tile" data-za="1"></div>
+                        </div>
+                        <div class="mk-tile-col">
+                          <p class="quad-label">za2</p>
+                          <div class="tile" data-za="2"></div>
+                        </div>
+                        <div class="mk-tile-col">
+                          <p class="quad-label">za3</p>
+                          <div class="tile" data-za="3"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="stage-foot">
+                <p class="tile-name" id="mk-name">C = A × B · 8 × 8 · K 累加</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="formula" data-caption>Ready. Pick the A and B layouts, then play: pack, K loop, store.</p>
+          <p class="sr-only" data-announcer role="status"></p>
+          <div class="controls">
+            <div class="seg" role="group" data-i18n-aria="mk.aSegAria" aria-label="A layout">
+              <button type="button" data-mk-a="norm" aria-pressed="true">M×K</button>
+              <button type="button" data-mk-a="trans" aria-pressed="false">K×M</button>
+            </div>
+            <div class="seg" role="group" data-i18n-aria="mk.bSegAria" aria-label="B layout">
+              <button type="button" data-mk-b="norm" aria-pressed="true">K×N</button>
+              <button type="button" data-mk-b="trans" aria-pressed="false">N×K</button>
+            </div>
+            <button class="button button-primary" type="button" data-action="play">Play</button>
+            <button class="button" type="button" data-action="replay" data-i18n="ui.replay">Replay</button>
+            <button class="button button-ghost" type="button" data-action="back" data-i18n-aria="ui.stepBack" aria-label="Step back"><span aria-hidden="true">←</span></button>
+            <button class="button button-ghost" type="button" data-action="fwd" data-i18n-aria="ui.stepFwd" aria-label="Step forward"><span aria-hidden="true">→</span></button>
+            <button class="button" type="button" data-action="random" data-i18n="ui.random">Randomize</button>
+            <p class="step-count" data-counter aria-hidden="true">0 / 11</p>
+          </div>
+          <p class="kbd-note" data-i18n="ui.kbdHint">Arrow keys step, space plays or pauses.</p>
+          <p class="motion-note" data-motion-note data-i18n="ui.motion" hidden>This browser prefers reduced motion. Play still runs the instruction and jumps straight to the result.</p>
+        </section>
+
+        <section class="notes" aria-labelledby="notes-title">
+          <h2 id="notes-title" data-i18n="ui.notesTitle">Reading the picture</h2>
+          <ol>
+            <li>
+              <h3 data-i18n="mk.note1.title">What a microkernel is</h3>
+              <p data-i18n="mk.note1.body">A fixed-size C block (32 × 32 in the real kernel, 8 × 8 here) accumulated across all of K. Inside the loop there is no layout branch, no shape check — just loads, FMOPAs, and prefetch. Everything else was settled before the loop started.</p>
+            </li>
+            <li>
+              <h3 data-i18n="mk.note2.title">Transpose is absorbed by pack</h3>
+              <p data-i18n="mk.note2.body">Four transpose states collapse into two pack routes: row-strided reads through a ZA transpose (gather), or contiguous reads with a straight copy (stride). The panels come out byte-identical, so the loop never learns which state you chose.</p>
+            </li>
+            <li>
+              <h3 data-i18n="mk.note3.title">Software pipelining</h3>
+              <p data-i18n="mk.note3.body">Four load slots carry the next k group while the FMOPAs run; B pages are pulled into L2 with pldl2keep and C is streamed with pldl1strm. A leftover K tail runs its own small ldr + fmopa loop, and C leaves through st1w slices plus a non-temporal stnt1w flush.</p>
+            </li>
+          </ol>
+          <p class="section-note values-line"><span data-values>A and B hold small integers 0–2; C = A × B.</span></p>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <span data-i18n="footer.by">A lab by Hou Yuteng</span>
+        <a href="https://github.com/0tomhoyt/simd-anim"><span data-i18n="footer.source">Source</span></a>
+      </footer>
+    </div>
+    <script src="../../assets/js/i18n.js"></script>
+    <script src="../../assets/js/player.js"></script>
+    <script src="../../assets/js/microkernel.js"></script>
+  </body>
+</html>

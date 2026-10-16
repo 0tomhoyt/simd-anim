@@ -29,7 +29,7 @@ const htmlFiles = files.filter((f) => f.endsWith(".html"));
 /* 1. Internal links resolve. */
 for (const file of htmlFiles) {
   const html = readFileSync(file, "utf8");
-  const refs = [...html.matchAll(/\b(?:href|src)="([^"]+)"/g)].map((m) => m[1]);
+  const refs = [...html.matchAll(/(?<![\w-])(?:href|src)="([^"]+)"/g)].map((m) => m[1]);
   for (const ref of refs) {
     if (/^(https?:|mailto:|data:|#)/.test(ref) || ref.startsWith("#")) continue;
     const clean = ref.split("#")[0].split("?")[0];
