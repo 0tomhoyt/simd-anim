@@ -769,7 +769,7 @@ h1 {
     width: min(100% - 1.5rem, 68rem);
   }
 
-  nav {
+  .header-end nav {
     display: none;
   }
 
