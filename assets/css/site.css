@@ -759,8 +759,7 @@ h1 {
     grid-column: 2;
   }
 
-  .notes ol,
-  .anatomy-terms {
+  .notes ol {
     grid-template-columns: 1fr;
   }
 }
@@ -1928,4 +1927,10 @@ a.button {
 
 .matmul-points li + li {
   margin-top: 0.55rem;
+}
+
+@media (max-width: 800px) {
+  .anatomy-terms {
+    grid-template-columns: 1fr;
+  }
 }
