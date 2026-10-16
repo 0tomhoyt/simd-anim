@@ -38,7 +38,7 @@
     }
 
     function emit() {
-      onState(state, committed, steps.length);
+      onState(state, committed, steps.length, armed);
     }
 
     function run(i) {
@@ -52,6 +52,7 @@
       }
       armed = i;
       onArm(steps[i], i);
+      emit();
       timer = setTimeout(function () {
         timer = null;
         onCommit(steps[i], i);
@@ -202,6 +203,9 @@
       },
       getCommitted: function () {
         return committed;
+      },
+      getArmed: function () {
+        return armed;
       }
     };
   };
