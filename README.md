@@ -37,8 +37,11 @@ Then visit <http://localhost:8080/>. No build step. The site is plain HTML, CSS,
 | `/instructions/addha/` | SME broadcast add `addha za0.s, p0/m, p1/m, z0.s` — one vector into every active row |
 | `/instructions/tbl/` | SVE table lookup `tbl z0.s, { z1.s, z2.s }, z3.s` — any element, out of range gives zero |
 | `/kernels/microkernel/` | A GEMM microkernel in miniature (C = one 4 × 4 tile): pack (read → write, gather vs copy routes) → ldr + fmopa loop → st1w / stnt1w store, with the slices landing in memory; every value follows the four transpose states |
+| `/strategy/sme-anatomy/` | The hardware vocabulary — a Z register, the ZA tile, and the compute unit, the three names every other page uses |
 | `/strategy/roofline/` | Interactive roofline — peak compute and memory supply as the reader's own sliders; the ridge shows why arithmetic intensity, not raw FLOPs, decides what limits a kernel |
 | `/strategy/memory-flow/` | A four-row timeline (Core / L1 / L2 / HBM) playing one kernel's store drain and the next kernel's prefetch across the cache hierarchy |
+| `/quiz/` | Optional three-question linear-algebra self-check |
+| `/quiz/matmul/` | The primer behind the self-check: matrix multiply as rows, columns, and dot products |
 
 The FMOPA page draws a single-precision ZA tile at a streaming vector length of 128 bits, so the tile is 4×4. `z0.s` is the column operand (the first source is the SVL×1 vector), `z1.s` is the row operand, and each active pair does `ZA[i, j] += z0.s[i] × z1.s[j]`. LD1W walks contiguous words from memory into a Z register and zeroes inactive lanes; FMLA pairs two vectors lane by lane and merges; ST1W writes one W12-selected slice of ZA back to memory; WHILELT shows where predicates come from; UADDV collapses lanes into a 64-bit scalar; UZP1 shuffles whole vectors with no predicate at all.
 
@@ -71,7 +74,9 @@ The animation clock and control wiring live in `assets/js/player.js` and are sha
 
 ## Strategy
 
-The header nav follows the taxonomy — Instructions, Kernels, Strategy: each link lands on its section of the home page, and the section a page belongs to is marked current in the nav. The strategy pages: `/strategy/roofline/` — an interactive roofline where peak compute and memory supply are the reader's own sliders, and the ridge between them shows why arithmetic intensity, not raw FLOPs, decides what limits a kernel. And `/strategy/memory-flow/` — a four-row timeline (Core / L1 / L2 / HBM) that plays one kernel's store drain and the next kernel's prefetch across the cache hierarchy. The page states its strategy first — three moves (prefetch ahead, never read what you overwrite, let the tail hide under the next kernel), each with its cost — and the timeline then makes each move checkable by eye: two-slot rails for transfers in flight, hit tags on the loads a prefetch served, and the one slot where HBM is asked for a read and a write at once (128 B against its 64 B budget).
+The header nav follows the taxonomy — Instructions, Kernels, Strategy: each link lands on its section of the home page, and the section a page belongs to is marked current in the nav. The strategy pages: `/strategy/sme-anatomy/` — the hardware vocabulary (a register, the ZA tile, the compute unit) drawn once so the other pages can just use the names. `/strategy/roofline/` — an interactive roofline where peak compute and memory supply are the reader's own sliders, and the ridge between them shows why arithmetic intensity, not raw FLOPs, decides what limits a kernel. And `/strategy/memory-flow/` — a four-row timeline (Core / L1 / L2 / HBM) that plays one kernel's store drain and the next kernel's prefetch across the cache hierarchy. The page states its strategy first — three moves (prefetch ahead, never read what you overwrite, let the tail hide under the next kernel), each with its cost — and the timeline then makes each move checkable by eye: two-slot rails for transfers in flight, hit tags on the loads a prefetch served, and the one slot where HBM is asked for a read and a write at once (128 B against its 64 B budget).
+
+Before the kernels, an optional pair warms up the linear algebra: `/quiz/` scores three questions on matrix shapes and dot products, and `/quiz/matmul/` is the primer it links to when the score needs it.
 
 ## Roadmap
 

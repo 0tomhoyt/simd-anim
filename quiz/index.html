@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title data-i18n="meta.title.quiz">Linear algebra self-check · simd-anim</title>
-    <meta name="description" data-i18n-content="meta.desc.quiz" content="Three optional questions on matrix multiply and the dot product. Not required to start the GEMM path.">
+    <meta name="description" data-i18n-content="meta.desc.quiz" content="Three optional questions on matrix multiply and the dot product. Nothing here is required to use the lab.">
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <meta name="theme-color" content="#f2efe8">
     <script>
@@ -29,8 +29,9 @@
         </a>
         <div class="header-end">
           <nav data-i18n-aria="nav.label" aria-label="Primary">
-            <a href="../concepts/sme-anatomy/"><span data-i18n="nav.path">Shortest path</span></a>
-            <a href="../#instructions"><span data-i18n="nav.catalog">All demos</span></a>
+            <a href="../#instructions"><span data-i18n="nav.instructions">Instructions</span></a>
+            <a href="../#kernels"><span data-i18n="nav.kernels">Kernels</span></a>
+            <a href="../#strategy"><span data-i18n="nav.strategy">Strategy</span></a>
           </nav>
           <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
             <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
@@ -43,7 +44,7 @@
         <section class="hero" aria-labelledby="page-title">
           <p class="eyebrow" data-i18n="quiz.eyebrow">Optional</p>
           <h1 id="page-title" data-i18n="quiz.title">Linear algebra self-check</h1>
-          <p class="lede" data-i18n="quiz.lede">Three questions on matrix multiply and the dot product. Nothing here is required to start the path.</p>
+          <p class="lede" data-i18n="quiz.lede">Three questions on matrix multiply and the dot product. Nothing here is required to use the lab.</p>
           <form data-quiz>
             <ol class="quiz-list">
               <li>
@@ -79,13 +80,13 @@
             </ol>
             <div class="hero-actions">
               <button class="button button-primary" type="submit" data-i18n="quiz.check">Check</button>
-              <a class="button" href="../concepts/sme-anatomy/"><span data-i18n="quiz.skip">Skip and start the path</span></a>
+              <a class="button" href="../strategy/sme-anatomy/"><span data-i18n="quiz.skip">Skip and start reading</span></a>
             </div>
           </form>
           <div class="quiz-result" data-quiz-result hidden role="status">
             <p class="quiz-score"><span data-i18n="quiz.scoreLabel">Score</span> <span data-score-value>0</span>/3</p>
-            <p class="path-hint" data-pass hidden><a href="../concepts/matmul/" data-i18n="quiz.passHint">Two or more is enough to start. Optional primer on matrix multiply and the dot product.</a></p>
-            <p class="path-hint" data-miss hidden><a href="../concepts/matmul/" data-i18n="quiz.missHint">Below two. The primer walks through rows, columns, and the dot product.</a></p>
+            <p class="path-hint" data-pass hidden><a href="matmul/" data-i18n="quiz.passHint">Two or more is enough to start. Optional primer on matrix multiply and the dot product.</a></p>
+            <p class="path-hint" data-miss hidden><a href="matmul/" data-i18n="quiz.missHint">Below two. The primer walks through rows, columns, and the dot product.</a></p>
           </div>
         </section>
       </main>
