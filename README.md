@@ -1,5 +1,7 @@
 # simd-anim
 
+> **Merged into [personal_web](https://github.com/0tomhoyt/personal_web).** This lab now lives at [personal-web-swart-zeta.vercel.app/lab/](https://personal-web-swart-zeta.vercel.app/lab/), imported with `git subtree` so the full history remains reachable from the personal_web repository. This repository is archived and read-only; the Pages snapshot stays up as the last standalone version.
+
 [![CI and Pages](https://github.com/0tomhoyt/simd-anim/actions/workflows/pages.yml/badge.svg)](https://github.com/0tomhoyt/simd-anim/actions/workflows/pages.yml)
 
 A static lab for interactive animations of ARM SIMD and SME instructions, organized in three tiers: **instructions** (one real instruction per page, watched as values move through Z registers, predicates, and ZA tiles), **kernels** (instructions composed into a working GEMM microkernel), and **strategy** (the machine-level ideas that decide what a kernel can reach).
