@@ -114,7 +114,8 @@
     for (var i = 0; i < 4; i++) {
       var bit = bitAt(i);
       bit.textContent = "·";
-      labelBit(bit, i, "unknown");
+      /* The bit is not decided yet: label it in the reader's language. */
+      labelBit(bit, i, t("whilelt.bitUnknown"));
     }
     for (var k = 0; k < count; k++) {
       var step = steps[k];
@@ -229,7 +230,21 @@
   function renderAll() {
     syncSteppers();
     updateValuesLine();
+    relabel();
     render();
+  }
+
+  /* Labels carry the language; re-derive them from what the picture shows,
+     so a language switch does not leave them behind in the old one. */
+  function relabel() {
+    for (var i = 0; i < 4; i++) {
+      var scalar = scalarAt(i);
+      if (scalar) labelScalar(scalar, i, scalar.textContent);
+      var bit = bitAt(i);
+      if (bit) {
+        labelBit(bit, i, bit.textContent === "·" ? t("whilelt.bitUnknown") : bit.textContent);
+      }
+    }
   }
 
   function reconfigure() {
@@ -243,10 +258,15 @@
     button.addEventListener("click", function () {
       var parts = button.getAttribute("data-bump").split(":");
       var delta = +parts[1];
+      var next;
       if (parts[0] === "x0") {
-        X0 = Math.min(X0_MAX, Math.max(X0_MIN, X0 + delta));
+        next = Math.min(X0_MAX, Math.max(X0_MIN, X0 + delta));
+        if (next === X0) return; /* already at the clamp: nothing changed */
+        X0 = next;
       } else {
-        X1 = Math.min(X1_MAX, Math.max(X1_MIN, X1 + delta));
+        next = Math.min(X1_MAX, Math.max(X1_MIN, X1 + delta));
+        if (next === X1) return; /* already at the clamp: nothing changed */
+        X1 = next;
       }
       syncSteppers();
       reconfigure();

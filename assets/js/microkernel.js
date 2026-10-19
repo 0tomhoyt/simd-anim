@@ -1,8 +1,10 @@
 /* A GEMM microkernel in its smallest honest form, following unigemm_sme:
    C (4×4, one ZA tile) = A (4×2) × B (2×4), two k groups, two load slots.
    The animation is a guided walk: pack reads and writes (two routes), then
-   the layout-independent loop (ldr + fmopa), then the store. The A/B layout
-   toggles only change how pack READS; everything downstream is identical. */
+   the layout-independent loop (ldr + fmopa), then the store — four st1w
+   slices drained into the memory box, w12 = 0…3, one tile row each. The A/B
+   layout toggles only change how pack READS; everything downstream is
+   identical. */
 (function () {
   "use strict";
 
@@ -46,14 +48,17 @@
   var slotsEl = root.querySelector("[data-slots]");
   var zAEl = root.querySelector('[data-z="a"]');
   var zBEl = root.querySelector('[data-z="b"]');
+  var memEl = root.querySelector("[data-mem]");
   var boxA = srcAEl.closest(".mk-box");
   var boxAPanel = panelAEl.closest(".mk-box");
   var boxB = srcBEl.closest(".mk-box");
   var boxBPanel = panelBEl.closest(".mk-box");
   var boxLoop = root.querySelector("[data-box-loop]");
   var boxC = root.querySelector("[data-box-c]");
+  var boxMem = root.querySelector("[data-box-mem]");
   var zCells = { a: [], b: [] };
   var zaRefs = []; /* zaRefs[r][c] */
+  var memCells = []; /* memCells[r * N + c] */
   var lastState = "idle";
 
   function t(key) {
@@ -70,16 +75,19 @@
     if (announcer) announcer.textContent = message;
   }
 
+  /* Groups and load slots are both 0-based: slot 0 is k group 0, and the ldr
+     offset the caption shows is #{k}. `g` mirrors `k` so a {g} placeholder in
+     either language pack still prints the same 0-based number. */
   function buildSteps() {
     return [
       { t: "pack", m: "a", phase: "read" },
       { t: "pack", m: "a", phase: "write" },
       { t: "pack", m: "b", phase: "read" },
       { t: "pack", m: "b", phase: "write" },
-      { t: "load", k: 0, g: 1 },
-      { t: "fmopa", k: 0, g: 1 },
-      { t: "load", k: 1, g: 2 },
-      { t: "fmopa", k: 1, g: 2 },
+      { t: "load", k: 0, g: 0 },
+      { t: "fmopa", k: 0, g: 0 },
+      { t: "load", k: 1, g: 1 },
+      { t: "fmopa", k: 1, g: 1 },
       { t: "store" }
     ];
   }
@@ -137,6 +145,20 @@
       slot.className = "mk-slot";
       slot.textContent = String(s);
       slotsEl.appendChild(slot);
+    }
+    /* The store's destination: one row per slice, w12 = row */
+    if (memEl) {
+      for (var mr = 0; mr < M; mr++) {
+        var rowTag = document.createElement("span");
+        rowTag.className = "mem-addr";
+        rowTag.textContent = "w12 = " + mr;
+        memEl.appendChild(rowTag);
+        for (var mc = 0; mc < N; mc++) {
+          var memCell = mkCell("·");
+          memEl.appendChild(memCell);
+          memCells.push(memCell);
+        }
+      }
     }
   }
 
@@ -258,10 +280,14 @@
 
   function reset() {
     clearAll();
+    stopStoreReveal();
     renderSources();
     var i;
     for (i = 0; i < panelAEl.children.length; i++) panelAEl.children[i].textContent = "·";
     for (i = 0; i < panelBEl.children.length; i++) panelBEl.children[i].textContent = "·";
+    memCells.forEach(function (cell) {
+      cell.textContent = "·";
+    });
     zCells.a.forEach(function (cell) {
       cell.textContent = "·";
     });
@@ -288,6 +314,86 @@
         panelCell.classList.add("is-done");
       }
     }
+  }
+
+  /* The store, drawn as its four slices: st1w cuts row w12 = r out of the
+     tile into the aligned buffer and stnt1w drains it to memory, so the 4 × 4
+     tile needs four stores. Played live it lands row by row; replays and
+     jumps-to-end land all four at once. */
+  var sliceMs = 190;
+  var storeTimers = [];
+  var revealUntil = 0;
+
+  function stopStoreReveal() {
+    storeTimers.forEach(function (id) {
+      clearTimeout(id);
+    });
+    storeTimers = [];
+    revealUntil = 0;
+  }
+
+  function tileValue(r, c) {
+    var node = zaRefs[r] && zaRefs[r][c] ? zaRefs[r][c].querySelector(".cell-value") : null;
+    return node ? node.textContent : "0";
+  }
+
+  function settleTileRow(r) {
+    if (!zaRefs[r]) return;
+    zaRefs[r].forEach(function (cell) {
+      cell.classList.remove("is-hot");
+      cell.classList.add("is-done");
+    });
+  }
+
+  function landSlice(r, settleMs) {
+    var c;
+    for (c = 0; c < N; c++) {
+      var cell = memCells[r * N + c];
+      if (!cell) continue;
+      cell.textContent = tileValue(r, c);
+      cell.classList.remove("is-live", "is-armed");
+      cell.classList.add("is-done");
+    }
+    if (zaRefs[r]) {
+      zaRefs[r].forEach(function (cell) {
+        cell.classList.remove("is-live", "is-hot");
+        cell.classList.add("is-hot");
+      });
+    }
+    if (settleMs) {
+      storeTimers.push(setTimeout(function () {
+        settleTileRow(r);
+      }, settleMs));
+    }
+  }
+
+  function landAllSlices() {
+    stopStoreReveal();
+    for (var r = 0; r < M; r++) {
+      landSlice(r, 0);
+      settleTileRow(r);
+    }
+  }
+
+  function sliceTimer(r) {
+    return setTimeout(function () {
+      landSlice(r, sliceMs);
+    }, r * sliceMs);
+  }
+
+  function revealSlices() {
+    stopStoreReveal();
+    revealUntil = Date.now() + M * sliceMs;
+    for (var r = 0; r < M; r++) {
+      storeTimers.push(sliceTimer(r));
+    }
+  }
+
+  function storeCommit() {
+    if (cBadgeEl) cBadgeEl.hidden = false;
+    if (!memCells.length) return;
+    if (reducedMotion()) landAllSlices();
+    else revealSlices();
   }
 
   function applyStep(step) {
@@ -343,8 +449,9 @@
       slotsEl.children[step.k].classList.add("is-done");
       return;
     }
-    if (step.t === "store" && cBadgeEl) {
-      cBadgeEl.hidden = false;
+    if (step.t === "store") {
+      if (cBadgeEl) cBadgeEl.hidden = false;
+      landAllSlices();
     }
   }
 
@@ -359,7 +466,7 @@
     } else if (step.t === "fmopa") {
       focus([boxLoop, boxC]);
     } else {
-      focus([boxC]);
+      focus([boxC, boxMem]);
     }
   }
 
@@ -367,6 +474,14 @@
     reset();
     for (var i = 0; i < count; i++) applyStep(steps[i]);
     if (count > 0) seekFocus(steps[count - 1]);
+  }
+
+  /* The animated walk is over: normalise every transient flag and announce. */
+  function finishDraw() {
+    stopStoreReveal();
+    drawPrefix(steps.length);
+    render();
+    announce(t("mk.done"));
   }
 
   buildGrids();
@@ -427,11 +542,14 @@
           });
         });
       } else if (step.t === "store") {
-        focus([boxC]);
+        focus([boxC, boxMem]);
         zaRefs.forEach(function (row) {
           row.forEach(function (cell) {
             cell.classList.add("is-live");
           });
+        });
+        memCells.forEach(function (cell) {
+          cell.classList.add("is-armed");
         });
       }
     },
@@ -449,6 +567,10 @@
             cell.classList.remove("is-armed");
           });
           fillPanel(panel, step.m);
+          /* Same ring the seek path draws: the k = 0 column the values land in */
+          panelColPattern(panel, 0).forEach(function (cell) {
+            cell.classList.add("is-pattern");
+          });
         }
       } else if (step.t === "load") {
         var k = step.k;
@@ -482,7 +604,7 @@
         slotsEl.children[step.k].classList.remove("is-live");
         slotsEl.children[step.k].classList.add("is-done");
       } else if (step.t === "store") {
-        if (cBadgeEl) cBadgeEl.hidden = false;
+        storeCommit();
       }
     },
     onSeek: function (count) {
@@ -492,9 +614,14 @@
       drawPrefix(steps.length);
     },
     onFinish: function () {
-      clearTransient();
-      drawPrefix(steps.length);
-      announce(t("mk.done"));
+      /* Let the four slices finish landing before the final redraw, so the
+         store is watched rather than snapped into place. */
+      var wait = revealUntil - Date.now();
+      if (wait > 0) {
+        storeTimers.push(setTimeout(finishDraw, wait + 30));
+      } else {
+        finishDraw();
+      }
     },
     onState: function (state, committed, total, armed) {
       if (state === "paused" && lastState === "playing") {
@@ -531,7 +658,9 @@
   function renderCaption(state, committed, armed) {
     if (!caption) return;
     if (state === "done") {
-      caption.textContent = t("mk.done");
+      /* While the four slices are still landing, keep the store caption up:
+         it is the one that explains w12 and the buffer hop. */
+      caption.textContent = revealUntil > Date.now() ? t("mk.store") : t("mk.done");
       return;
     }
     var step = state === "playing" && armed >= 0 ? steps[armed] : committed > 0 ? steps[committed - 1] : null;
@@ -638,5 +767,10 @@
   syncSeg();
   renderAll();
 
-  document.addEventListener("site-lang", renderAll);
+  document.addEventListener("site-lang", function () {
+  renderAll();
+  /* The C cells, the panels and the source grids carry labels painted from
+     the drawing, so replay the steps that are currently on screen. */
+  drawPrefix(player.getCommitted());
+});
 })();

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="meta.title.mflow">Memory in flight · simd-anim</title>
+    <meta name="description" data-i18n-content="meta.desc.mflow" content="Follow one kernel's store and the next kernel's prefetch across L1, L2 and HBM: what moves, what sits still, and who is using the bandwidth.">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#f2efe8">
+    <script>
+      try {
+        var saved = localStorage.getItem("site-lang");
+        var zh = saved === "zh" || (saved !== "en" && (navigator.language || "en").toLowerCase().indexOf("zh") === 0);
+        if (zh) {
+          document.documentElement.classList.add("i18n-wait");
+          document.documentElement.lang = "zh-Hans";
+        }
+      } catch (error) {}
+    </script>
+    <link rel="stylesheet" href="../../assets/css/site.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skip">Skip to main content</a>
+    <div class="page">
+      <header class="site-header">
+        <a class="brand" href="../../">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="brand-name">simd-anim</span>
+        </a>
+        <div class="header-end">
+          <nav data-i18n-aria="nav.label" aria-label="Primary">
+            <a href="../../#instructions"><span data-i18n="nav.instructions">Instructions</span></a>
+            <a href="../../#kernels"><span data-i18n="nav.kernels">Kernels</span></a>
+            <a href="../../#strategy" aria-current="page"><span data-i18n="nav.strategy">Strategy</span></a>
+          </nav>
+          <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
+            <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang="zh" lang="zh-Hans" aria-pressed="false">中文</button>
+          </div>
+        </div>
+      </header>
+
+      <main id="main" class="demo-main">
+        <a class="back" href="../../#strategy"><span aria-hidden="true">← </span><span data-i18n="ui.backStrategy">All strategy pages</span></a>
+        <header class="demo-head">
+          <p class="eyebrow"><span>02</span> <span aria-hidden="true">/</span> <span data-i18n="mflow.eyebrow">Strategy · memory choreography</span></p>
+          <h1 data-i18n="mflow.h1">Memory in flight</h1>
+          <p class="lede" data-i18n="mflow.lede">A kernel is a schedule for hiding memory latency under compute. Three decisions do the hiding — and one slot pays for it.</p>
+        </header>
+
+        <figure class="insn">
+          <figcaption data-i18n="ui.insnLabel">Instruction</figcaption>
+          <pre><code><span class="op-name">prefetch</span> prfm pldl2keep, [pb] ; prfm pldl1strm, [pc]
+<span class="op-name">store</span>    st1w { za0h.s[w12, 0] }, p0, [pc]  →  aligned buffer
+<span class="op-name">drain</span>    stnt1w  (non-temporal write stream to C)</code></pre>
+        </figure>
+
+        <p class="spec-note" data-i18n="mflow.spec">Illustrative model at the microkernel page's scale: one k block reads A + B = 64 B (two blocks are drawn, hence the second B prefetch) and the kernel writes C = 64 B; one slot = 8 cycles. Per-slot budgets come from unigemm_sme's measured tiers — L1 224 B, L2 192 B, HBM 64 B (≈ 28 / 24 / 8 bytes per cycle). In flight means an outstanding transfer that occupies the destination's resources before its bytes arrive — which is why the meters charge it.</p>
+
+        <section class="mflow-plan" aria-labelledby="mflow-plan-title">
+          <div class="mflow-plan-head">
+            <h2 id="mflow-plan-title" data-i18n="mflow.planTitle">Three moves, one collision</h2>
+            <p class="section-note" data-i18n="mflow.planNote">Every choice below is a trade. Read the cards, then watch each one land in the timeline underneath.</p>
+          </div>
+          <ol class="mflow-moves">
+            <li class="mflow-move">
+              <p class="mflow-move-num" aria-hidden="true">01</p>
+              <h3 data-i18n="mflow.move1.title">Prefetch ahead, so the loop never waits</h3>
+              <p data-i18n="mflow.move1.body">pldl2keep starts the next B page on its way to L2 while the FMOPAs run. By the time the k1 load wants it the page is already two levels closer, so that load hits L2 instead of HBM — the latency was spent before anyone needed the bytes.</p>
+              <p class="mflow-move-cost" data-i18n="mflow.move1.cost">Cost: one HBM read per k block, paid early.</p>
+              <p class="mflow-move-watch" data-i18n="mflow.move1.watch">Watch: the pldl2keep slot, then the load after it — the fill lands in L2 first, and that load is tagged as a hit.</p>
+            </li>
+            <li class="mflow-move">
+              <p class="mflow-move-num" aria-hidden="true">02</p>
+              <h3 data-i18n="mflow.move2.title">Never read what you overwrite</h3>
+              <p data-i18n="mflow.move2.body">The store is non-temporal: stnt1w writes whole lines straight to memory instead of pulling them into cache first. C costs 64 B out and nothing in — no read-for-ownership, no doubled traffic.</p>
+              <p class="mflow-move-cost" data-i18n="mflow.move2.cost">Cost: none in bytes; the store detours through the aligned buffer instead of sitting in cache.</p>
+              <p class="mflow-move-watch" data-i18n="mflow.move2.watch">Watch: C's only HBM traffic is a single write. No read of C's lines appears anywhere on the page.</p>
+            </li>
+            <li class="mflow-move">
+              <p class="mflow-move-num" aria-hidden="true">03</p>
+              <h3 data-i18n="mflow.move3.title">Let the tail hide under the next kernel</h3>
+              <p data-i18n="mflow.move3.body">The drain is asynchronous. It leaves L1 as kernel n ends and lands while kernel n+1 is already packing and reading — so the store's tail costs this kernel nothing.</p>
+              <p class="mflow-move-cost" data-i18n="mflow.move3.cost">Cost: for exactly one slot HBM is asked for 64 B of read and 64 B of write at once — two directions on one bus.</p>
+              <p class="mflow-move-watch" data-i18n="mflow.move3.watch">Watch: the slot where the HBM row holds a read and a write together. Its meter reads 128 / 64 — the only over-budget slot here.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section class="bench bench-wide" data-mflow aria-labelledby="mflow-name">
+          <div class="bench-scroll">
+            <div class="stage">
+              <div class="mflow" data-mflow-grid role="img" data-i18n-aria="mflow.gridAria" aria-label="Timeline of cache traffic across two kernels: rows are Core, L1, L2 and HBM, columns are 8-cycle slots. A chip is one hop with its byte count; a dashed rail under a cell means the transfer continues into the next slot, where it lands."></div>
+              <div class="stage-foot">
+                <p class="tile-name" id="mflow-name" data-i18n="mflow.benchLabel">L1 / L2 / HBM · memory traffic across two kernels</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="formula" data-caption>Ready. Play the choreography across two kernels.</p>
+          <p class="sr-only" data-announcer role="status"></p>
+          <div class="controls">
+            <div class="seg" role="group" data-i18n-aria="mflow.modeLabel" aria-label="C mode">
+              <button type="button" data-mflow-mode="once" aria-pressed="true" data-i18n="mflow.modeOnce">C write-once</button>
+              <button type="button" data-mflow-mode="acc" aria-pressed="false" data-i18n="mflow.modeAcc">C accumulate</button>
+            </div>
+            <button class="button button-primary" type="button" data-action="play">Play</button>
+            <button class="button" type="button" data-action="replay" data-i18n="ui.replay">Replay</button>
+            <button class="button button-ghost" type="button" data-action="back" data-i18n-aria="ui.stepBack" aria-label="Step back"><span aria-hidden="true">←</span></button>
+            <button class="button button-ghost" type="button" data-action="fwd" data-i18n-aria="ui.stepFwd" aria-label="Step forward"><span aria-hidden="true">→</span></button>
+            <p class="step-count" data-counter aria-hidden="true">0 / 10</p>
+          </div>
+          <p class="kbd-note" data-i18n="ui.kbdHint">Arrow keys step, space plays or pauses.</p>
+          <p class="motion-note" data-motion-note data-i18n="ui.motion" hidden>This browser prefers reduced motion. Play still runs the instruction and jumps straight to the result.</p>
+        </section>
+
+        <section class="notes" aria-labelledby="notes-title">
+          <h2 id="notes-title" data-i18n="ui.notesTitle">Reading the picture</h2>
+          <ol>
+            <li>
+              <h3 data-i18n="mflow.note1.title">The bet behind a prefetch</h3>
+              <p data-i18n="mflow.note1.body">A prefetch spends bandwidth now to save a stall later. pldl2keep pulls the next B page into L2 on HBM's budget while the FMOPAs run, so the k1 load that follows is a hit rather than a wait; pldl1strm streams C's lines through L1 without evicting what is resident. Neither is free — if the prefetched page were never used, that bandwidth would be wasted.</p>
+            </li>
+            <li>
+              <h3 data-i18n="mflow.note2.title">A store should cost one write</h3>
+              <p data-i18n="mflow.note2.body">st1w writes 64 B into the aligned buffer that L1 already holds, so nothing leaves the core yet. stnt1w then drains that buffer non-temporally: whole lines, straight to memory, with no fetch of the bytes being replaced. C therefore costs 64 B out and 0 B in — the read-for-ownership a normal store would trigger never happens.</p>
+            </li>
+            <li>
+              <h3 data-i18n="mflow.note3.title">The tail belongs to the next kernel</h3>
+              <p data-i18n="mflow.note3.body">A store is not finished when the instruction retires. The drain is still in flight as kernel n returns, and it lands during kernel n+1's pack — that overlap is the whole trick: nobody waits for the tail. The price is one slot where HBM must serve a 64 B read and a 64 B write together, 128 B against its 64 B budget. Real pipelines absorb that with multi-threaded phases, so this contention is what a scheduler is there to spread out.</p>
+            </li>
+            <li class="wide">
+              <h3 data-i18n="mflow.note4.title">Compute is the quiet part</h3>
+              <p data-i18n="mflow.note4.body">FMOPA slots move zero bytes: once the operands sit in registers the compute leaves every meter at rest, which is why all the drama here is on the supply side. The budgets are unigemm_sme's measured tiers; on a real machine C is far larger than 64 B, so one drain spans many k blocks — the mechanics are exactly these.</p>
+            </li>
+          </ol>
+          <p class="section-note values-line"><span data-i18n="mflow.values" data-values>Bytes are labelled per hop; budgets are per 8-cycle slot.</span></p>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <span data-i18n="footer.by">A lab by Hou Yuteng</span>
+        <a href="https://github.com/0tomhoyt/simd-anim"><span data-i18n="footer.source">Source</span></a>
+      </footer>
+    </div>
+    <script src="../../assets/js/i18n.js"></script>
+    <script src="../../assets/js/player.js"></script>
+    <script src="../../assets/js/memoryflow.js"></script>
+  </body>
+</html>

@@ -29,8 +29,9 @@
         </a>
         <div class="header-end">
           <nav data-i18n-aria="nav.label" aria-label="Primary">
-            <a href="../../concepts/sme-anatomy/" aria-current="step"><span data-i18n="nav.path">Shortest path</span></a>
-            <a href="../../#demos"><span data-i18n="nav.catalog">All demos</span></a>
+            <a href="../../#instructions"><span data-i18n="nav.instructions">Instructions</span></a>
+            <a href="../../#kernels" aria-current="page"><span data-i18n="nav.kernels">Kernels</span></a>
+            <a href="../../#strategy"><span data-i18n="nav.strategy">Strategy</span></a>
           </nav>
           <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
             <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
@@ -40,27 +41,19 @@
       </header>
 
       <main id="main" class="demo-main">
-        <a class="back" href="../../#demos"><span aria-hidden="true">← </span><span data-i18n="ui.back">All demos</span></a>
+        <a class="back" href="../../#kernels"><span aria-hidden="true">← </span><span data-i18n="ui.backKernels">All kernels</span></a>
         <header class="demo-head">
-          <div class="path-bar">
-            <p class="path-progress"><span data-i18n="nav.path">Shortest path</span> 3/5</p>
-            <p class="shape-badge" data-i18n="path.shape">M=4 · N=4 · K=2 · SVL=128</p>
-          </div>
-          <p class="eyebrow"><span>12</span> <span aria-hidden="true">/</span> <span data-i18n="mk.eyebrow">SME · GEMM microkernel</span></p>
+          <p class="eyebrow"><span>01</span> <span aria-hidden="true">/</span> <span data-i18n="mk.eyebrow">SME · GEMM microkernel</span></p>
           <h1 data-i18n="mk.h1">Microkernel</h1>
           <p class="lede" data-i18n="mk.lede">One kernel, three moves: pack fixes the layout, the K loop does ldr + fmopa, the store writes C out. Follow where each value goes.</p>
-          <nav class="path-steps" data-i18n-aria="path.stepsLabel" aria-label="Path steps">
-            <a href="../fmopa/"><span aria-hidden="true">← </span><span data-i18n="path.prev">Prev</span></a>
-            <a class="path-next" href="../../concepts/roofline/"><span data-i18n="path.next">Next</span><span aria-hidden="true"> →</span></a>
-          </nav>
         </header>
 
         <figure class="insn">
           <figcaption data-i18n="ui.insnLabel">Instruction</figcaption>
-          <pre><code><span class="op-name">pack</span>   ldnt1w / ld1w → (ZA transpose) → st1w
-<span class="op-name">loop</span>   ldr zA, [pa, #mul vl] ; ldr zB, [pb, #mul vl]
+          <pre><code><span class="op-name">pack</span>   ld1w / ldnt1w → st1w  (A and B into packed panels)
+<span class="op-name">loop</span>   ldr zA, [pa, #k, mul vl] ; ldr zB, [pb, #k, mul vl]
        fmopa za0.s, p0/m, p0/m, zA.s, zB.s
-       pldl2keep [pb] ; pldl1strm [pc]
+       prfm pldl2keep, [pb] ; prfm pldl1strm, [pc]
 <span class="op-name">store</span>  st1w { za0h.s[w12, 0] }, p0, [pc] → stnt1w</code></pre>
         </figure>
 
@@ -80,7 +73,7 @@
                     <p class="mk-arrow" aria-hidden="true">→</p>
                     <div class="mk-box">
                       <p class="mk-box-title" data-i18n="mk.panelA">A panel · one column per k</p>
-                      <p class="mk-path" data-path-a>ldnt1w → st1w</p>
+                      <p class="mk-path" data-path-a>ld1w → ZA → st1w (transpose route)</p>
                       <div class="mk-cells mk-panel" data-panel="a" aria-hidden="true"></div>
                     </div>
                     <div class="mk-box">
@@ -90,7 +83,7 @@
                     <p class="mk-arrow" aria-hidden="true">→</p>
                     <div class="mk-box">
                       <p class="mk-box-title" data-i18n="mk.panelB">B panel · one column per k</p>
-                      <p class="mk-path" data-path-b>ldnt1w → st1w</p>
+                      <p class="mk-path" data-path-b>ldnt1w → st1w (straight copy)</p>
                       <div class="mk-cells mk-panel" data-panel="b" aria-hidden="true"></div>
                     </div>
                   </div>
@@ -116,7 +109,7 @@
                     <p class="mk-arrow" aria-hidden="true">→</p>
                     <div class="mk-box" data-box-c>
                       <p class="mk-box-title" data-i18n="mk.cTitle">C · one 4 × 4 ZA tile</p>
-                      <p class="mk-path" data-cbadge hidden>st1w → stnt1w → C</p>
+                      <p class="mk-path" data-cbadge data-i18n="mk.cbadge" hidden>C → st1w → aligned buffer → stnt1w → memory</p>
                       <div class="mk-tiles">
                         <div class="mk-tile-col">
                           <p class="quad-label">za0</p>
@@ -124,11 +117,16 @@
                         </div>
                       </div>
                     </div>
+                    <p class="mk-arrow" aria-hidden="true">→</p>
+                    <div class="mk-box" data-box-mem>
+                      <p class="mk-box-title" data-i18n="mk.memTitle">C in memory · one slice per row</p>
+                      <div class="mk-cells" data-mem aria-hidden="true" style="grid-template-columns: auto repeat(4, var(--mk))"></div>
+                    </div>
                   </div>
                 </div>
               </div>
               <div class="stage-foot">
-                <p class="tile-name" id="mk-name">C = A × B · 4 × 4 · K 累加</p>
+                <p class="tile-name" id="mk-name" data-i18n="mk.name">C = A × B · 4 × 4 · K accumulation</p>
               </div>
             </div>
           </div>
@@ -160,7 +158,7 @@
           <ol>
             <li>
               <h3 data-i18n="mk.note1.title">The smallest honest picture</h3>
-              <p data-i18n="mk.note1.body">The real kernel runs a 2 × 2 grid of tiles covering 32 × 32, four FMOPAs per k group, four load slots. Everything here is the same choreography, scaled down — one 4 × 4 tile, two k groups — so you can follow every single value.</p>
+              <p data-i18n="mk.note1.body">The real kernel runs a 2 × 2 grid of tiles covering 32 × 32, four FMOPAs per k group, four load slots. Everything here is the same choreography, scaled down — one 4 × 4 tile, two k groups — so you can follow every single value. One shortcut is worth naming: the drawn tile starts at zero, so the loop only accumulates — a real kernel must clear ZA first (zero {za}) before its first FMOPA.</p>
             </li>
             <li>
               <h3 data-i18n="mk.note2.title">Transpose is absorbed by pack</h3>
@@ -169,6 +167,10 @@
             <li>
               <h3 data-i18n="mk.note3.title">Software pipelining</h3>
               <p data-i18n="mk.note3.body">Each load slot carries one k group; in the real kernel there are four, with pldl2keep pulling B into L2 and pldl1strm streaming C. A leftover K tail runs its own small ldr + fmopa loop, and C leaves through st1w slices plus a non-temporal stnt1w flush.</p>
+            </li>
+            <li class="wide">
+              <h3 data-i18n="mk.note4.title">Words this page borrows</h3>
+              <p data-i18n="mk.note4.body">rank-1 layer — one outer product: a single A column times a single B row, one k's contribution added to every cell of C at once. k-major — K runs contiguously, one k per drawn panel column. mul vl — the byte length of one scalable vector at the current SVL (16 B here), so [pa, #1, mul vl] is the next vector along. non-temporal — a store that goes straight to memory without first fetching the line it overwrites (no read-for-ownership). w12 picks the ZA row a store cuts out; p0 is the predicate saying which of its four words are written.</p>
             </li>
           </ol>
           <p class="section-note values-line"><span data-values>A and B hold small integers; C = A × B.</span></p>

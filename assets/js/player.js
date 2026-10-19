@@ -1,4 +1,4 @@
-/* Shared player for instruction demos: play / pause / replay, manual
+/* Shared player for instruction pages: play / pause / replay, manual
    stepping, and prefers-reduced-motion handling. The consumer supplies a
    steps array and drawing callbacks; the player owns the clock and the
    state machine (idle | playing | paused | done). */
@@ -89,6 +89,9 @@
         armed = -1;
         onApplyAll();
         state = "done";
+        /* The visible caption already says "done"; without this the live
+           region would stay silent on the reduced-motion path. */
+        onFinish();
         emit();
         return;
       }
@@ -157,6 +160,9 @@
       committed = steps.length;
       if (onApplyAll) onApplyAll();
       state = "done";
+      /* Same reason as the reduced-motion branch in play(): the pages that
+         jump to the end (fmopa's Parallel mode) still need the announcement. */
+      onFinish();
       emit();
     }
 

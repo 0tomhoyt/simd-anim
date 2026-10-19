@@ -29,8 +29,9 @@
         </a>
         <div class="header-end">
           <nav data-i18n-aria="nav.label" aria-label="Primary">
-            <a href="../../concepts/sme-anatomy/"><span data-i18n="nav.path">Shortest path</span></a>
-            <a href="../../#demos"><span data-i18n="nav.catalog">All demos</span></a>
+            <a href="../../#instructions" aria-current="page"><span data-i18n="nav.instructions">Instructions</span></a>
+            <a href="../../#kernels"><span data-i18n="nav.kernels">Kernels</span></a>
+            <a href="../../#strategy"><span data-i18n="nav.strategy">Strategy</span></a>
           </nav>
           <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
             <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
@@ -40,7 +41,7 @@
       </header>
 
       <main id="main" class="demo-main">
-        <a class="back" href="../../#demos"><span aria-hidden="true">← </span><span data-i18n="ui.back">All demos</span></a>
+        <a class="back" href="../../#instructions"><span aria-hidden="true">← </span><span data-i18n="ui.backInstructions">All instructions</span></a>
         <header class="demo-head">
           <p class="eyebrow"><span>05</span> <span aria-hidden="true">/</span> <span data-i18n="whilelt.eyebrow">SVE · predicate setup</span></p>
           <h1>WHILELT</h1>
@@ -52,7 +53,7 @@
           <pre><code><span class="op-name">whilelt</span> p0.s, x0, x1</code></pre>
         </figure>
 
-        <p class="spec-note" data-i18n="whilelt.spec">Types: p0.s — one bit per 32-bit element; x0, x1 — 64-bit scalars. Drawn at SVL = 128 bits, so 4 bits; at SVL = 512 the same comparison writes 16 bits.</p>
+        <p class="spec-note" data-i18n="whilelt.spec">Types: p0.s — one bit per 32-bit element; x0, x1 — 64-bit scalars compared as signed integers. whilelt is the signed form; whilelo is the unsigned one. Drawn at SVL = 128 bits, so 4 bits; at SVL = 512 the same comparison writes 16 bits.</p>
 
         <section class="bench" data-whilelt aria-labelledby="whilelt-name">
           <div class="bench-scroll">
@@ -123,7 +124,7 @@
             </li>
             <li>
               <h3 data-i18n="whilelt.note3.title">Feeding the next instruction</h3>
-              <p data-i18n="whilelt.note3.body">This p0 is the p0/z of ld1w and the p0/m of fmla: whilelt decides which lanes those instructions touch. Move x1 with the stepper and watch the active window slide.</p>
+              <p data-i18n="whilelt.note3.body">This p0 is the p0/z of ld1w and the p0/m of fmla: whilelt decides which lanes those instructions touch. It also writes the condition flags First (N), None (Z) and !Last (C), so a real loop can branch on b.first / b.none instead of reading p0 back. Move x1 with the stepper and watch the active window slide.</p>
             </li>
           </ol>
           <p class="section-note values-line"><span data-values>This pass uses x0 = 2 and x1 = 5.</span></p>

@@ -25,6 +25,7 @@
   var motionNote = root.querySelector("[data-motion-note]");
   var valuesLine = document.querySelector("[data-values]");
   var opline = root.querySelector("[data-opline]");
+  var insnIdx = document.querySelector("[data-insn-idx]");
   var lastState = "idle";
 
   function t(key) {
@@ -84,7 +85,12 @@
       var k = +button.getAttribute("data-sel");
       button.textContent = String(Z1[k]);
       button.setAttribute("aria-pressed", k === IDX ? "true" : "false");
+      /* The visible text is the value; the label names the index it selects
+         and that value, so repeats in the value column stay distinguishable. */
+      button.setAttribute("aria-label", fill(t("fmlal.idxAria"), { idx: k, value: Z1[k] }));
     });
+    /* Keep the displayed instruction in step with the picked index. */
+    if (insnIdx) insnIdx.textContent = "z1.h[" + IDX + "]";
     if (opline) opline.textContent = "× z1.h[" + IDX + "] = " + Z1[IDX];
   }
 
@@ -233,7 +239,19 @@
   function renderAll() {
     paintSources();
     updateValuesLine();
+    relabelCells();
     render();
+  }
+
+  /* Labels carry the language; re-derive them from what the picture shows,
+     so a language switch does not leave them behind in the old one. */
+  function relabelCells() {
+    for (var i = 0; i < 2; i++) {
+      for (var e = 0; e < 4; e++) {
+        var cell = cellAt(i, e);
+        labelCell(cell, SLICE_BASE + i, e, cell.querySelector(".cell-value").textContent);
+      }
+    }
   }
 
   root.querySelectorAll("[data-sel]").forEach(function (button) {

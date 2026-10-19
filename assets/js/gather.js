@@ -254,7 +254,21 @@
   function renderAll() {
     syncPreds();
     updateValuesLine();
+    relabel();
     render();
+  }
+
+  /* Labels carry the language; re-derive them from what the picture shows,
+     so a language switch does not leave them behind in the old one. */
+  function relabel() {
+    for (var i = 0; i < MEM.length; i++) {
+      var word = memAt(i);
+      if (word) labelMem(word, i, word.textContent);
+    }
+    for (var k = 0; k < 4; k++) {
+      var lane = laneAt("z0", k);
+      if (lane) labelLane(lane, k, lane.textContent);
+    }
   }
 
   root.querySelectorAll(".pred").forEach(function (button) {

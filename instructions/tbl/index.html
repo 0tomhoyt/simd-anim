@@ -29,8 +29,9 @@
         </a>
         <div class="header-end">
           <nav data-i18n-aria="nav.label" aria-label="Primary">
-            <a href="../../concepts/sme-anatomy/"><span data-i18n="nav.path">Shortest path</span></a>
-            <a href="../../#demos"><span data-i18n="nav.catalog">All demos</span></a>
+            <a href="../../#instructions" aria-current="page"><span data-i18n="nav.instructions">Instructions</span></a>
+            <a href="../../#kernels"><span data-i18n="nav.kernels">Kernels</span></a>
+            <a href="../../#strategy"><span data-i18n="nav.strategy">Strategy</span></a>
           </nav>
           <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
             <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
@@ -40,7 +41,7 @@
       </header>
 
       <main id="main" class="demo-main">
-        <a class="back" href="../../#demos"><span aria-hidden="true">← </span><span data-i18n="ui.back">All demos</span></a>
+        <a class="back" href="../../#instructions"><span aria-hidden="true">← </span><span data-i18n="ui.backInstructions">All instructions</span></a>
         <header class="demo-head">
           <p class="eyebrow"><span>11</span> <span aria-hidden="true">/</span> <span data-i18n="tbl.eyebrow">SVE · table lookup</span></p>
           <h1>TBL</h1>
@@ -97,7 +98,7 @@
                 </div>
               </div>
               <div class="stage-foot">
-                <p class="tile-name" id="tbl-name">z0.s[i] ← table[z3.s[i]], or 0 past the end</p>
+                <p class="tile-name" id="tbl-name" data-i18n="tbl.name">z0.s[i] ← table[z3.s[i]], or 0 past the end</p>
               </div>
             </div>
           </div>
@@ -125,7 +126,7 @@
             </li>
             <li>
               <h3 data-i18n="tbl.note2.title">Out of range means zero</h3>
-              <p data-i18n="tbl.note2.body">An index of 8 or more writes 0 into that lane. The zeroing is by design, so missing entries need no masking — lane 1 here reads 8, lane 3 reads 9.</p>
+              <p data-i18n="tbl.note2.body">An index of 8 or more writes 0 into that lane. The zeroing is by design, so missing entries need no masking. The index lanes above run up to 9 — click one and watch its lane go to zero.</p>
             </li>
             <li>
               <h3 data-i18n="tbl.note3.title">Not length-agnostic</h3>

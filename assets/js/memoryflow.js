@@ -45,17 +45,28 @@
     return t("mflow.write") + " " + n + " B";
   }
 
-  /* One step = one slot of the timeline. chips: row -> array of chip kinds. */
+  /* One step = one slot of the timeline. chips: row -> array of chip kinds.
+     Byte-moving kinds are "read"/"write" (64 B each); "flight"/"stream" are
+     outstanding transfers that occupy the destination's resources — charged
+     to its meter — before the bytes arrive; "done" is a status label and
+     moves nothing. "hitL1"/"hitL2" annotate a load the prefetch already
+     served, "over" marks the slot that asks HBM for two directions at once.
+     rail: a transfer that spans two slots — it is issued here; railLands: it
+     arrives here, in this row. */
   function stepsFor(mode) {
     var s1 = { key: "mflow.s1", chips: { core: ["pack"], hbm: ["read"], l1: ["write"] } };
-    var s2 = { key: "mflow.s2", chips: { core: ["pldl2keep"], hbm: ["read"], l2: ["flight"] } };
-    var s3 = { key: "mflow.s3", chips: { core: ["ldr + fmopa k0"], l1: ["read"], l2: ["write"] } };
-    var s4 = { key: "mflow.s4", chips: { core: ["ldr + fmopa k1"], l2: ["read"], l1: ["write", "read"] } };
-    var s5 = { key: "mflow.s5", chips: { core: ["pldl1strm"], hbm: ["read"], l1: ["stream"] } };
+    var s2 = { key: "mflow.s2", chips: { core: ["pldl2keep"], hbm: ["read"], l2: ["flight"] }, rail: "l2" };
+    var s3 = { key: "mflow.s3", chips: { core: ["ldr + fmopa k0", "hitL1"], l1: ["read"], l2: ["write"] }, railLands: "l2" };
+    var s4 = { key: "mflow.s4", chips: { core: ["ldr + fmopa k1", "hitL2"], l2: ["read"], l1: ["write", "read"] } };
+    /* pldl1strm allocates the C lines for write: the old bytes are never read,
+       so no HBM read-for-ownership appears here. */
+    var s5 = { key: "mflow.s5", chips: { core: ["pldl1strm"], l1: ["stream"] } };
     var s6acc = { key: "mflow.s6acc", chips: { core: ["ldnt1w + fadd"], hbm: ["read"], l1: ["write"] } };
     var s7 = { key: "mflow.s7", chips: { core: ["st1w"], l1: ["write"] } };
-    var s8 = { key: "mflow.s8", chips: { core: ["stnt1w"], l1: ["read"], hbm: ["write"] } };
-    var s9 = { key: "mflow.s9", chips: { core: ["pack n+1"], hbm: ["read", "write"], l1: ["write"] } };
+    /* The drain leaves L1 and is in flight to HBM; the 64 B land at s9, so
+       one C block is written to HBM exactly once. */
+    var s8 = { key: "mflow.s8", chips: { core: ["stnt1w"], l1: ["read"], hbm: ["flight"] }, rail: "hbm" };
+    var s9 = { key: "mflow.s9", chips: { core: ["pack n+1"], hbm: ["read", "write", "over"], l1: ["write"] }, railLands: "hbm" };
     var s10 = { key: "mflow.s10", chips: { core: ["pldl2keep"], hbm: ["read"], l2: ["flight", "done"] } };
     var s11 = { key: "mflow.s11", chips: { core: ["ldr + fmopa n+1"], l1: ["read"], l2: ["write"] } };
     if (mode === "acc") {
@@ -64,8 +75,10 @@
     return [s1, s2, s3, s4, s5, s7, s8, s9, s10, s11];
   }
 
+  /* Per-chip byte charge against the row's meter. A status chip ("done")
+     is a label, not a transfer, and is charged nothing. */
   function bytesFor(kind) {
-    if (kind === "read" || kind === "write" || kind === "flight" || kind === "stream" || kind === "done") return 64;
+    if (kind === "read" || kind === "write" || kind === "flight" || kind === "stream") return 64;
     return 0;
   }
 
@@ -96,6 +109,12 @@
     } else if (kind === "done") {
       el.classList.add("is-done");
       el.textContent = t("mflow.drained");
+    } else if (kind === "hitL1" || kind === "hitL2") {
+      el.classList.add("is-hit");
+      el.textContent = t(kind === "hitL1" ? "mflow.hitL1" : "mflow.hitL2");
+    } else if (kind === "over") {
+      el.classList.add("is-over");
+      el.textContent = t("mflow.overBudget");
     } else {
       el.classList.add("is-op");
       el.textContent = kind;
@@ -188,8 +207,11 @@
     grid.querySelectorAll(".mflow-chip").forEach(function (chip) {
       chip.remove();
     });
+    grid.querySelectorAll(".mflow-rail").forEach(function (rail) {
+      rail.remove();
+    });
     grid.querySelectorAll(".mflow-cell").forEach(function (cell) {
-      cell.classList.remove("is-done", "is-active");
+      cell.classList.remove("is-done", "is-active", "is-over", "is-flight");
     });
     setMeters({ chips: {} });
   }
@@ -201,8 +223,27 @@
         var cell = cellRefs[row][index];
         cell.appendChild(chipEl(kind));
         cell.classList.add("is-done");
+        if (kind === "over") cell.classList.add("is-over");
       });
     });
+    /* A transfer that takes two slots: a dashed segment in the slot that
+       issues it, a solid one where its bytes arrive. */
+    if (step.rail) {
+      var outCell = cellRefs[step.rail][index];
+      outCell.classList.add("is-flight");
+      var out = document.createElement("span");
+      out.className = "mflow-rail is-out";
+      out.setAttribute("aria-hidden", "true");
+      outCell.appendChild(out);
+    }
+    if (step.railLands) {
+      var inCell = cellRefs[step.railLands][index];
+      inCell.classList.add("is-flight");
+      var arriving = document.createElement("span");
+      arriving.className = "mflow-rail is-in";
+      arriving.setAttribute("aria-hidden", "true");
+      inCell.appendChild(arriving);
+    }
   }
 
   function drawPrefix(count) {
@@ -330,6 +371,9 @@
   document.addEventListener("site-lang", function () {
     buildGrid();
     drawPrefix(player.getCommitted());
+    /* Rebuilding the grid drops the active-column highlight; restore it to
+       the slot the player is actually on. */
+    highlightColumn(player.getCommitted() - 1);
     render();
   });
 })();

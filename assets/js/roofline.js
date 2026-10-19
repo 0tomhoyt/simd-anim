@@ -21,6 +21,11 @@
   var LOG_X_MIN = Math.log2(X_MIN);
   var LOG_X_SPAN = Math.log2(X_MAX) - LOG_X_MIN;
 
+  /* The sliders are per-cycle rates; datasheets quote per-second numbers. One
+     illustrative clock ties the two together — keep it in step with the
+     {clock} value that the roofline.units string quotes. */
+  var CLOCK_GHZ = 2;
+
   var WORK = [
     { key: "fmla", intensity: 0.25 },
     { key: "fmopa128", intensity: 1 },
@@ -59,8 +64,39 @@
   }
 
   function fmt(value) {
-    return String(Math.round(value * 100) / 100);
+    var decimals = Math.abs(value) < 1 ? 3 : 2;
+    var factor = Math.pow(10, decimals);
+    return String(Math.round(value * factor) / factor);
   }
+
+  /* Unit bridge: GFLOP/s = peak × clock, GB/s = supply × clock. */
+  var unitsLine = root.querySelector("[data-units]");
+
+  function updateUnits(peak, supply) {
+    if (!unitsLine) return;
+    unitsLine.textContent = fill(t("roofline.units"), {
+      clock: fmt(CLOCK_GHZ),
+      peak: fmt(peak),
+      supply: fmt(supply),
+      gflops: fmt(peak * CLOCK_GHZ),
+      gbps: fmt(supply * CLOCK_GHZ)
+    });
+  }
+
+  /* X tick labels are generated from xPos() so they can never drift from the
+     roof, the ridge or the dots. Same markup as the static y-axis labels. */
+  (function buildXTicks() {
+    var grid = root.querySelector(".grid");
+    if (!grid) return;
+    for (var intensity = X_MIN; intensity <= X_MAX; intensity *= 2) {
+      var label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      label.setAttribute("x", xPos(intensity).toFixed(1));
+      label.setAttribute("y", "372");
+      label.setAttribute("text-anchor", "middle");
+      label.textContent = String(intensity);
+      grid.appendChild(label);
+    }
+  })();
 
   function update() {
     var peak = +peakSlider.value;
@@ -133,6 +169,7 @@
       }
     }
 
+    updateUnits(peak, supply);
     updateProbe(peak, supply);
   }
 

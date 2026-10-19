@@ -769,7 +769,7 @@ h1 {
     width: min(100% - 1.5rem, 68rem);
   }
 
-  .header-end nav {
+  nav {
     display: none;
   }
 
@@ -1673,264 +1673,203 @@ span.pred:hover {
   font-weight: 650;
 }
 
-a.button {
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
+/* ADDHA's stage has no z0 column-stack beside the tile (the vector sits in
+   the quad above), so the tile would auto-place into grid column 2 and stop
+   lining up with the z0.s lanes it is supposed to correspond to column for
+   column. Pin it to column 3, where the lanes and the tile-name already are. */
+[data-addha] .stage-body .tile {
+  grid-column: 3;
 }
 
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
+/* The roofline page's slider rows, unit labels and probe rows are wider than a
+   phone viewport, which pushed the whole page into horizontal scroll (16 px at
+   390 px wide). Let the slider row wrap and let the probe rows stack the track
+   under the label instead of running past the edge. */
+@media (max-width: 460px) {
+  .slider-row {
+    flex-wrap: wrap;
+  }
+
+  .probe-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 0.3rem;
+  }
+
+  .probe-label {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .probe-value {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .probe-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
 }
 
-.hero-note,
-.path-hint,
-.path-end {
-  margin: 0.85rem 0 0;
+/* Home-page glossary: the abbreviations every page leans on, defined once. */
+.glossary {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr);
+  gap: 0.7rem 1rem;
+}
+
+.glossary dt {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--accent);
+}
+
+.glossary dd {
+  margin: 0;
   color: var(--muted);
   font-size: 0.92rem;
+  line-height: 1.55;
+  max-width: 44rem;
 }
 
-.path-hint a {
-  color: var(--muted);
+@media (max-width: 560px) {
+  .glossary {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+
+  .glossary dd {
+    margin-bottom: 0.6rem;
+  }
 }
 
-.path-hint a:hover,
-.path-hint a:focus-visible,
-.path-steps a:hover,
-.path-steps a:focus-visible {
-  color: var(--accent);
-  outline: none;
+/* --- Memory in flight: the three moves, and the marks that prove them -----
+   The page's argument is a plan (three moves) plus a collision. These rules
+   carry the three visual marks that let a reader check each move in the
+   timeline by eye: the two-slot rail for a transfer in flight, the hit tags
+   on the loads a prefetch served, and the ring on the one over-budget slot. */
+.mflow-plan {
+  margin-top: 1.8rem;
 }
 
-.path-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem 1rem;
-  margin: 0 0 0.9rem;
+.mflow-plan-head {
+  margin-bottom: 0.9rem;
+  border-top: 1px solid var(--ink);
+  padding-top: 0.85rem;
 }
 
-.path-progress,
-.shape-badge {
+.mflow-plan-head h2 {
   margin: 0;
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
+  font-family: var(--serif);
+  font-size: 1.55rem;
+  font-weight: 500;
 }
 
-.path-progress {
-  color: var(--accent);
+.mflow-plan-head .section-note {
+  margin-top: 0.3rem;
 }
 
-.shape-badge {
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  padding: 0.2rem 0.65rem;
-}
-
-.path-steps {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.85rem;
-  font-size: 0.92rem;
-}
-
-.path-steps a {
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.path-next {
-  margin-left: auto;
-}
-
-.quiz-list {
-  margin: 1.6rem 0 0;
-  padding: 0;
-  list-style: none;
-  max-width: 40rem;
-}
-
-.quiz-list li {
-  border-top: 1px solid var(--line);
-  padding: 0.9rem 0;
-}
-
-.quiz-list p {
-  margin: 0.35rem 0 0;
-}
-
-.quiz-list fieldset {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  min-width: 0;
-}
-
-.quiz-list legend {
-  padding: 0;
-  font-weight: 650;
-}
-
-.quiz-choice {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.55rem;
-  margin-top: 0.45rem;
-  cursor: pointer;
-}
-
-.quiz-choice input {
-  margin-top: 0.4rem;
-}
-
-.quiz-list fieldset.is-right,
-.quiz-list fieldset.is-wrong {
-  padding-left: 0.75rem;
-}
-
-.quiz-list fieldset.is-right {
-  box-shadow: inset 3px 0 0 var(--ink);
-}
-
-.quiz-list fieldset.is-wrong {
-  box-shadow: inset 3px 0 0 var(--accent);
-}
-
-.quiz-mark {
-  margin: 0.45rem 0 0;
-  font-family: var(--mono);
-  font-size: 0.78rem;
-}
-
-.quiz-list .is-wrong .quiz-mark {
-  color: var(--accent);
-}
-
-.quiz-score {
-  margin: 1rem 0 0;
-  font-family: var(--mono);
-  font-size: 0.92rem;
-}
-
-.anatomy-terms {
+.mflow-moves {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
-  margin: 0.4rem 0 0;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.anatomy-terms li {
+.mflow-move {
   margin: 0;
   padding: 0.95rem 0.95rem 1rem;
   background: color-mix(in srgb, var(--surface) 48%, var(--bg));
   border-radius: 12px;
 }
 
-.anatomy-terms h2 {
-  margin: 0.85rem 0 0.35rem;
-  font-size: 1.05rem;
-  font-weight: 650;
-}
-
-.anatomy-terms p,
-.anatomy-svl {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-
-.anatomy-svl {
-  margin-top: 0.9rem;
-}
-
-.anatomy-fig,
-.matmul-fig {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.45rem;
-  min-height: 7.5rem;
-  padding: 0.75rem;
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-}
-
-.matmul-fig {
-  max-width: 16rem;
-  min-height: 0;
-}
-
-.anatomy-row,
-.anatomy-flow {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.anatomy-tag {
-  flex: none;
-  width: 3.4rem;
-  color: var(--muted);
+.mflow-move-num {
+  margin: 0 0 0.25rem;
+  color: var(--accent);
   font-family: var(--mono);
   font-size: 0.72rem;
+  letter-spacing: 0.08em;
 }
 
-.anatomy-slot,
-.anatomy-grid i,
-.anatomy-op {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 1.7rem;
-  height: 1.7rem;
-  padding: 0 0.35rem;
-  border: 1px solid var(--line-strong);
-  border-radius: 4px;
-  background: var(--bg);
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  font-style: normal;
+.mflow-move h3 {
+  margin: 0 0 0.4rem;
+  font-size: 0.98rem;
 }
 
-.anatomy-scalar {
-  min-width: 3.4rem;
+.mflow-move p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
 }
 
-.anatomy-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1.35rem);
-  gap: 0.28rem;
+.mflow-move p + p {
+  margin-top: 0.5rem;
 }
 
-.anatomy-grid i.is-write,
-.anatomy-op {
-  background: var(--ink);
+.mflow-move .mflow-move-cost {
+  color: var(--ink);
+}
+
+.mflow-move .mflow-move-watch {
+  color: var(--accent);
+}
+
+/* kernel n+1's band starts at the boundary the drain crosses. */
+.mflow-band-k2 {
+  border-left: 1px dashed var(--accent);
+}
+
+.mflow-cell.is-flight {
+  background: color-mix(in srgb, var(--accent) 4%, var(--paper));
+}
+
+/* One transfer, two slots: dashed where it is issued, solid where the bytes
+   arrive. The negative margins bridge the grid gap so the halves read as one
+   line running into the next slot. */
+.mflow-rail {
+  display: block;
+  margin-top: auto;
+  height: 0;
+  border-top: 2px dashed var(--accent);
+}
+
+.mflow-rail.is-out {
+  margin-right: -4px;
+}
+
+.mflow-rail.is-in {
+  margin-left: -4px;
+  border-top-style: solid;
+  border-top-color: var(--ink);
+}
+
+/* A load the earlier prefetch already served. */
+.mflow-chip.is-hit {
+  border-style: dotted;
   border-color: var(--ink);
-  color: var(--bg);
+  color: var(--ink);
+}
+
+/* The one slot that asks HBM for read and write at once. */
+.mflow-chip.is-over {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--paper));
+  color: var(--accent);
   font-weight: 650;
 }
 
-.matmul-points {
-  max-width: 38rem;
-  margin: 1rem 0 0;
-  padding: 0 0 0 1.2rem;
-}
-
-.matmul-points li + li {
-  margin-top: 0.55rem;
+.mflow-cell.is-over {
+  border-style: solid;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
 @media (max-width: 800px) {
-  .anatomy-terms {
+  .mflow-moves {
     grid-template-columns: 1fr;
   }
 }

@@ -95,7 +95,8 @@
     for (var i = 0; i < 4; i++) {
       var node = laneAt("z0", i);
       node.textContent = "·";
-      labelLane(node, i, "empty");
+      /* The lane has no value yet: label it in the reader's language. */
+      labelLane(node, i, t("uzp1.laneEmpty"));
     }
     for (var k = 0; k < count; k++) {
       var step = steps[k];
@@ -209,7 +210,19 @@
 
   function renderAll() {
     updateValuesLine();
+    relabel();
     render();
+  }
+
+  /* Labels carry the language; re-derive them from what the picture shows,
+     so a language switch does not leave them behind in the old one. */
+  function relabel() {
+    for (var i = 0; i < 4; i++) {
+      var lane = laneAt("z0", i);
+      if (lane) {
+        labelLane(lane, i, lane.textContent === "·" ? t("uzp1.laneEmpty") : lane.textContent);
+      }
+    }
   }
 
   if (randomBtn) {

@@ -282,5 +282,10 @@
   paintSources();
   renderAll();
 
-  document.addEventListener("site-lang", renderAll);
+  document.addEventListener("site-lang", function () {
+  renderAll();
+  /* The lane and memory-word aria-labels are painted from the drawing, so
+     re-apply them for whatever is currently on screen. */
+  drawState(player.getCommitted(), false);
+});
 })();

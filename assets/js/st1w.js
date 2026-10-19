@@ -58,16 +58,16 @@
 
   function buildSteps() {
     var list = [];
-    for (var j = 0; j < 4; j++) {
-      var active = P0[j] === 1;
+    for (var lane = 0; lane < 4; lane++) {
+      var active = P0[lane] === 1;
       list.push({
-        j: j,
-        off: 4 * j,
+        lane: lane, /* caption vocabulary, as on the sibling pages */
+        off: 4 * lane,
         r: W12,
-        value: ZA[W12][j],
+        value: ZA[W12][lane],
         active: active,
-        before: MEM[j],
-        after: active ? ZA[W12][j] : MEM[j]
+        before: MEM[lane],
+        after: active ? ZA[W12][lane] : MEM[lane]
       });
     }
     return list;
@@ -138,12 +138,12 @@
   }
 
   function markSources(step) {
-    var cell = cellAt(step.r, step.j);
+    var cell = cellAt(step.r, step.lane);
     if (cell) cell.classList.add("is-live");
-    var pred = root.querySelector('[data-pred="0"][data-lane="' + step.j + '"]');
+    var pred = root.querySelector('[data-pred="0"][data-lane="' + step.lane + '"]');
     if (pred) pred.classList.add(step.active ? "is-live" : "is-dead");
     if (step.active) {
-      var word = memAt(step.j);
+      var word = memAt(step.lane);
       if (word) word.classList.add("is-live");
     }
   }
@@ -157,10 +157,10 @@
     }
     for (var k = 0; k < count; k++) {
       var step = steps[k];
-      var word = memAt(step.j);
+      var word = memAt(step.lane);
       if (step.active) {
         word.textContent = String(step.after);
-        labelMem(word, step.j, step.after);
+        labelMem(word, step.lane, step.after);
         word.classList.add("is-done");
       } else {
         word.classList.add("is-kept");
@@ -169,7 +169,7 @@
     if (hotLast && count > 0) {
       var last = steps[count - 1];
       if (last.active) {
-        var lastWord = memAt(last.j);
+        var lastWord = memAt(last.lane);
         lastWord.classList.remove("is-done");
         lastWord.classList.add("is-hot");
       }
@@ -191,15 +191,15 @@
       }
       clearTransient();
       markSources(step);
-      memAt(step.j).classList.add(step.active ? "is-armed" : "is-kept");
+      memAt(step.lane).classList.add(step.active ? "is-armed" : "is-kept");
     },
     onCommit: function (step) {
-      var word = memAt(step.j);
+      var word = memAt(step.lane);
       word.classList.remove("is-armed");
       if (step.active) {
         word.classList.add("is-hot");
         word.textContent = String(step.after);
-        labelMem(word, step.j, step.after);
+        labelMem(word, step.lane, step.after);
       } else {
         word.classList.add("is-kept");
       }
@@ -279,7 +279,23 @@
     syncPreds();
     syncSlice();
     updateValuesLine();
+    relabel();
     render();
+  }
+
+  /* Labels carry the language; re-derive them from what the picture shows,
+     so a language switch does not leave them behind in the old one. */
+  function relabel() {
+    for (var row = 0; row < 4; row++) {
+      for (var col = 0; col < 4; col++) {
+        var cell = cellAt(row, col);
+        labelCell(cell, row, col, cell.querySelector(".cell-value").textContent);
+      }
+    }
+    for (var i = 0; i < 4; i++) {
+      var word = memAt(i);
+      if (word) labelMem(word, i, word.textContent);
+    }
   }
 
   function reconfigure() {

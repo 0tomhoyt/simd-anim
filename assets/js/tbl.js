@@ -131,7 +131,8 @@
     for (var i = 0; i < 4; i++) {
       var node = laneAt(i);
       node.textContent = "·";
-      labelLane(node, i, "empty");
+      /* The lane has no value yet: label it in the reader's language. */
+      labelLane(node, i, t("tbl.laneEmpty"));
     }
     for (var k = 0; k < count; k++) {
       var step = steps[k];
@@ -246,7 +247,19 @@
   function renderAll() {
     syncIdxButtons();
     updateValuesLine();
+    relabel();
     render();
+  }
+
+  /* Labels carry the language; re-derive them from what the picture shows,
+     so a language switch does not leave them behind in the old one. */
+  function relabel() {
+    for (var i = 0; i < 4; i++) {
+      var lane = laneAt(i);
+      if (lane) {
+        labelLane(lane, i, lane.textContent === "·" ? t("tbl.laneEmpty") : lane.textContent);
+      }
+    }
   }
 
   root.querySelectorAll("[data-idx]").forEach(function (button) {

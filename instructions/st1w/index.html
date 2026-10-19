@@ -29,8 +29,9 @@
         </a>
         <div class="header-end">
           <nav data-i18n-aria="nav.label" aria-label="Primary">
-            <a href="../../concepts/sme-anatomy/"><span data-i18n="nav.path">Shortest path</span></a>
-            <a href="../../#demos"><span data-i18n="nav.catalog">All demos</span></a>
+            <a href="../../#instructions" aria-current="page"><span data-i18n="nav.instructions">Instructions</span></a>
+            <a href="../../#kernels"><span data-i18n="nav.kernels">Kernels</span></a>
+            <a href="../../#strategy"><span data-i18n="nav.strategy">Strategy</span></a>
           </nav>
           <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
             <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
@@ -40,10 +41,10 @@
       </header>
 
       <main id="main" class="demo-main">
-        <a class="back" href="../../#demos"><span aria-hidden="true">← </span><span data-i18n="ui.back">All demos</span></a>
+        <a class="back" href="../../#instructions"><span aria-hidden="true">← </span><span data-i18n="ui.backInstructions">All instructions</span></a>
         <header class="demo-head">
           <p class="eyebrow"><span>04</span> <span aria-hidden="true">/</span> <span data-i18n="st1w.eyebrow">SME · slice store</span></p>
-          <h1>ZA store</h1>
+          <h1 data-i18n="st1w.h1">ZA store</h1>
           <p class="lede" data-i18n="st1w.lede">W12 picks a horizontal slice of the ZA tile; its active elements walk out to memory at x0.</p>
         </header>
 
@@ -52,7 +53,7 @@
           <pre><code><span class="op-name">st1w</span> { za0h.s[w12, 0] }, p0, [x0]</code></pre>
         </figure>
 
-        <p class="spec-note" data-i18n="st1w.spec">Types: za0h.s — 32-bit float, 4 elements per slice; w12 picks one of 4 rows. Drawn at SVL = 128 bits, so a slice is 16 bytes; at SVL = 512 there are 16 rows and 64-byte slices.</p>
+        <p class="spec-note" data-i18n="st1w.spec">Types: za0h.s — 32-bit elements (words): st1w moves words regardless of what they hold, hence the plain integers here. 4 elements per slice; w12 picks one of 4 rows. Drawn at SVL = 128 bits, so a slice is 16 bytes; at SVL = 512 there are 16 rows and 64-byte slices.</p>
 
         <section class="bench" data-st1w aria-labelledby="st1w-name">
           <div class="bench-scroll">
@@ -77,7 +78,7 @@
                 </div>
                 <div class="lane-col">
                   <p class="quad-label">za0h.s[w12]</p>
-                  <div class="tile" data-i18n-aria="st1w.tileAria" aria-label="ZA tile za0.s, 4 by 4 single-precision elements">
+                  <div class="tile" data-i18n-aria="st1w.tileAria" aria-label="ZA tile za0.s, 4 by 4 32-bit elements; the highlighted slice is za0h.s[w12]">
                     <div class="cell" data-r="0" data-c="0"><span class="cell-index">0,0</span><span class="cell-value">2</span></div>
                     <div class="cell" data-r="0" data-c="1"><span class="cell-index">0,1</span><span class="cell-value">0</span></div>
                     <div class="cell" data-r="0" data-c="2"><span class="cell-index">0,2</span><span class="cell-value">3</span></div>
@@ -137,7 +138,7 @@
             </li>
             <li>
               <h3 data-i18n="st1w.note2.title">A store has no /z</h3>
-              <p data-i18n="st1w.note2.body">p0 alone governs the elements: active ones are written, inactive ones leave memory exactly as it was. There is nothing to zero — memory already holds something.</p>
+              <p data-i18n="st1w.note2.body">p0 alone governs the elements: active ones are written, inactive ones leave memory exactly as it was. There is nothing to zero — memory already holds something. Click a predicate bit to switch an element off and watch memory keep its old word.</p>
             </li>
             <li>
               <h3 data-i18n="st1w.note3.title">Closing the loop</h3>

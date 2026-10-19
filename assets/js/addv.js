@@ -255,5 +255,10 @@
   paintSources();
   renderAll();
 
-  document.addEventListener("site-lang", renderAll);
+  document.addEventListener("site-lang", function () {
+  renderAll();
+  /* The accumulator label is painted from the running total, so re-apply it
+     for whatever is currently on screen. */
+  drawState(player.getCommitted(), false);
+});
 })();

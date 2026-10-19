@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title data-i18n="meta.title.home">simd-anim</title>
-    <meta name="description" data-i18n-content="meta.desc.home" content="ARM HPC along one GEMM shortest path: the hardware, the instruction, the microkernel, then the bottleneck.">
+    <meta name="description" data-i18n-content="meta.desc.home" content="A static lab that animates real SIMD and SME instructions, composes them into kernels, and shows what decides their speed.">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <meta name="theme-color" content="#f2efe8">
     <script>
@@ -29,8 +29,9 @@
         </a>
         <div class="header-end">
           <nav data-i18n-aria="nav.label" aria-label="Primary">
-            <a href="concepts/sme-anatomy/"><span data-i18n="nav.path">Shortest path</span></a>
-            <a href="#demos"><span data-i18n="nav.catalog">All demos</span></a>
+            <a href="#instructions"><span data-i18n="nav.instructions">Instructions</span></a>
+            <a href="#kernels"><span data-i18n="nav.kernels">Kernels</span></a>
+            <a href="#strategy"><span data-i18n="nav.strategy">Strategy</span></a>
           </nav>
           <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
             <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
@@ -41,24 +42,19 @@
 
       <main id="main">
         <section class="hero" aria-labelledby="page-title">
-          <p class="eyebrow" data-i18n="home.eyebrow">ARM HPC</p>
+          <p class="eyebrow" data-i18n="home.eyebrow">Instruction lab</p>
           <h1 id="page-title">simd-anim</h1>
-          <p class="lede" data-i18n="home.lede">This site teaches ARM HPC along one GEMM shortest path: the hardware, the instruction, the microkernel, then the bottleneck.</p>
-          <div class="hero-actions">
-            <a class="button button-primary" href="concepts/sme-anatomy/"><span data-i18n="home.cta">Start shortest path</span></a>
-            <a class="button" href="quiz/"><span data-i18n="home.ctaQuiz">Linear algebra self-check</span></a>
-          </div>
-          <p class="hero-note" data-i18n="home.optional">Optional. Skipping the self-check still reaches the path.</p>
+          <p class="lede" data-i18n="home.lede">A small static lab that animates real SIMD and SME instructions — then shows how they compose into kernels, and what decides a kernel's speed.</p>
         </section>
 
-        <section class="section" id="demos" aria-labelledby="demos-title">
+        <section class="section" id="instructions" aria-labelledby="instructions-title">
           <div class="section-head">
-            <h2 id="demos-title" data-i18n="home.catalog">All demos</h2>
-            <p class="section-note" data-i18n="home.more">Appendix: every demo, plus the concept pages.</p>
+            <h2 id="instructions-title" data-i18n="home.secInstructions">Instructions</h2>
+            <p class="section-note" data-i18n="home.noteInstructions">One page per instruction, each animating the data it moves.</p>
           </div>
           <ol class="catalog">
             <li>
-              <a class="catalog-link" href="demos/fmopa/">
+              <a class="catalog-link" href="instructions/fmopa/">
                 <span class="num">01</span>
                 <span>
                   <span class="kicker"><span data-i18n="cat.fmopa.family">SME</span> · <span class="live" data-i18n="status.live">Live</span></span>
@@ -66,11 +62,11 @@
                   <p data-i18n="cat.fmopa.blurb">Outer product of z0.s and z1.s, accumulated into a 4×4 ZA tile.</p>
                   <span class="go" data-i18n="cat.fmopa.go">Play this instruction</span>
                 </span>
-                <p class="mnemonic"><span class="op-name">fmopa</span> za.s[w11, 0], p0/m, p1/m, z0.s, z1.s</p>
+                <p class="mnemonic"><span class="op-name">fmopa</span> za0.s, p0/m, p1/m, z0.s, z1.s</p>
               </a>
             </li>
             <li>
-              <a class="catalog-link" href="demos/ld1w/">
+              <a class="catalog-link" href="instructions/ld1w/">
                 <span class="num">02</span>
                 <span>
                   <span class="kicker"><span data-i18n="cat.load.family">SVE</span> · <span class="live" data-i18n="status.live">Live</span></span>
@@ -82,7 +78,7 @@
               </a>
             </li>
             <li>
-              <a class="catalog-link" href="demos/fmla/">
+              <a class="catalog-link" href="instructions/fmla/">
                 <span class="num">03</span>
                 <span>
                   <span class="kicker"><span data-i18n="cat.fmla.family">SVE</span> · <span class="live" data-i18n="status.live">Live</span></span>
@@ -94,7 +90,7 @@
               </a>
             </li>
             <li>
-              <a class="catalog-link" href="demos/st1w/">
+              <a class="catalog-link" href="instructions/st1w/">
                 <span class="num">04</span>
                 <span>
                   <span class="kicker"><span data-i18n="cat.store.family">SME</span> · <span class="live" data-i18n="status.live">Live</span></span>
@@ -106,7 +102,7 @@
               </a>
             </li>
             <li>
-              <a class="catalog-link" href="demos/whilelt/">
+              <a class="catalog-link" href="instructions/whilelt/">
                 <span class="num">05</span>
                 <span>
                   <span class="kicker"><span data-i18n="cat.whilelt.family">SVE</span> · <span class="live" data-i18n="status.live">Live</span></span>
@@ -118,7 +114,7 @@
               </a>
             </li>
             <li>
-              <a class="catalog-link" href="demos/addv/">
+              <a class="catalog-link" href="instructions/addv/">
                 <span class="num">06</span>
                 <span>
                   <span class="kicker"><span data-i18n="cat.addv.family">SVE</span> · <span class="live" data-i18n="status.live">Live</span></span>
@@ -126,11 +122,11 @@
                   <p data-i18n="cat.addv.blurb">Collapse the active lanes of a vector into one scalar sum.</p>
                   <span class="go" data-i18n="cat.addv.go">Play this instruction</span>
                 </span>
-                <p class="mnemonic">addv d0, p0/m, z0.s</p>
+                <p class="mnemonic"><span class="op-name">uaddv</span> d0, p0, z0.s</p>
               </a>
             </li>
             <li>
-              <a class="catalog-link" href="demos/uzp1/">
+              <a class="catalog-link" href="instructions/uzp1/">
                 <span class="num">07</span>
                 <span>
                   <span class="kicker"><span data-i18n="cat.uzp1.family">SVE</span> · <span class="live" data-i18n="status.live">Live</span></span>
@@ -142,7 +138,7 @@
               </a>
             </li>
             <li>
-              <a class="catalog-link" href="demos/gather/">
+              <a class="catalog-link" href="instructions/gather/">
                 <span class="num">08</span>
                 <span>
                   <span class="kicker"><span data-i18n="cat.gather.family">SVE</span> · <span class="live" data-i18n="status.live">Live</span></span>
@@ -154,7 +150,7 @@
               </a>
             </li>
             <li>
-              <a class="catalog-link" href="demos/fmlal/">
+              <a class="catalog-link" href="instructions/fmlal/">
                 <span class="num">09</span>
                 <span>
                   <span class="kicker"><span data-i18n="cat.fmlal.family">SME2</span> · <span class="live" data-i18n="status.live">Live</span></span>
@@ -166,7 +162,7 @@
               </a>
             </li>
             <li>
-              <a class="catalog-link" href="demos/addha/">
+              <a class="catalog-link" href="instructions/addha/">
                 <span class="num">10</span>
                 <span>
                   <span class="kicker"><span data-i18n="cat.addha.family">SME</span> · <span class="live" data-i18n="status.live">Live</span></span>
@@ -178,7 +174,7 @@
               </a>
             </li>
             <li>
-              <a class="catalog-link" href="demos/tbl/">
+              <a class="catalog-link" href="instructions/tbl/">
                 <span class="num">11</span>
                 <span>
                   <span class="kicker"><span data-i18n="cat.tbl.family">SVE</span> · <span class="live" data-i18n="status.live">Live</span></span>
@@ -189,21 +185,39 @@
                 <p class="mnemonic">tbl z0.s, { z1.s, z2.s }, z3.s</p>
               </a>
             </li>
+          </ol>
+        </section>
+
+        <section class="section" id="kernels" aria-labelledby="kernels-title">
+          <div class="section-head">
+            <h2 id="kernels-title" data-i18n="home.secKernels">Kernels</h2>
+            <p class="section-note" data-i18n="home.noteKernels">Instructions composed into a whole that computes.</p>
+          </div>
+          <ol class="catalog">
             <li>
-              <a class="catalog-link" href="demos/microkernel/">
-                <span class="num">12</span>
+              <a class="catalog-link" href="kernels/microkernel/">
+                <span class="num">01</span>
                 <span>
                   <span class="kicker"><span data-i18n="cat.mk.family">SME</span> · <span class="live" data-i18n="status.live">Live</span></span>
                   <h3 data-i18n="cat.mk.title">Microkernel</h3>
                   <p data-i18n="cat.mk.blurb">How pack, the K loop, and the store compose a real GEMM kernel — in every transpose state.</p>
                   <span class="go" data-i18n="cat.mk.go">Play this kernel</span>
                 </span>
-                <p class="mnemonic">pack → ldr + fmopa ×4 → st1w / stnt1w</p>
+                <p class="mnemonic">pack → ldr + fmopa ×2 → st1w / stnt1w</p>
               </a>
             </li>
+          </ol>
+        </section>
+
+        <section class="section" id="strategy" aria-labelledby="strategy-title">
+          <div class="section-head">
+            <h2 id="strategy-title" data-i18n="home.secStrategy">Strategy</h2>
+            <p class="section-note" data-i18n="home.noteStrategy">The machine-level ideas — how data supply, reuse and latency decide what a kernel can reach.</p>
+          </div>
+          <ol class="catalog">
             <li>
-              <a class="catalog-link" href="concepts/roofline/">
-                <span class="num">13</span>
+              <a class="catalog-link" href="strategy/roofline/">
+                <span class="num">01</span>
                 <span>
                   <span class="kicker"><span data-i18n="cat.roofline.family">Performance model</span> · <span class="live" data-i18n="status.live">Live</span></span>
                   <h3 data-i18n="cat.roofline.title">Roofline</h3>
@@ -214,18 +228,35 @@
               </a>
             </li>
             <li>
-              <a class="catalog-link" href="concepts/memory-flow/">
-                <span class="num">14</span>
+              <a class="catalog-link" href="strategy/memory-flow/">
+                <span class="num">02</span>
                 <span>
                   <span class="kicker"><span data-i18n="cat.mflow.family">Cache choreography</span> · <span class="live" data-i18n="status.live">Live</span></span>
                   <h3 data-i18n="cat.mflow.title">Memory in flight</h3>
                   <p data-i18n="cat.mflow.blurb">Prefetch and store traffic across two kernels, level by level — and the one slot where HBM reads and writes collide.</p>
                   <span class="go" data-i18n="cat.mflow.go">Open this page</span>
                 </span>
-                <p class="mnemonic">pldl2keep / pldl1strm / stnt1w</p>
+                <p class="mnemonic" data-i18n="cat.mflow.mnemonic">pldl2keep / pldl1strm / stnt1w — across kernels</p>
               </a>
             </li>
           </ol>
+        </section>
+
+        <section class="section" id="glossary" aria-labelledby="glossary-title">
+          <div class="section-head">
+            <h2 id="glossary-title" data-i18n="home.glossTitle">Words this lab uses</h2>
+            <p class="section-note" data-i18n="home.glossNote">The four abbreviations, spelled out once so no page has to repeat them.</p>
+          </div>
+          <dl class="glossary">
+            <dt>SVE</dt>
+            <dd data-i18n="home.glossSve">Scalable Vector Extension — the vector half of the ISA, where the z registers and p predicates come from.</dd>
+            <dt>SME</dt>
+            <dd data-i18n="home.glossSme">Scalable Matrix Extension — adds the ZA matrix accumulator and the outer-product instructions (fmopa, addha, st1w).</dd>
+            <dt>SVL</dt>
+            <dd data-i18n="home.glossSvl">Streaming vector length — how many bits one vector holds, fixed by the hardware; 128 in every drawing here.</dd>
+            <dt>ZA</dt>
+            <dd data-i18n="home.glossZa">The SME matrix accumulator — the square tile that fmopa accumulates into and st1w writes back to memory.</dd>
+          </dl>
         </section>
 
       </main>

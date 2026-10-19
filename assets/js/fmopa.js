@@ -455,5 +455,10 @@
   syncModeButtons();
   renderAll();
 
-  document.addEventListener("site-lang", renderAll);
+  document.addEventListener("site-lang", function () {
+  renderAll();
+  /* The tile cells' aria-labels are painted from the drawing, so re-apply
+     them for whatever is currently on screen. */
+  drawTile(player.getCommitted(), false);
+});
 })();

@@ -183,7 +183,9 @@
         hot.classList.remove("is-hot");
         hot.classList.add("is-done");
       }
-      clearFlags();
+      /* Only the transient marks go: the final frame keeps its done/kept
+         washes, exactly like the fmopa, st1w and addha pages. */
+      clearTransient();
       announce(t("fmla.done"));
     },
     onState: function (state, committed, total, armed) {
@@ -279,5 +281,10 @@
   paintSources();
   renderAll();
 
-  document.addEventListener("site-lang", renderAll);
+  document.addEventListener("site-lang", function () {
+    renderAll();
+    /* The lane aria-labels are painted from the drawing, not from the string
+       table, so re-apply them for the state that is on screen. */
+    drawState(player.getCommitted(), false);
+  });
 })();
