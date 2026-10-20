@@ -50,6 +50,7 @@
         </a>
         <div class="header-end">
           <nav data-i18n-aria="nav.label" aria-label="Primary">
+            <a href="../../learn/" aria-current="step"><span data-i18n="nav.learn">Learn</span></a>
             <a href="../../#instructions" aria-current="page"><span data-i18n="nav.instructions">Instructions</span></a>
             <a href="../../#kernels"><span data-i18n="nav.kernels">Kernels</span></a>
             <a href="../../#strategy"><span data-i18n="nav.strategy">Strategy</span></a>
@@ -68,9 +69,18 @@
       <main id="main" class="demo-main">
         <a class="back" href="../../#instructions"><span aria-hidden="true">← </span><span data-i18n="ui.backInstructions">All instructions</span></a>
         <header class="demo-head">
+          <div class="path-bar">
+            <p class="path-progress"><span data-i18n="tour.name">Kernel tour</span> · 4/4</p>
+            <p class="shape-badge" data-i18n="tour.shape">whilelt → ld1w → fmopa → st1w</p>
+          </div>
           <p class="eyebrow"><span>04</span> <span aria-hidden="true">/</span> <span data-i18n="st1w.eyebrow">SME · slice store</span></p>
           <h1 data-i18n="st1w.h1">ZA store</h1>
           <p class="lede" data-i18n="st1w.lede">W12 picks a horizontal slice of the ZA tile; its active elements walk out to memory at x0.</p>
+          <p class="path-hint"><a href="../../kernels/tour/" data-i18n="tour.hint">Step 2 of the intro: the inner pipeline, one instruction at a time.</a></p>
+          <nav class="path-steps" data-i18n-aria="path.stepsLabel" aria-label="Path steps">
+            <a href="../fmopa/"><span aria-hidden="true">← </span><span data-i18n="path.prev">Prev</span></a>
+            <a class="path-next" href="../../kernels/microkernel/"><span data-i18n="path.next">Next</span><span aria-hidden="true"> →</span></a>
+          </nav>
         </header>
 
         <figure class="insn">

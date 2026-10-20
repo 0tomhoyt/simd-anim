@@ -50,6 +50,7 @@
         </a>
         <div class="header-end">
           <nav data-i18n-aria="nav.label" aria-label="Primary">
+            <a href="learn/"><span data-i18n="nav.learn">Learn</span></a>
             <a href="#instructions"><span data-i18n="nav.instructions">Instructions</span></a>
             <a href="#kernels"><span data-i18n="nav.kernels">Kernels</span></a>
             <a href="#strategy"><span data-i18n="nav.strategy">Strategy</span></a>
@@ -70,6 +71,10 @@
           <p class="eyebrow" data-i18n="home.eyebrow">Instruction lab</p>
           <h1 id="page-title">simd-anim</h1>
           <p class="lede" data-i18n="home.lede">A small static lab that animates real SIMD and SME instructions — then shows how they compose into kernels, and what decides a kernel's speed.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="learn/"><span data-i18n="home.cta">Start the intro</span></a>
+            <a class="button" href="kernels/tour/"><span data-i18n="home.ctaTour">Kernel tour</span></a>
+          </div>
           <p class="hero-note"><span data-i18n="home.quizPre">New to matrix multiply?</span> <a href="quiz/" data-i18n="home.quizLink">Take the optional self-check</a></p>
         </section>
 
@@ -211,6 +216,30 @@
                 <p class="mnemonic">tbl z0.s, { z1.s, z2.s }, z3.s</p>
               </a>
             </li>
+            <li>
+              <a class="catalog-link" href="instructions/addva/">
+                <span class="num">12</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.addva.family">SME</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.addva.title">ADDVA</h3>
+                  <p data-i18n="cat.addva.blurb">One vector lands in every active column of the ZA tile.</p>
+                  <span class="go" data-i18n="cat.addva.go">Play this instruction</span>
+                </span>
+                <p class="mnemonic">addva za0.s, p0/m, p1/m, z0.s</p>
+              </a>
+            </li>
+            <li>
+              <a class="catalog-link" href="instructions/zip1/">
+                <span class="num">13</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.zip1.family">SVE</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.zip1.title">ZIP1</h3>
+                  <p data-i18n="cat.zip1.blurb">Interleave: the low halves of two vectors alternate into one.</p>
+                  <span class="go" data-i18n="cat.zip1.go">Play this instruction</span>
+                </span>
+                <p class="mnemonic">zip1 z0.s, z1.s, z2.s</p>
+              </a>
+            </li>
           </ol>
         </section>
 
@@ -230,6 +259,18 @@
                   <span class="go" data-i18n="cat.mk.go">Play this kernel</span>
                 </span>
                 <p class="mnemonic">pack → ldr + fmopa ×2 → st1w / stnt1w</p>
+              </a>
+            </li>
+            <li>
+              <a class="catalog-link" href="kernels/tour/">
+                <span class="num">02</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.tour.family">SME</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.tour.title">Kernel tour</h3>
+                  <p data-i18n="cat.tour.blurb">whilelt, ld1w, fmopa, st1w — the GEMM inner loop, in the order it runs.</p>
+                  <span class="go" data-i18n="cat.tour.go">Start this tour</span>
+                </span>
+                <p class="mnemonic" data-i18n="tour.shape">whilelt → ld1w → fmopa → st1w</p>
               </a>
             </li>
           </ol>

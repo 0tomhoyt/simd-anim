@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="meta.title.zip1">ZIP1 · simd-anim</title>
+    <meta name="description" data-i18n-content="meta.desc.zip1" content="Play the SVE interleave zip1 z0.s, z1.s, z2.s as the low halves of two vectors alternate into one.">
+    <link rel="canonical" href="https://arm-simd.houyuteng.com/instructions/zip1/">
+    <meta property="og:title" content="ZIP1 · simd-anim">
+    <meta property="og:description" content="Play the SVE interleave zip1 z0.s, z1.s, z2.s as the low halves of two vectors alternate into one.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://arm-simd.houyuteng.com/instructions/zip1/">
+    <meta property="og:image" content="https://www.houyuteng.com/og.png">
+    <meta property="og:site_name" content="Hou Yuteng">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="zh_CN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="ZIP1 · simd-anim">
+    <meta name="twitter:description" content="Play the SVE interleave zip1 z0.s, z1.s, z2.s as the low halves of two vectors alternate into one.">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#f2efe8">
+    <script>
+      try {
+        var saved = localStorage.getItem("site-lang");
+        var zh = saved === "zh" || (saved !== "en" && (navigator.language || "en").toLowerCase().indexOf("zh") === 0);
+        if (zh) {
+          document.documentElement.classList.add("i18n-wait");
+          document.documentElement.lang = "zh-Hans";
+        }
+      } catch (error) {}
+      try {
+        var th = localStorage.getItem("site-theme");
+        if (th !== "dark" && th !== "light") {
+          th = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", th);
+      } catch (error) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    </script>
+    <link rel="stylesheet" href="../../assets/css/site.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skip">Skip to main content</a>
+    <div class="page">
+      <header class="site-header">
+        <a class="brand" href="../../">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="brand-name">simd-anim</span>
+        </a>
+        <div class="header-end">
+          <nav data-i18n-aria="nav.label" aria-label="Primary">
+            <a href="../../learn/"><span data-i18n="nav.learn">Learn</span></a>
+            <a href="../../#instructions" aria-current="page"><span data-i18n="nav.instructions">Instructions</span></a>
+            <a href="../../#kernels"><span data-i18n="nav.kernels">Kernels</span></a>
+            <a href="../../#strategy"><span data-i18n="nav.strategy">Strategy</span></a>
+          </nav>
+          <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
+            <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang="zh" lang="zh-Hans" aria-pressed="false">中文</button>
+          </div>
+          <button class="theme-toggle" type="button" aria-pressed="false" data-i18n-aria="theme.toggle" aria-label="Toggle dark mode">
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <main id="main" class="demo-main">
+        <a class="back" href="../../#instructions"><span aria-hidden="true">← </span><span data-i18n="ui.backInstructions">All instructions</span></a>
+        <header class="demo-head">
+          <p class="eyebrow"><span>13</span> <span aria-hidden="true">/</span> <span data-i18n="zip1.eyebrow">SVE · interleave</span></p>
+          <h1>ZIP1</h1>
+          <p class="lede" data-i18n="zip1.lede">Elements 0 and 1 of each source alternate into the destination — the low half only.</p>
+        </header>
+
+        <figure class="insn">
+          <figcaption data-i18n="ui.insnLabel">Instruction</figcaption>
+          <pre><code><span class="op-name">zip1</span> z0.s, z1.s, z2.s</code></pre>
+        </figure>
+
+        <p class="spec-note" data-i18n="zip1.spec">Types: z0.s, z1.s, z2.s — 32-bit float, 4 lanes each. Drawn at SVL = 128 bits; zip1 interleaves the low half (2 + 2 elements). At SVL = 512 the low half is 8 + 8.</p>
+
+        <section class="bench" data-zip1 aria-labelledby="zip1-name">
+          <div class="bench-scroll">
+            <div class="stage">
+              <div class="lane-cols">
+                <div class="lane-col">
+                  <p class="quad-label">z1.s</p>
+                  <div class="col-stack" aria-hidden="true">
+                    <span class="lane" data-vec="z1" data-lane="0">1</span>
+                    <span class="lane" data-vec="z1" data-lane="1">3</span>
+                    <span class="lane is-out" data-vec="z1" data-lane="2">8</span>
+                    <span class="lane is-out" data-vec="z1" data-lane="3">9</span>
+                  </div>
+                </div>
+                <div class="lane-col">
+                  <p class="quad-label">z2.s</p>
+                  <div class="col-stack" aria-hidden="true">
+                    <span class="lane" data-vec="z2" data-lane="0">2</span>
+                    <span class="lane" data-vec="z2" data-lane="1">4</span>
+                    <span class="lane is-out" data-vec="z2" data-lane="2">7</span>
+                    <span class="lane is-out" data-vec="z2" data-lane="3">6</span>
+                  </div>
+                </div>
+                <p class="op-glyph" aria-hidden="true">→</p>
+                <div class="lane-col">
+                  <p class="quad-label">z0.s</p>
+                  <div class="col-stack" data-i18n-aria="zip1.zAria" aria-label="z0.s destination, 4 single-precision lanes">
+                    <span class="lane" data-vec="z0" data-lane="0">·</span>
+                    <span class="lane" data-vec="z0" data-lane="1">·</span>
+                    <span class="lane" data-vec="z0" data-lane="2">·</span>
+                    <span class="lane" data-vec="z0" data-lane="3">·</span>
+                  </div>
+                </div>
+              </div>
+              <div class="stage-foot">
+                <p class="tile-name" id="zip1-name" data-i18n="zip1.name">z0 ← low half of z1 interleaved with low half of z2</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="formula" data-caption>Ready. z0.s will be rebuilt by interleaving the low halves.</p>
+          <p class="sr-only" data-announcer role="status"></p>
+          <div class="controls">
+            <button class="button button-primary" type="button" data-action="play">Play</button>
+            <button class="button" type="button" data-action="replay" data-i18n="ui.replay">Replay</button>
+            <button class="button button-ghost" type="button" data-action="back" data-i18n-aria="ui.stepBack" aria-label="Step back"><span aria-hidden="true">←</span></button>
+            <button class="button button-ghost" type="button" data-action="fwd" data-i18n-aria="ui.stepFwd" aria-label="Step forward"><span aria-hidden="true">→</span></button>
+            <button class="button" type="button" data-action="random" data-i18n="ui.random">Randomize</button>
+            <p class="step-count" data-counter aria-hidden="true">0 / 4</p>
+          </div>
+          <p class="kbd-note" data-i18n="ui.kbdHint">Arrow keys step, space plays or pauses.</p>
+          <p class="motion-note" data-motion-note data-i18n="ui.motion" hidden>This browser prefers reduced motion. Play still runs the instruction and jumps straight to the result.</p>
+        </section>
+
+        <section class="notes" aria-labelledby="notes-title">
+          <h2 id="notes-title" data-i18n="ui.notesTitle">Reading the picture</h2>
+          <ol>
+            <li>
+              <h3 data-i18n="zip1.note1.title">Low half and high half</h3>
+              <p data-i18n="zip1.note1.body">zip1 takes elements 0 and 1 of each source and writes them alternately: z1, z2, z1, z2. The dimmed high half — lanes 2 and 3 — never moves. zip2 takes that half; together they turn two contiguous streams into one interleaved stream.</p>
+            </li>
+            <li>
+              <h3 data-i18n="zip1.note2.title">Why interleave</h3>
+              <p><span data-i18n="zip1.note2.body">uzp1 splits an interleaved stream apart. zip1 is the way back: stereo samples, paired channels, anything that has to leave memory interleaved.</span> <a href="../uzp1/" data-i18n="zip1.note2.link">Play UZP1</a></p>
+            </li>
+            <li>
+              <h3 data-i18n="zip1.note3.title">No predicate here</h3>
+              <p data-i18n="zip1.note3.body">zip moves whole vectors, so there is no p0. Every element is data being shuffled, not work being masked — UZP1, TBL, and FMLAL are the other unpredicated instruction pages here.</p>
+            </li>
+          </ol>
+          <p class="section-note values-line"><span data-values>This pass interleaves z1.s = {1, 3, 8, 9} and z2.s = {2, 4, 7, 6}.</span></p>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <a href="https://www.houyuteng.com/" data-i18n="footer.by">A lab by Hou Yuteng</a>
+        <a href="https://github.com/0tomhoyt/personal_web"><span data-i18n="footer.source">Source</span></a>
+      </footer>
+    </div>
+    <script src="../../assets/js/i18n.js"></script>
+    <script src="../../assets/js/theme.js"></script>
+    <script src="../../assets/js/player.js"></script>
+    <script src="../../assets/js/zip1.js"></script>
+  </body>
+</html>

@@ -151,7 +151,8 @@ nav a {
   text-decoration: none;
 }
 
-nav a[aria-current="page"] {
+nav a[aria-current="page"],
+nav a[aria-current="step"] {
   color: var(--accent);
 }
 
@@ -2007,7 +2008,8 @@ a.button {
 }
 
 .hero-note,
-.path-hint {
+.path-hint,
+.path-end {
   margin: 0.85rem 0 0;
   color: var(--muted);
   font-size: 0.92rem;
@@ -2021,9 +2023,97 @@ a.button {
 .hero-note a:hover,
 .hero-note a:focus-visible,
 .path-hint a:hover,
-.path-hint a:focus-visible {
+.path-hint a:focus-visible,
+.path-steps a:hover,
+.path-steps a:focus-visible,
+.path-end a:hover,
+.path-end a:focus-visible {
   color: var(--accent);
   outline: none;
+}
+
+.path-end a {
+  color: var(--ink);
+}
+
+/* Progress chrome shared by the intro and the kernel tour.
+   Kept out of .header-end so the small-screen rule that hides the
+   header nav leaves Prev and Next on the page. */
+.path-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin: 0 0 0.9rem;
+}
+
+.path-progress,
+.shape-badge {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.path-progress {
+  color: var(--accent);
+}
+
+.shape-badge {
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  color: var(--muted);
+}
+
+.hero > .shape-badge {
+  display: inline-block;
+  margin-top: 1.15rem;
+}
+
+.demo-main .catalog {
+  margin-top: 1.4rem;
+  border-top: 1px solid var(--line);
+}
+
+.path-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin-top: 0.85rem;
+  font-size: 0.92rem;
+}
+
+.path-steps a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.path-next {
+  margin-left: auto;
+}
+
+.notes a {
+  color: var(--accent);
+}
+
+/* ADDVA's operand is a column, so the top of the stage is only the
+   column predicate. Two rows keep p1 flush above the tile. */
+[data-addva] .stage-top {
+  grid-template-rows: auto var(--pred);
+}
+
+[data-addva] .label-p0,
+[data-addva] .label-z0 {
+  grid-row: 2;
+}
+
+@media (max-width: 900px) {
+  .header-end nav {
+    gap: 0.65rem;
+    font-size: 0.82rem;
+  }
 }
 
 .quiz-list {
