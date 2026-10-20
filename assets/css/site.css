@@ -2302,3 +2302,341 @@ a.button {
     grid-template-columns: 1fr;
   }
 }
+
+/* Course map: chapter 1 is the GEMM intro, chapter 2 is beyond it.
+   #kernels and #strategy stay as anchors on chapter 1 so older links land. */
+#course,
+#gemm,
+#beyond,
+#instructions,
+#glossary,
+#kernels,
+#strategy {
+  scroll-margin-top: 4.75rem;
+}
+
+.chapter {
+  margin-top: 1.6rem;
+}
+
+.chapter h3 {
+  margin: 0 0 0.3rem;
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 500;
+}
+
+.chapter > .section-note {
+  margin-bottom: 0.2rem;
+}
+
+.seg-label {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.path-hint.is-hot {
+  color: var(--accent);
+}
+
+/* Attention, softmax, and pack — chapter 2 of the course. */
+.att-flow {
+  display: grid;
+  grid-template-columns: auto minmax(8.5rem, 1fr) minmax(13rem, 1.15fr) minmax(12.5rem, 1.2fr) auto;
+  gap: 0.65rem;
+  align-items: stretch;
+  width: max-content;
+}
+
+.att-panel {
+  min-width: 0;
+  padding: 0.65rem 0.7rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 42%, var(--paper));
+}
+
+.att-panel.is-on {
+  border-color: var(--accent);
+}
+
+.att-label {
+  margin: 0 0 0.45rem;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.att-mat,
+.att-scores,
+.att-v {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.att-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 1.55rem;
+}
+
+.att-idx {
+  flex: none;
+  width: 1.4rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+}
+
+.att-cell,
+.pk-cell {
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.att-wide {
+  width: auto;
+  min-width: 3.2rem;
+  padding: 0 0.35rem;
+}
+
+.att-cell.is-on,
+.att-row.is-on .att-cell,
+.pk-cell.is-on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--bg));
+  color: var(--ink);
+}
+
+.att-cell.is-cur,
+.att-row.is-cur .att-cell,
+.pk-cell.is-cur {
+  border-color: var(--accent);
+  background: var(--accent-fill);
+  color: var(--on-accent);
+}
+
+.att-num {
+  flex: none;
+  min-width: 2.4rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.att-num.is-on {
+  color: var(--ink);
+}
+
+.att-num.is-cur {
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.att-key .att-num {
+  color: var(--accent);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.att-track,
+.smx-track {
+  display: block;
+  flex: 1 1 2.4rem;
+  height: 0.5rem;
+  min-width: 2.2rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  overflow: hidden;
+}
+
+.att-fill,
+.smx-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--accent-fill);
+  transition: width 220ms ease;
+}
+
+.smx-track {
+  width: 100%;
+}
+
+.att-vwt {
+  min-width: 2.2rem;
+  margin-left: 0.2rem;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.att-row.is-cur {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+.att-flow + .tile-name,
+.smx + .tile-name,
+.pk-wrap + .tile-name {
+  grid-column: auto;
+  margin-top: 0.75rem;
+  text-align: left;
+}
+
+.smx {
+  display: grid;
+  gap: 0.15rem;
+  width: max-content;
+  max-width: 100%;
+}
+
+.smx-row {
+  display: grid;
+  grid-template-columns: 4.4rem 5.4rem 4.2rem minmax(6.5rem, 10rem) 4.2rem;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.32rem 0.35rem;
+  border-radius: 6px;
+}
+
+.smx-head {
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.smx-val {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.smx-val.is-on {
+  color: var(--ink);
+}
+
+.smx-row.is-cur {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.smx-row.is-cur .smx-val[data-smx="x"] {
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.pk-wrap {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem 1.5rem;
+  align-items: start;
+  width: max-content;
+}
+
+.pk-label {
+  margin: 0 0 0.45rem;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.pk-tiles {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.75rem 0.9rem;
+}
+
+.pk-block-label,
+.pk-strip-label {
+  margin: 0 0 0.28rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+}
+
+.pk-block-wrap.is-on .pk-block-label,
+.pk-strip.is-on .pk-strip-label {
+  color: var(--accent);
+}
+
+.pk-block {
+  display: grid;
+  grid-template-columns: repeat(4, 1.55rem);
+  gap: 3px;
+}
+
+.pk-strips {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.pk-strip {
+  padding: 0.45rem 0.55rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 42%, var(--paper));
+}
+
+.pk-strip.is-on {
+  border-color: var(--accent);
+}
+
+.pk-strip.is-done {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+}
+
+.pk-cells {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  max-width: 26rem;
+}
+
+@media (max-width: 720px) {
+  .section-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .att-flow,
+  .pk-wrap {
+    grid-template-columns: 1fr;
+    width: auto;
+  }
+
+  .smx-row {
+    grid-template-columns: 3.1rem 4rem 3.2rem minmax(4rem, 1fr) 3.1rem;
+    gap: 0.35rem;
+    padding-inline: 0;
+  }
+}

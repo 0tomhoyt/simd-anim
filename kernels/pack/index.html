@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="meta.title.pk">Pack · simd-anim</title>
+    <meta name="description" data-i18n-content="meta.desc.pk" content="An 8×8 row-major panel becomes four contiguous 4×4 tiles. The source skips four addresses on the next row; the packed run skips none.">
+    <link rel="canonical" href="https://arm-simd.houyuteng.com/kernels/pack/">
+    <meta property="og:title" content="Pack · simd-anim">
+    <meta property="og:description" content="An 8×8 row-major panel becomes four contiguous 4×4 tiles. The source skips four addresses on the next row; the packed run skips none.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://arm-simd.houyuteng.com/kernels/pack/">
+    <meta property="og:image" content="https://www.houyuteng.com/og.png">
+    <meta property="og:site_name" content="Hou Yuteng">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="zh_CN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Pack · simd-anim">
+    <meta name="twitter:description" content="An 8×8 row-major panel becomes four contiguous 4×4 tiles. The source skips four addresses on the next row; the packed run skips none.">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#f2efe8">
+    <script>
+      try {
+        var saved = localStorage.getItem("site-lang");
+        var zh = saved === "zh" || (saved !== "en" && (navigator.language || "en").toLowerCase().indexOf("zh") === 0);
+        if (zh) {
+          document.documentElement.classList.add("i18n-wait");
+          document.documentElement.lang = "zh-Hans";
+        }
+      } catch (error) {}
+      try {
+        var th = localStorage.getItem("site-theme");
+        if (th !== "dark" && th !== "light") {
+          th = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", th);
+      } catch (error) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    </script>
+    <link rel="stylesheet" href="../../assets/css/site.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skip">Skip to main content</a>
+    <div class="page">
+      <header class="site-header">
+        <a class="brand" href="../../">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="brand-name">simd-anim</span>
+        </a>
+        <div class="header-end">
+          <nav data-i18n-aria="nav.label" aria-label="Primary">
+            <a href="../../learn/" aria-current="step"><span data-i18n="nav.learn">Learn</span></a>
+            <a href="../../#instructions"><span data-i18n="nav.instructions">Instructions</span></a>
+          </nav>
+          <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
+            <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang="zh" lang="zh-Hans" aria-pressed="false">中文</button>
+          </div>
+          <button class="theme-toggle" type="button" aria-pressed="false" data-i18n-aria="theme.toggle" aria-label="Toggle dark mode">
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <main id="main" class="demo-main">
+        <a class="back" href="../../learn/#beyond"><span aria-hidden="true">← </span><span data-i18n="ui.backCourse">The course</span></a>
+        <header class="demo-head">
+          <div class="path-bar">
+            <p class="path-progress"><span data-i18n="beyond.short">Beyond GEMM</span> · 1/3</p>
+            <p class="shape-badge" data-i18n="pk.shape">8×8 panel · four 4×4 tiles</p>
+          </div>
+          <p class="eyebrow"><span>01</span> <span aria-hidden="true">/</span> <span data-i18n="pk.eyebrow">Chapter 2 · pack</span></p>
+          <h1 data-i18n="pk.h1">Pack</h1>
+          <p class="lede" data-i18n="pk.lede">An 8-wide row-major panel stores a 4-wide chunk contiguously in its row and four addresses away on the next row. Pack copies each 4×4 tile into one run.</p>
+          <nav class="path-steps" data-i18n-aria="path.stepsLabel" aria-label="Path steps">
+            <a href="../../strategy/memory-flow/"><span aria-hidden="true">← </span><span data-i18n="path.prev">Prev</span></a>
+            <a class="path-next" href="../softmax/"><span data-i18n="path.next">Next</span><span aria-hidden="true"> →</span></a>
+          </nav>
+        </header>
+
+        <figure class="insn">
+          <figcaption data-i18n="ui.insnLabel">Instruction</figcaption>
+          <pre><code><span class="op-name">source</span>  address = row·8 + col
+<span class="op-name">pack</span>    4×4 tile → 16 contiguous addresses</code></pre>
+        </figure>
+
+        <p class="spec-note" data-i18n="pk.spec">The number in each cell is the source address, row·8 + col. Four tiles cover the 8×8 panel. Each packed tile is 16 contiguous addresses. Inside a row the four values are adjacent; the next row of the same tile starts eight addresses later in the panel and only four later in the packed run.</p>
+
+        <section class="bench" data-pk aria-labelledby="pk-name">
+          <div class="bench-scroll">
+            <div class="stage">
+              <div class="pk-wrap">
+                <div>
+                  <p class="pk-label" data-i18n="pk.src">row-major · address = row·8 + col</p>
+                  <div class="pk-tiles" data-pk-src aria-hidden="true"></div>
+                </div>
+                <div>
+                  <p class="pk-label" data-i18n="pk.dst">packed · four tiles, 16 addresses each</p>
+                  <div class="pk-strips" data-pk-dst aria-hidden="true"></div>
+                </div>
+              </div>
+              <p class="tile-name" id="pk-name" data-i18n="pk.name">pack · strided source, contiguous run</p>
+            </div>
+          </div>
+
+          <p class="formula" data-caption>Four tiles. Play, and watch a chunk of four move.</p>
+          <p class="path-hint" data-skip hidden></p>
+          <p class="sr-only" data-announcer role="status"></p>
+          <div class="controls">
+            <button class="button button-primary" type="button" data-action="play">Play</button>
+            <button class="button" type="button" data-action="replay" data-i18n="ui.replay">Replay</button>
+            <button class="button button-ghost" type="button" data-action="back" data-i18n-aria="ui.stepBack" aria-label="Step back"><span aria-hidden="true">←</span></button>
+            <button class="button button-ghost" type="button" data-action="fwd" data-i18n-aria="ui.stepFwd" aria-label="Step forward"><span aria-hidden="true">→</span></button>
+            <p class="step-count" data-counter aria-hidden="true">0 / 16</p>
+          </div>
+          <p class="kbd-note" data-i18n="ui.kbdHint">Arrow keys step, space plays or pauses.</p>
+          <p class="motion-note" data-motion-note data-i18n="ui.motion" hidden>This browser prefers reduced motion. Play still runs the instruction and jumps straight to the result.</p>
+        </section>
+
+        <section class="notes" aria-labelledby="notes-title">
+          <h2 id="notes-title" data-i18n="ui.notesTitle">Reading the picture</h2>
+          <ol>
+            <li>
+              <h3 data-i18n="pk.note1.title">The next row skips</h3>
+              <p data-i18n="pk.note1.body">Inside a row the four values are adjacent. The next row of the same tile starts eight addresses later in the panel and only four later in the packed run, so the source skips four addresses and the packed side skips none.</p>
+            </li>
+            <li>
+              <h3 data-i18n="pk.note2.title">Unit stride is the point</h3>
+              <p data-i18n="pk.note2.body">A microkernel wants a contiguous vector load. Pack pays the strided reads once, then every k step is a unit-stride load. The copy is the layout fix, not the arithmetic.</p>
+            </li>
+            <li class="wide">
+              <h3 data-i18n="pk.note3.title">The same habit in front of QKᵀ and PV</h3>
+              <p><span data-i18n="pk.note3.body">The GEMM microkernel packs A and B before the K loop. Attention's two matrix multiplies want the same panels. Memory in flight is what happens to those bytes after they are packed.</span> <a href="../microkernel/" data-i18n="pk.note3.linkMk">Open the microkernel</a> <a href="../../strategy/memory-flow/" data-i18n="pk.note3.linkMflow">Open memory in flight</a> <a href="../attention/" data-i18n="pk.note3.linkAttn">Open attention</a></p>
+            </li>
+          </ol>
+          <p class="section-note values-line"><span data-values>Each cell shows its source address. Packed addresses run 0–63, tile by tile.</span></p>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <a href="https://www.houyuteng.com/" data-i18n="footer.by">A lab by Hou Yuteng</a>
+        <a href="https://github.com/0tomhoyt/personal_web"><span data-i18n="footer.source">Source</span></a>
+      </footer>
+    </div>
+    <script src="../../assets/js/strings/common.js"></script>
+    <script src="../../assets/js/strings/instructions.js"></script>
+    <script src="../../assets/js/strings/course.js"></script>
+    <script src="../../assets/js/i18n.js"></script>
+    <script src="../../assets/js/theme.js"></script>
+    <script src="../../assets/js/player.js"></script>
+    <script src="../../assets/js/pack.js"></script>
+  </body>
+</html>

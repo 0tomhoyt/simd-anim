@@ -76,8 +76,16 @@ for (const file of files.filter((f) => f.endsWith(".wasm"))) {
   }
 }
 
-/* 2. and 3. i18n keys. */
-const i18nSource = readFileSync(join(root, "assets/js/i18n.js"), "utf8");
+/* 2. and 3. i18n keys. Strings live in assets/js/strings/*.js; i18n.js merges them. */
+const stringDir = join(root, "assets", "js", "strings");
+const stringFiles = existsSync(stringDir)
+  ? readdirSync(stringDir)
+      .filter((name) => name.endsWith(".js"))
+      .map((name) => join(stringDir, name))
+  : [];
+const i18nSource = [join(root, "assets/js/i18n.js"), ...stringFiles]
+  .map((file) => readFileSync(file, "utf8"))
+  .join("\n");
 const defined = new Map(); // key -> occurrence count in STRINGS
 for (const m of i18nSource.matchAll(/"([A-Za-z0-9._-]+)":\s*"/g)) {
   defined.set(m[1], (defined.get(m[1]) || 0) + 1);
@@ -89,7 +97,7 @@ for (const file of htmlFiles) {
   const html = readFileSync(file, "utf8");
   for (const m of html.matchAll(attrRe)) used.add(m[1]);
 }
-for (const file of files.filter((f) => f.endsWith(".js") && !f.endsWith("i18n.js"))) {
+for (const file of files.filter((f) => f.endsWith(".js") && !f.endsWith("i18n.js") && !stringFiles.includes(f))) {
   const js = readFileSync(file, "utf8");
   /* Any dotted string literal is treated as an i18n key reference, which also
      catches t(cond ? "keyA" : "keyB") ternaries. */
