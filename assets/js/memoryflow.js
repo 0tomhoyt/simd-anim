@@ -1,7 +1,7 @@
 /* Concept page: memory choreography across two microkernel calls.
    A four-row timeline (Core / L1 / L2 / HBM) filled slot by slot; each
    chip is one hop with its byte count, and the row meters show the
-   per-slot bandwidth used against unigemm_sme's measured budgets. */
+   per-slot bandwidth used against measured hardware budgets. */
 (function () {
   "use strict";
 

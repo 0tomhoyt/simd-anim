@@ -8,7 +8,9 @@
   if (!root) return;
 
   var X_MIN = 0.125;
-  var X_MAX = 16;
+  /* The window reaches 64 so the bench's measured points fit: a size-N FP64
+     GEMM lands at the naive intensity N/12, so the sweep 48…768 spans 4…64. */
+  var X_MAX = 64;
   var Y_MAX = 64;
   var PAD_L = 70;
   var PAD_R = 30;
@@ -171,6 +173,7 @@
 
     updateUnits(peak, supply);
     updateProbe(peak, supply);
+    updateMeasured();
   }
 
   /* Clock probe: a fixed workload (512 FLOP at 0.5 FLOP/byte) timed two
@@ -206,6 +209,167 @@
     }
   }
 
+  /* The visitor's own cores, measured by the site bench (bench-core.js is
+     included before this file). Scalar FP64 points sit at the naive GEMM
+     intensity N/12; the FP32 SIMD points at N/6, because half-width data
+     doubles FLOP per byte. The y value uses the same per-cycle conversion as
+     the roofs, so measured and hypothetical share one axis honestly. A
+     browser's scalar JavaScript is never a machine's peak — these are
+     reference points, never slider values. */
+  var NAIVE_AI_FP64 = 12;
+  var NAIVE_AI_FP32 = 6;
+  var SVG_NS = "http://www.w3.org/2000/svg";
+
+  var measured = readMeasuredData();
+  var measuredGroup = root.querySelector("#roof-measured");
+  var measuredLine = root.querySelector("#roof-measured-line");
+  var measuredDots = root.querySelector("#roof-measured-dots");
+  var measuredLabel = root.querySelector("#roof-measured-label");
+  var simdGroup = root.querySelector("#roof-simd");
+  var simdDots = root.querySelector("#roof-simd-dots");
+  var simdLabel = root.querySelector("#roof-simd-label");
+  var measuredNote = document.querySelector("[data-measured-note]");
+  var simdNote = document.querySelector("[data-simd-note]");
+  var sweepNote = document.querySelector("[data-sweep-note]");
+  var measuredPrompt = document.querySelector("[data-measured-prompt]");
+  var runBtn = document.querySelector("[data-bench-run]");
+  var statusLine = document.querySelector("[data-bench-status]");
+
+  function readMeasuredData() {
+    return window.siteBench && window.siteBench.readStored ? window.siteBench.readStored() : null;
+  }
+
+  function clearDots(group) {
+    while (group && group.firstChild) group.removeChild(group.firstChild);
+  }
+
+  function dot(parent, cx, cy, cls, r) {
+    var c = document.createElementNS(SVG_NS, "circle");
+    c.setAttribute("cx", cx.toFixed(1));
+    c.setAttribute("cy", cy.toFixed(1));
+    c.setAttribute("r", String(r));
+    c.setAttribute("class", cls);
+    parent.appendChild(c);
+  }
+
+  function gflopsText(g) {
+    return String(g >= 10 ? Math.round(g) : Math.round(g * 10) / 10);
+  }
+
+  function updateMeasured() {
+    if (!measuredGroup) return;
+    clearDots(measuredDots);
+    clearDots(simdDots);
+
+    /* scalar sweep: a dashed ride along the roofs that sags past the cache */
+    var scalar = measured && measured.scalar;
+    var show = !!(measured && measured.ok && scalar && scalar.length);
+    var lastY = null;
+    if (show) {
+      var pts = [];
+      scalar.forEach(function (p) {
+        var perCycle = p.gflops / CLOCK_GHZ;
+        if (!(perCycle > 0) || perCycle >= Y_MAX) return;
+        var x = xPos(p.n / NAIVE_AI_FP64);
+        var y = yPos(perCycle);
+        pts.push(x.toFixed(1) + "," + y.toFixed(1));
+        dot(measuredDots, x, y, "roof-measured-dot", 3);
+        lastY = y;
+      });
+      show = pts.length > 0;
+      if (show) {
+        measuredLine.setAttribute("points", pts.join(" "));
+        /* keep the label out of the axis when the line rides near the top */
+        measuredLabel.setAttribute("x", String(W - PAD_R - 4));
+        measuredLabel.setAttribute("y", String(lastY < 44 ? lastY + 15 : lastY - 6));
+      }
+    }
+    measuredGroup.classList.toggle("on", show);
+    if (measuredNote) {
+      measuredNote.hidden = !show;
+      if (show) {
+        measuredNote.textContent = fill(t("roofline.measuredNote"), {
+          g: gflopsText(measured.gflops),
+          f: fmt(measured.gflops / CLOCK_GHZ),
+          clock: fmt(CLOCK_GHZ)
+        });
+      }
+    }
+    if (sweepNote) sweepNote.hidden = !show;
+
+    /* the SIMD tier: FP32, twice the intensity, wider per instruction */
+    var simd = measured && measured.simd;
+    var simdPts = simd && simd.points;
+    var showSimd = !!(simd && simd.ok && simdPts && simdPts.length);
+    var simdLastY = null;
+    if (showSimd) {
+      simdPts.forEach(function (p) {
+        var perCycle = p.gflops / CLOCK_GHZ;
+        if (!(perCycle > 0) || perCycle >= Y_MAX) return;
+        var x = xPos(p.n / NAIVE_AI_FP32);
+        var y = yPos(perCycle);
+        dot(simdDots, x, y, "roof-simd-dot", 4);
+        simdLastY = y;
+      });
+      showSimd = simdLastY != null;
+      if (showSimd) {
+        simdLabel.setAttribute("x", String(W - PAD_R - 4));
+        simdLabel.setAttribute("y", String(simdLastY - 22));
+      }
+    }
+    simdGroup.classList.toggle("on", showSimd);
+    if (simdNote) {
+      simdNote.hidden = !showSimd;
+      if (showSimd) {
+        var head = null;
+        simdPts.forEach(function (p) {
+          if (!head || p.n > head.n) head = p;
+        });
+        simdNote.textContent = fill(t("roofline.simdNote"), { g: gflopsText(head.gflops) });
+      }
+    }
+    if (measuredPrompt) measuredPrompt.hidden = show;
+  }
+
+  function refreshMeasured() {
+    measured = readMeasuredData();
+    updateMeasured();
+  }
+
+  /* Measure right here: the same engine the homepage runs, narrated into a
+     status line instead of a button label. */
+  var measuring = false;
+  if (runBtn) {
+    runBtn.addEventListener("click", function () {
+      if (measuring || !window.siteBench || !window.siteBench.run) return;
+      measuring = true;
+      runBtn.disabled = true;
+      if (statusLine) statusLine.textContent = t("roofline.measureStart");
+      window.siteBench.run(function (p) {
+        if (!statusLine) return;
+        if (p.kind === "scalar") {
+          statusLine.textContent = p.skipped
+            ? fill(t("roofline.measureSkip"), { n: p.n })
+            : fill(t("roofline.measureStep"), { n: p.n });
+        } else if (p.kind === "simd") {
+          statusLine.textContent = p.unsupported
+            ? t("roofline.measureSimdNA")
+            : t("roofline.measureSimd");
+        }
+      }).then(function (res) {
+        measuring = false;
+        runBtn.disabled = false;
+        measured = res;
+        updateMeasured();
+        if (statusLine) {
+          statusLine.textContent = res.ok
+            ? fill(t("roofline.measureDone"), { g: gflopsText(res.gflops) })
+            : t("roofline.measureBad");
+        }
+      });
+    });
+  }
+
   [peakSlider, supplySlider].forEach(function (slider) {
     if (slider) slider.addEventListener("input", update);
   });
@@ -218,5 +382,15 @@
   update();
   document.addEventListener("site-lang", function () {
     update();
+  });
+  /* A run that finished on this very page (the measure button, or anything
+     else that calls siteBench.run) announces itself here. Back from the
+     homepage after benching may restore this page from the back-forward
+     cache without a reload; a bench in another tab arrives as a storage
+     event. All of them just re-read the store. */
+  document.addEventListener("site-bench", refreshMeasured);
+  window.addEventListener("pageshow", refreshMeasured);
+  window.addEventListener("storage", function (e) {
+    if (e.key === "site-bench") refreshMeasured();
   });
 })();
