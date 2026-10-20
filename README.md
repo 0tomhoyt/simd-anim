@@ -1,10 +1,10 @@
 # simd-anim
 
-> **Merged into [personal_web](https://github.com/0tomhoyt/personal_web).** This lab now lives at [personal-web-swart-zeta.vercel.app/lab/](https://personal-web-swart-zeta.vercel.app/lab/), imported with `git subtree` so the full history remains reachable from the personal_web repository. This repository is archived and read-only; the Pages snapshot stays up as the last standalone version.
-
 [![CI and Pages](https://github.com/0tomhoyt/simd-anim/actions/workflows/pages.yml/badge.svg)](https://github.com/0tomhoyt/simd-anim/actions/workflows/pages.yml)
 
 A static lab for interactive animations of ARM SIMD and SME instructions, organized in three tiers: **instructions** (one real instruction per page, watched as values move through Z registers, predicates, and ZA tiles), **kernels** (instructions composed into a working GEMM microkernel), and **strategy** (the machine-level ideas that decide what a kernel can reach).
+
+This repository is a synced standalone deploy of [`lab/`](https://github.com/0tomhoyt/personal_web/tree/main/lab) in [personal_web](https://github.com/0tomhoyt/personal_web). The canonical site, and the place to edit, is [www.houyuteng.com/lab/](https://www.houyuteng.com/lab/). This mirror is refreshed from that tree (currently personal_web [`e33fe76`](https://github.com/0tomhoyt/personal_web/commit/e33fe76aeeed95490ec6cda505975e04b3569fbe)). The Vercel project simd-anim and GitHub Pages both serve this repository root.
 
 Four abbreviations carry the whole site: **SVE** is the Scalable Vector Extension (the z registers and p predicates), **SME** the Scalable Matrix Extension (the ZA accumulator and the outer-product instructions), **SVL** the streaming vector length — how many bits one vector holds, 128 in every drawing here — and **ZA** the SME matrix accumulator. The home page defines the same four; every instruction drawn on a page is written exactly as an assembler takes it (checked against ARM DDI 0602 with `clang -march=armv9-a+sme2+fp16`).
 
@@ -20,7 +20,7 @@ python3 -m http.server 8080
 
 Then visit <http://localhost:8080/>. No build step. The site is plain HTML, CSS, and JavaScript.
 
-`node tools/check.mjs` verifies internal links and the bilingual string table; CI runs the same check and publishes `main` to GitHub Pages on every push.
+`node tools/check.mjs` verifies internal links, the bilingual string table, and that any `.wasm` file is a real WebAssembly binary. CI runs the same check and publishes `main` to GitHub Pages on every push.
 
 ## Pages
 
@@ -40,7 +40,7 @@ Then visit <http://localhost:8080/>. No build step. The site is plain HTML, CSS,
 | `/instructions/tbl/` | SVE table lookup `tbl z0.s, { z1.s, z2.s }, z3.s` — any element, out of range gives zero |
 | `/kernels/microkernel/` | A GEMM microkernel in miniature (C = one 4 × 4 tile): pack (read → write, gather vs copy routes) → ldr + fmopa loop → st1w / stnt1w store, with the slices landing in memory; every value follows the four transpose states |
 | `/strategy/sme-anatomy/` | The hardware vocabulary — a Z register, the ZA tile, and the compute unit, the three names every other page uses |
-| `/strategy/roofline/` | Interactive roofline — peak compute and memory supply as the reader's own sliders; the ridge shows why arithmetic intensity, not raw FLOPs, decides what limits a kernel |
+| `/strategy/roofline/` | Interactive roofline — peak compute and memory supply as the reader's own sliders; the ridge shows why arithmetic intensity, not raw FLOPs, decides what limits a kernel; and, once the page's bench has run, the visitor's own measured points — a dashed scalar FP64 sweep that sags once the working set outgrows the cache, and the WASM SIMD tier (f32×4, FP32) as accent dots sitting at twice the intensity |
 | `/strategy/memory-flow/` | A four-row timeline (Core / L1 / L2 / HBM) playing one kernel's store drain and the next kernel's prefetch across the cache hierarchy |
 | `/quiz/` | Optional three-question linear-algebra self-check |
 | `/quiz/matmul/` | The primer behind the self-check: matrix multiply as rows, columns, and dot products |
@@ -71,18 +71,19 @@ Every instruction and kernel page shares the same interactions:
 - Randomize re-rolls the operands.
 - Each page adds only the inputs its instruction needs: ST1W a W12 slice selector, WHILELT steppers for the scalar bounds x0 and x1, FMLAL an index selector for `z1.h[idx]`, TBL clickable index lanes, the microkernel two layout selectors (M×K / K×M and K×N / N×K), FMOPA a Step-by-step / Parallel view switch, and the memory-flow page a C write-once / C accumulate mode switch.
 - If the browser prefers reduced motion, Play jumps straight to the result.
+- The header's moon/sun toggle switches dark mode. The choice is stored locally (`site-theme`); a first visit follows the system preference, and an inline head script sets `data-theme` before the CSS paints, so there is no flash. The shared palette lives in `assets/css/site.css`; `assets/js/theme.js` wires the buttons and is the same file as the homepage's.
 
 The animation clock and control wiring live in `assets/js/player.js` and are shared by all animated pages; each page only draws its own stage.
 
 ## Strategy
 
-The header nav follows the taxonomy — Instructions, Kernels, Strategy: each link lands on its section of the home page, and the section a page belongs to is marked current in the nav. The strategy pages: `/strategy/sme-anatomy/` — the hardware vocabulary (a register, the ZA tile, the compute unit) drawn once so the other pages can just use the names. `/strategy/roofline/` — an interactive roofline where peak compute and memory supply are the reader's own sliders, and the ridge between them shows why arithmetic intensity, not raw FLOPs, decides what limits a kernel. And `/strategy/memory-flow/` — a four-row timeline (Core / L1 / L2 / HBM) that plays one kernel's store drain and the next kernel's prefetch across the cache hierarchy. The page states its strategy first — three moves (prefetch ahead, never read what you overwrite, let the tail hide under the next kernel), each with its cost — and the timeline then makes each move checkable by eye: two-slot rails for transfers in flight, hit tags on the loads a prefetch served, and the one slot where HBM is asked for a read and a write at once (128 B against its 64 B budget).
+The header nav follows the taxonomy — Instructions, Kernels, Strategy: each link lands on its section of the home page, and the section a page belongs to is marked current in the nav. The strategy pages: `/strategy/sme-anatomy/` — the hardware vocabulary (a register, the ZA tile, the compute unit) drawn once so the other pages can just use the names. `/strategy/roofline/` — an interactive roofline where peak compute and memory supply are the reader's own sliders, and the ridge between them shows why arithmetic intensity, not raw FLOPs, decides what limits a kernel. Its measured layer comes from the site bench: `bench-core.js` and `bench-simd.wasm` are vendored at this repository root (copied from the personal_web root, where the homepage bench uses the same files) so the page can measure in place — a scalar FP64 sweep over five sizes drawn as a dashed polyline, plus a WASM SIMD tier. The engine resolves the `.wasm` next to its own script URL. And `/strategy/memory-flow/` — a four-row timeline (Core / L1 / L2 / HBM) that plays one kernel's store drain and the next kernel's prefetch across the cache hierarchy. The page states its strategy first — three moves (prefetch ahead, never read what you overwrite, let the tail hide under the next kernel), each with its cost — and the timeline then makes each move checkable by eye: two-slot rails for transfers in flight, hit tags on the loads a prefetch served, and the one slot where HBM is asked for a read and a write at once (128 B against its 64 B budget).
 
 Before the kernels, an optional pair warms up the linear algebra: `/quiz/` scores three questions on matrix shapes and dot products, and `/quiz/matmul/` is the primer it links to when the score needs it.
 
 ## Roadmap
 
-Ideas for the next pages:
+Ideas for the next pages, to be written in personal_web `lab/` and synced here:
 
 - A full kernel tour stitching whilelt → ld1w → fmopa → st1w into one played loop (the microkernel page already covers the kernel itself)
 - Vertical broadcast, for example `addva za0.s, p0/m, p1/m, z0.s`
@@ -90,4 +91,6 @@ Ideas for the next pages:
 
 ## Deploy
 
-GitHub Pages publishes `main` automatically through `.github/workflows/pages.yml`, or any host that serves the repository root as static files can publish this as-is. Keep the directory layout: pages link to `assets/` with relative paths.
+The Vercel project simd-anim serves this repository root, and GitHub Pages publishes `main` through `.github/workflows/pages.yml`. Keep the directory layout: pages link to `assets/` with relative paths.
+
+Links that belong to the personal homepage stay on the canonical site. The byline ("A lab by Hou Yuteng") points at <https://www.houyuteng.com/>. Kernel-zoo cross-links point at <https://www.houyuteng.com/#zoo>. The roofline prompt that sends a reader to the homepage bench points at <https://www.houyuteng.com/#bench>. The footer Source link points at the [personal_web](https://github.com/0tomhoyt/personal_web) repository. Canonical and Open Graph URLs on each page remain `https://www.houyuteng.com/lab/…`.

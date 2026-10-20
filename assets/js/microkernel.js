@@ -1,4 +1,4 @@
-/* A GEMM microkernel in its smallest honest form, following unigemm_sme:
+/* A GEMM microkernel in its smallest honest form, following a production SME GEMM kernel:
    C (4×4, one ZA tile) = A (4×2) × B (2×4), two k groups, two load slots.
    The animation is a guided walk: pack reads and writes (two routes), then
    the layout-independent loop (ldr + fmopa), then the store — four st1w

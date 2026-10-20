@@ -61,6 +61,21 @@ for (const file of files.filter((f) => f.endsWith(".css"))) {
   }
 }
 
+/* .wasm artifacts must stay valid WebAssembly binaries — a truncated or
+   text-edited file would only fail at fetch/instantiate time in a browser. */
+for (const file of files.filter((f) => f.endsWith(".wasm"))) {
+  const bytes = readFileSync(file);
+  if (
+    bytes.length < 4 ||
+    bytes[0] !== 0x00 ||
+    bytes[1] !== 0x61 ||
+    bytes[2] !== 0x73 ||
+    bytes[3] !== 0x6d
+  ) {
+    errors.push(`${file}: missing \\0asm magic — not a WebAssembly binary`);
+  }
+}
+
 /* 2. and 3. i18n keys. */
 const i18nSource = readFileSync(join(root, "assets/js/i18n.js"), "utf8");
 const defined = new Map(); // key -> occurrence count in STRINGS
