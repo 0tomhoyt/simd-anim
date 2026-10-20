@@ -50,6 +50,7 @@
         </a>
         <div class="header-end">
           <nav data-i18n-aria="nav.label" aria-label="Primary">
+            <a href="../learn/" aria-current="step"><span data-i18n="nav.learn">Learn</span></a>
             <a href="../#instructions"><span data-i18n="nav.instructions">Instructions</span></a>
             <a href="../#kernels"><span data-i18n="nav.kernels">Kernels</span></a>
             <a href="../#strategy"><span data-i18n="nav.strategy">Strategy</span></a>
@@ -70,6 +71,14 @@
           <p class="eyebrow" data-i18n="quiz.eyebrow">Optional</p>
           <h1 id="page-title" data-i18n="quiz.title">Linear algebra self-check</h1>
           <p class="lede" data-i18n="quiz.lede">Three questions on matrix multiply and the dot product. Nothing here is required to use the lab.</p>
+          <div class="path-bar">
+            <p class="path-progress"><span data-i18n="quiz.eyebrow">Optional</span></p>
+            <p class="shape-badge" data-i18n="path.shape">M=4 · N=4 · K=2 · SVL=128</p>
+          </div>
+          <nav class="path-steps" data-i18n-aria="path.stepsLabel" aria-label="Path steps">
+            <a href="../learn/"><span aria-hidden="true">← </span><span data-i18n="path.prev">Prev</span></a>
+            <a class="path-next" href="../strategy/sme-anatomy/"><span data-i18n="path.next">Next</span><span aria-hidden="true"> →</span></a>
+          </nav>
           <form data-quiz>
             <ol class="quiz-list">
               <li>
@@ -112,6 +121,7 @@
             <p class="quiz-score"><span data-i18n="quiz.scoreLabel">Score</span> <span data-score-value>0</span>/3</p>
             <p class="path-hint" data-pass hidden><a href="matmul/" data-i18n="quiz.passHint">Two or more is enough to start. Optional primer on matrix multiply and the dot product.</a></p>
             <p class="path-hint" data-miss hidden><a href="matmul/" data-i18n="quiz.missHint">Below two. The primer walks through rows, columns, and the dot product.</a></p>
+            <p class="path-hint"><a href="../strategy/sme-anatomy/" data-i18n="quiz.continue">Continue to the hardware.</a></p>
           </div>
         </section>
       </main>

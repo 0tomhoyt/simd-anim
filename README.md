@@ -38,6 +38,10 @@ Then visit <http://localhost:8080/>. No build step. The site is plain HTML, CSS,
 | `/instructions/fmlal/` | SME2 widening multiply-add `fmlal za.s[w11, 4:5], z0.h, z1.h[2]` — half in, single out, with an index selector |
 | `/instructions/addha/` | SME broadcast add `addha za0.s, p0/m, p1/m, z0.s` — one vector into every active row |
 | `/instructions/tbl/` | SVE table lookup `tbl z0.s, { z1.s, z2.s }, z3.s` — any element, out of range gives zero |
+| `/instructions/addva/` | SME vertical broadcast `addva za0.s, p0/m, p1/m, z0.s` — one vector into every active column |
+| `/instructions/zip1/` | SVE interleave `zip1 z0.s, z1.s, z2.s` — the low halves of two vectors alternate into one |
+| `/learn/` | Five-step intro to SME: optional linear-algebra self-check, then the hardware, the kernel tour, the microkernel, the roofline, and memory in flight |
+| `/kernels/tour/` | One pass through the GEMM inner pipeline, linking the existing pages `whilelt → ld1w → fmopa → st1w` |
 | `/kernels/microkernel/` | A GEMM microkernel in miniature (C = one 4 × 4 tile): pack (read → write, gather vs copy routes) → ldr + fmopa loop → st1w / stnt1w store, with the slices landing in memory; every value follows the four transpose states |
 | `/strategy/sme-anatomy/` | The hardware vocabulary — a Z register, the ZA tile, and the compute unit, the three names every other page uses |
 | `/strategy/roofline/` | Interactive roofline — peak compute and memory supply as the reader's own sliders; the ridge shows why arithmetic intensity, not raw FLOPs, decides what limits a kernel; and, once the page's bench has run, the visitor's own measured points — a dashed scalar FP64 sweep that sags once the working set outgrows the cache, and the WASM SIMD tier (f32×4, FP32) as accent dots sitting at twice the intensity |
@@ -45,7 +49,7 @@ Then visit <http://localhost:8080/>. No build step. The site is plain HTML, CSS,
 | `/quiz/` | Optional three-question linear-algebra self-check |
 | `/quiz/matmul/` | The primer behind the self-check: matrix multiply as rows, columns, and dot products |
 
-The FMOPA page draws a single-precision ZA tile at a streaming vector length of 128 bits, so the tile is 4×4. `z0.s` is the column operand (the first source is the SVL×1 vector), `z1.s` is the row operand, and each active pair does `ZA[i, j] += z0.s[i] × z1.s[j]`. LD1W walks contiguous words from memory into a Z register and zeroes inactive lanes; FMLA pairs two vectors lane by lane and merges; ST1W writes one W12-selected slice of ZA back to memory; WHILELT shows where predicates come from; UADDV collapses lanes into a 64-bit scalar; UZP1 shuffles whole vectors with no predicate at all.
+The FMOPA page draws a single-precision ZA tile at a streaming vector length of 128 bits, so the tile is 4×4. `z0.s` is the column operand (the first source is the SVL×1 vector), `z1.s` is the row operand, and each active pair does `ZA[i, j] += z0.s[i] × z1.s[j]`. LD1W walks contiguous words from memory into a Z register and zeroes inactive lanes; FMLA pairs two vectors lane by lane and merges; ST1W writes one W12-selected slice of ZA back to memory; WHILELT shows where predicates come from; UADDV collapses lanes into a 64-bit scalar; UZP1 shuffles whole vectors with no predicate at all, and ZIP1 interleaves the low halves back. ADDVA is ADDHA's vertical twin: the same vector runs down every active column.
 
 ## Sizes and types
 
@@ -61,6 +65,8 @@ Every page draws one streaming vector length — SVL = 128 bits — and each pag
 | `uaddv` destination `d0` | 64-bit scalar | 64-bit scalar |
 | `fmlal` half-precision operands | 8 × 16-bit | 32 × 16-bit |
 | `tbl` two-register table entries | 8 | 32 |
+| `addva` vector into every column | 4 | 16 |
+| `zip1` low-half interleave | 2 + 2 elements | 8 + 8 |
 
 Scalars `x0`, `x1`, `w11`, `w12` live in 64-bit general-purpose registers; gather indices in `z1.s` are 32-bit signed and scaled ×4 (`sxtw #2`).
 
@@ -77,17 +83,18 @@ The animation clock and control wiring live in `assets/js/player.js` and are sha
 
 ## Strategy
 
-The header nav follows the taxonomy — Instructions, Kernels, Strategy: each link lands on its section of the home page, and the section a page belongs to is marked current in the nav. The strategy pages: `/strategy/sme-anatomy/` — the hardware vocabulary (a register, the ZA tile, the compute unit) drawn once so the other pages can just use the names. `/strategy/roofline/` — an interactive roofline where peak compute and memory supply are the reader's own sliders, and the ridge between them shows why arithmetic intensity, not raw FLOPs, decides what limits a kernel. Its measured layer comes from the site bench: `bench-core.js` and `bench-simd.wasm` are vendored at this repository root (copied from the personal_web root, where the homepage bench uses the same files) so the page can measure in place — a scalar FP64 sweep over five sizes drawn as a dashed polyline, plus a WASM SIMD tier. The engine resolves the `.wasm` next to its own script URL. And `/strategy/memory-flow/` — a four-row timeline (Core / L1 / L2 / HBM) that plays one kernel's store drain and the next kernel's prefetch across the cache hierarchy. The page states its strategy first — three moves (prefetch ahead, never read what you overwrite, let the tail hide under the next kernel), each with its cost — and the timeline then makes each move checkable by eye: two-slot rails for transfers in flight, hit tags on the loads a prefetch served, and the one slot where HBM is asked for a read and a write at once (128 B against its 64 B budget).
+The header nav is Learn, then the taxonomy — Instructions, Kernels, Strategy. Learn opens the intro. Each taxonomy link lands on its section of the home page, and the section a page belongs to is marked current in the nav. Pages on the intro also mark Learn as the current step. The strategy pages: `/strategy/sme-anatomy/` — the hardware vocabulary (a register, the ZA tile, the compute unit) drawn once so the other pages can just use the names. `/strategy/roofline/` — an interactive roofline where peak compute and memory supply are the reader's own sliders, and the ridge between them shows why arithmetic intensity, not raw FLOPs, decides what limits a kernel. Its measured layer comes from the site bench: `bench-core.js` and `bench-simd.wasm` are vendored at this repository root (copied from the personal_web root, where the homepage bench uses the same files) so the page can measure in place — a scalar FP64 sweep over five sizes drawn as a dashed polyline, plus a WASM SIMD tier. The engine resolves the `.wasm` next to its own script URL. And `/strategy/memory-flow/` — a four-row timeline (Core / L1 / L2 / HBM) that plays one kernel's store drain and the next kernel's prefetch across the cache hierarchy. The page states its strategy first — three moves (prefetch ahead, never read what you overwrite, let the tail hide under the next kernel), each with its cost — and the timeline then makes each move checkable by eye: two-slot rails for transfers in flight, hit tags on the loads a prefetch served, and the one slot where HBM is asked for a read and a write at once (128 B against its 64 B budget).
 
-Before the kernels, an optional pair warms up the linear algebra: `/quiz/` scores three questions on matrix shapes and dot products, and `/quiz/matmul/` is the primer it links to when the score needs it.
+Before the kernels, an optional pair warms up the linear algebra: `/quiz/` scores three questions on matrix shapes and dot products, and `/quiz/matmul/` is the primer it links to when the score needs it. `/learn/` puts that pair in front of one curriculum: hardware, the kernel tour, the microkernel, the roofline, and memory in flight.
 
 ## Roadmap
 
-Ideas for the next pages, to be written in personal_web `lab/` and synced here:
+Shipped:
 
-- A full kernel tour stitching whilelt → ld1w → fmopa → st1w into one played loop (the microkernel page already covers the kernel itself)
-- Vertical broadcast, for example `addva za0.s, p0/m, p1/m, z0.s`
-- Interleave back, for example `zip1 z0.s, z1.s, z2.s`
+- Kernel tour at `/kernels/tour/`. It links the existing instruction pages in order — `whilelt → ld1w → fmopa → st1w` — with the same prev/next progress chrome as the intro. The microkernel page is still the composed kernel.
+- Vertical broadcast at `/instructions/addva/`: `addva za0.s, p0/m, p1/m, z0.s`.
+- Interleave at `/instructions/zip1/`: `zip1 z0.s, z1.s, z2.s`.
+- Intro hub at `/learn/`: optional linear-algebra self-check, then five steps (hardware, kernel tour, microkernel, roofline, memory in flight).
 
 ## Deploy
 
