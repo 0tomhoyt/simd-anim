@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="meta.title.smx">Softmax · simd-anim</title>
+    <meta name="description" data-i18n-content="meta.desc.smx" content="Stable softmax: subtract the max, then exp, then divide. A naive exp overflows on the hot preset while the shifted one stays finite.">
+    <link rel="canonical" href="https://arm-simd.houyuteng.com/kernels/softmax/">
+    <meta property="og:title" content="Softmax · simd-anim">
+    <meta property="og:description" content="Stable softmax: subtract the max, then exp, then divide. A naive exp overflows on the hot preset while the shifted one stays finite.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://arm-simd.houyuteng.com/kernels/softmax/">
+    <meta property="og:image" content="https://www.houyuteng.com/og.png">
+    <meta property="og:site_name" content="Hou Yuteng">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="zh_CN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Softmax · simd-anim">
+    <meta name="twitter:description" content="Stable softmax: subtract the max, then exp, then divide. A naive exp overflows on the hot preset while the shifted one stays finite.">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#f2efe8">
+    <script>
+      try {
+        var saved = localStorage.getItem("site-lang");
+        var zh = saved === "zh" || (saved !== "en" && (navigator.language || "en").toLowerCase().indexOf("zh") === 0);
+        if (zh) {
+          document.documentElement.classList.add("i18n-wait");
+          document.documentElement.lang = "zh-Hans";
+        }
+      } catch (error) {}
+      try {
+        var th = localStorage.getItem("site-theme");
+        if (th !== "dark" && th !== "light") {
+          th = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", th);
+      } catch (error) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    </script>
+    <link rel="stylesheet" href="../../assets/css/site.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main" data-i18n="skip">Skip to main content</a>
+    <div class="page">
+      <header class="site-header">
+        <a class="brand" href="../../">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="brand-name">simd-anim</span>
+        </a>
+        <div class="header-end">
+          <nav data-i18n-aria="nav.label" aria-label="Primary">
+            <a href="../../learn/" aria-current="step"><span data-i18n="nav.learn">Learn</span></a>
+            <a href="../../#instructions"><span data-i18n="nav.instructions">Instructions</span></a>
+          </nav>
+          <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
+            <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang="zh" lang="zh-Hans" aria-pressed="false">中文</button>
+          </div>
+          <button class="theme-toggle" type="button" aria-pressed="false" data-i18n-aria="theme.toggle" aria-label="Toggle dark mode">
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <main id="main" class="demo-main">
+        <a class="back" href="../../learn/#beyond"><span aria-hidden="true">← </span><span data-i18n="ui.backCourse">The course</span></a>
+        <header class="demo-head">
+          <div class="path-bar">
+            <p class="path-progress"><span data-i18n="beyond.short">Beyond GEMM</span> · 2/3</p>
+            <p class="shape-badge" data-i18n="smx.shape">4 scores · stable softmax</p>
+          </div>
+          <p class="eyebrow"><span>02</span> <span aria-hidden="true">/</span> <span data-i18n="smx.eyebrow">Chapter 2 · softmax</span></p>
+          <h1 data-i18n="smx.h1">Softmax</h1>
+          <p class="lede" data-i18n="smx.lede">Subtract the max, then exp, then divide. The largest exp is 1. A naive exp can overflow while this one stays finite.</p>
+          <nav class="path-steps" data-i18n-aria="path.stepsLabel" aria-label="Path steps">
+            <a href="../pack/"><span aria-hidden="true">← </span><span data-i18n="path.prev">Prev</span></a>
+            <a class="path-next" href="../attention/"><span data-i18n="path.next">Next</span><span aria-hidden="true"> →</span></a>
+          </nav>
+        </header>
+
+        <figure class="insn">
+          <figcaption data-i18n="ui.insnLabel">Instruction</figcaption>
+          <pre><code><span class="op-name">softmax</span> (x)ᵢ = exp(xᵢ − max x) / Σⱼ exp(xⱼ − max x)</code></pre>
+        </figure>
+
+        <p class="spec-note" data-i18n="smx.spec">Four scores. Mild and sharp stay in a range where exp(x) is finite either way. Overflow uses values near 1000, where exp(x) is Inf and exp(x − max) is not. The weights of the stable path still sum to 1. Same ratios, no overflow — the subtraction is the whole trick.</p>
+
+        <section class="bench" data-smx aria-labelledby="smx-name">
+          <div class="bench-scroll">
+            <div class="stage">
+              <div class="smx" aria-hidden="true">
+                <div class="smx-row smx-head">
+                  <span data-i18n="smx.col.x">x</span>
+                  <span data-i18n="smx.col.shift">x − max</span>
+                  <span data-i18n="smx.col.exp">exp</span>
+                  <span></span>
+                  <span data-i18n="smx.col.w">weight</span>
+                </div>
+                <div class="smx-row" data-smx-row="0">
+                  <span class="smx-val" data-smx="x">·</span>
+                  <span class="smx-val" data-smx="shift">·</span>
+                  <span class="smx-val" data-smx="exp">·</span>
+                  <span class="smx-track"><span class="smx-fill"></span></span>
+                  <span class="smx-val" data-smx="w">·</span>
+                </div>
+                <div class="smx-row" data-smx-row="1">
+                  <span class="smx-val" data-smx="x">·</span>
+                  <span class="smx-val" data-smx="shift">·</span>
+                  <span class="smx-val" data-smx="exp">·</span>
+                  <span class="smx-track"><span class="smx-fill"></span></span>
+                  <span class="smx-val" data-smx="w">·</span>
+                </div>
+                <div class="smx-row" data-smx-row="2">
+                  <span class="smx-val" data-smx="x">·</span>
+                  <span class="smx-val" data-smx="shift">·</span>
+                  <span class="smx-val" data-smx="exp">·</span>
+                  <span class="smx-track"><span class="smx-fill"></span></span>
+                  <span class="smx-val" data-smx="w">·</span>
+                </div>
+                <div class="smx-row" data-smx-row="3">
+                  <span class="smx-val" data-smx="x">·</span>
+                  <span class="smx-val" data-smx="shift">·</span>
+                  <span class="smx-val" data-smx="exp">·</span>
+                  <span class="smx-track"><span class="smx-fill"></span></span>
+                  <span class="smx-val" data-smx="w">·</span>
+                </div>
+              </div>
+              <p class="tile-name" id="smx-name" data-i18n="smx.name">softmax · max, subtract, exp, normalize</p>
+            </div>
+          </div>
+
+          <p class="formula" data-caption>Raw scores. Play to mark the max.</p>
+          <p class="path-hint" data-naive hidden></p>
+          <p class="sr-only" data-announcer role="status"></p>
+          <div class="controls">
+            <div class="seg" role="group" data-i18n-aria="smx.presetAria" aria-label="Score preset">
+              <button type="button" data-smx-preset="mild" aria-pressed="true" data-i18n="smx.preset.mild">mild</button>
+              <button type="button" data-smx-preset="sharp" aria-pressed="false" data-i18n="smx.preset.sharp">sharp</button>
+              <button type="button" data-smx-preset="hot" aria-pressed="false" data-i18n="smx.preset.hot">overflow</button>
+            </div>
+            <button class="button button-primary" type="button" data-action="play">Play</button>
+            <button class="button" type="button" data-action="replay" data-i18n="ui.replay">Replay</button>
+            <button class="button button-ghost" type="button" data-action="back" data-i18n-aria="ui.stepBack" aria-label="Step back"><span aria-hidden="true">←</span></button>
+            <button class="button button-ghost" type="button" data-action="fwd" data-i18n-aria="ui.stepFwd" aria-label="Step forward"><span aria-hidden="true">→</span></button>
+            <p class="step-count" data-counter aria-hidden="true">0 / 4</p>
+          </div>
+          <p class="kbd-note" data-i18n="ui.kbdHint">Arrow keys step, space plays or pauses.</p>
+          <p class="motion-note" data-motion-note data-i18n="ui.motion" hidden>This browser prefers reduced motion. Play still runs the instruction and jumps straight to the result.</p>
+        </section>
+
+        <section class="notes" aria-labelledby="notes-title">
+          <h2 id="notes-title" data-i18n="ui.notesTitle">Reading the picture</h2>
+          <ol>
+            <li>
+              <h3 data-i18n="smx.note1.title">The max is the whole trick</h3>
+              <p data-i18n="smx.note1.body">Subtracting the max shifts the peak to 0. exp(0) is 1, and every other exp is smaller. The ratios do not change, so the weights do not change.</p>
+            </li>
+            <li>
+              <h3 data-i18n="smx.note2.title">Naive exp overflows</h3>
+              <p data-i18n="smx.note2.body">exp(1000) is Inf. The overflow preset shows those values going Inf, while the shifted ones stay between −3 and 0 and the weights still sum to 1.</p>
+            </li>
+            <li>
+              <h3 data-i18n="smx.note3.title">Where it sits in attention</h3>
+              <p><span data-i18n="smx.note3.body">Attention is QKᵀ, this softmax, then a mix with V. The GEMM pages never do this step.</span> <a href="../attention/" data-i18n="smx.note3.link">Open the attention page</a></p>
+            </li>
+          </ol>
+          <p class="section-note values-line"><span data-values>Mild scores: 1.20, 0.30, 2.00, 0.70.</span></p>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <a href="https://www.houyuteng.com/" data-i18n="footer.by">A lab by Hou Yuteng</a>
+        <a href="https://github.com/0tomhoyt/personal_web"><span data-i18n="footer.source">Source</span></a>
+      </footer>
+    </div>
+    <script src="../../assets/js/strings/common.js"></script>
+    <script src="../../assets/js/strings/instructions.js"></script>
+    <script src="../../assets/js/strings/course.js"></script>
+    <script src="../../assets/js/i18n.js"></script>
+    <script src="../../assets/js/theme.js"></script>
+    <script src="../../assets/js/player.js"></script>
+    <script src="../../assets/js/softmax.js"></script>
+  </body>
+</html>

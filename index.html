@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title data-i18n="meta.title.home">simd-anim</title>
-    <meta name="description" data-i18n-content="meta.desc.home" content="A static lab that animates real SIMD and SME instructions, composes them into kernels, and shows what decides their speed.">
+    <meta name="description" data-i18n-content="meta.desc.home" content="A two-chapter course in ARM SME: a GEMM intro, then pack, softmax, and attention, with an instruction reference beside the path.">
     <link rel="canonical" href="https://arm-simd.houyuteng.com/">
     <meta property="og:title" content="simd-anim">
-    <meta property="og:description" content="A static lab that animates real SIMD and SME instructions, composes them into kernels, and shows what decides their speed.">
+    <meta property="og:description" content="A two-chapter course in ARM SME: a GEMM intro, then pack, softmax, and attention, with an instruction reference beside the path.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://arm-simd.houyuteng.com/">
     <meta property="og:image" content="https://www.houyuteng.com/og.png">
@@ -16,7 +16,7 @@
     <meta property="og:locale:alternate" content="zh_CN">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="simd-anim">
-    <meta name="twitter:description" content="A static lab that animates real SIMD and SME instructions, composes them into kernels, and shows what decides their speed.">
+    <meta name="twitter:description" content="A two-chapter course in ARM SME: a GEMM intro, then pack, softmax, and attention, with an instruction reference beside the path.">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <meta name="theme-color" content="#f2efe8">
     <script>
@@ -52,8 +52,6 @@
           <nav data-i18n-aria="nav.label" aria-label="Primary">
             <a href="learn/"><span data-i18n="nav.learn">Learn</span></a>
             <a href="#instructions"><span data-i18n="nav.instructions">Instructions</span></a>
-            <a href="#kernels"><span data-i18n="nav.kernels">Kernels</span></a>
-            <a href="#strategy"><span data-i18n="nav.strategy">Strategy</span></a>
           </nav>
           <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
             <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
@@ -68,20 +66,135 @@
 
       <main id="main">
         <section class="hero" aria-labelledby="page-title">
-          <p class="eyebrow" data-i18n="home.eyebrow">Instruction lab</p>
+          <p class="eyebrow" data-i18n="home.eyebrow">SME course</p>
           <h1 id="page-title">simd-anim</h1>
-          <p class="lede" data-i18n="home.lede">A small static lab that animates real SIMD and SME instructions — then shows how they compose into kernels, and what decides a kernel's speed.</p>
+          <p class="lede" data-i18n="home.lede">A course in ARM SME. Chapter 1 builds a GEMM: the hardware, the inner pipeline, the microkernel, the roofline, and memory in flight. Chapter 2 goes past that outer product — pack, softmax, and one head of attention.</p>
           <div class="hero-actions">
             <a class="button button-primary" href="learn/"><span data-i18n="home.cta">Start the intro</span></a>
-            <a class="button" href="kernels/tour/"><span data-i18n="home.ctaTour">Kernel tour</span></a>
+            <a class="button" href="#beyond"><span data-i18n="home.ctaBeyond">Beyond GEMM</span></a>
           </div>
           <p class="hero-note"><span data-i18n="home.quizPre">New to matrix multiply?</span> <a href="quiz/" data-i18n="home.quizLink">Take the optional self-check</a></p>
+        </section>
+
+        <section class="section" id="course" aria-labelledby="course-title">
+          <div class="section-head">
+            <h2 id="course-title" data-i18n="home.secCourse">The course</h2>
+            <p class="section-note" data-i18n="home.noteCourse">Chapter 1 is the five-step GEMM intro. Chapter 2 is what attention needs beyond an outer product.</p>
+          </div>
+          <div class="chapter" id="gemm">
+            <h3><span id="kernels"></span><span id="strategy"></span><span data-i18n="learn.ch1Title">Chapter 1 · GEMM</span></h3>
+            <p class="section-note" data-i18n="learn.ch1Note">Five steps, one shape: M=4, N=4, K=2, SVL=128.</p>
+            <ol class="catalog">
+            <li>
+              <a class="catalog-link" href="strategy/sme-anatomy/">
+                <span class="num">01</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.anatomy.family">Hardware</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.anatomy.title">The hardware</h3>
+                  <p data-i18n="cat.anatomy.blurb">A register, the ZA tile, and the compute unit — three names every other page uses.</p>
+                  <span class="go" data-i18n="cat.anatomy.go">Open this page</span>
+                </span>
+                <p class="mnemonic">Z · ZA · ×+</p>
+              </a>
+            </li>
+            <li>
+              <a class="catalog-link" href="kernels/tour/">
+                <span class="num">02</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.tour.family">SME</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.tour.title">Kernel tour</h3>
+                  <p data-i18n="cat.tour.blurb">whilelt, ld1w, fmopa, st1w — the GEMM inner loop, in the order it runs.</p>
+                  <span class="go" data-i18n="cat.tour.go">Start this tour</span>
+                </span>
+                <p class="mnemonic" data-i18n="tour.shape">whilelt → ld1w → fmopa → st1w</p>
+              </a>
+            </li>
+            <li>
+              <a class="catalog-link" href="kernels/microkernel/">
+                <span class="num">03</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.mk.family">SME</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.mk.title">Microkernel</h3>
+                  <p data-i18n="cat.mk.blurb">How pack, the K loop, and the store compose a real GEMM kernel — in every transpose state.</p>
+                  <span class="go" data-i18n="cat.mk.go">Play this kernel</span>
+                </span>
+                <p class="mnemonic">pack → ldr + fmopa ×2 → st1w / stnt1w</p>
+              </a>
+            </li>
+            <li>
+              <a class="catalog-link" href="strategy/roofline/">
+                <span class="num">04</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.roofline.family">Performance model</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.roofline.title">Roofline</h3>
+                  <p data-i18n="cat.roofline.blurb">Why reuse, not just FLOPs, decides speed — the memory wall in one picture.</p>
+                  <span class="go" data-i18n="cat.roofline.go">Open this page</span>
+                </span>
+                <p class="mnemonic">performance = min(peak, supply × intensity)</p>
+              </a>
+            </li>
+            <li>
+              <a class="catalog-link" href="strategy/memory-flow/">
+                <span class="num">05</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.mflow.family">Cache choreography</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.mflow.title">Memory in flight</h3>
+                  <p data-i18n="cat.mflow.blurb">Prefetch and store traffic across two kernels, level by level — and the one slot where HBM reads and writes collide.</p>
+                  <span class="go" data-i18n="cat.mflow.go">Open this page</span>
+                </span>
+                <p class="mnemonic" data-i18n="cat.mflow.mnemonic">pldl2keep / pldl1strm / stnt1w — across kernels</p>
+              </a>
+            </li>
+            </ol>
+          </div>
+          <div class="chapter" id="beyond">
+            <h3 data-i18n="learn.ch2Title">Chapter 2 · Beyond GEMM</h3>
+            <p class="section-note" data-i18n="learn.ch2Note">Pack bridges out of the microkernel. Softmax is the step that is not a GEMM. Attention composes both.</p>
+            <ol class="catalog">
+            <li>
+              <a class="catalog-link" href="kernels/pack/">
+                <span class="num">01</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.pk.family">Beyond GEMM</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.pk.title">Pack</h3>
+                  <p data-i18n="cat.pk.blurb">An 8×8 row-major panel becomes four contiguous 4×4 runs.</p>
+                  <span class="go" data-i18n="cat.pk.go">Play this kernel</span>
+                </span>
+                <p class="mnemonic">8×8 row-major → four 4×4 runs</p>
+              </a>
+            </li>
+            <li>
+              <a class="catalog-link" href="kernels/softmax/">
+                <span class="num">02</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.smx.family">Beyond GEMM</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.smx.title">Softmax</h3>
+                  <p data-i18n="cat.smx.blurb">Subtract the max before the exp, so a hot score stays finite and the weights still sum to 1.</p>
+                  <span class="go" data-i18n="cat.smx.go">Play this kernel</span>
+                </span>
+                <p class="mnemonic">exp(x − max) / Σ exp</p>
+              </a>
+            </li>
+            <li>
+              <a class="catalog-link" href="kernels/attention/">
+                <span class="num">03</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.attn.family">Beyond GEMM</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.attn.title">Attention</h3>
+                  <p data-i18n="cat.attn.blurb">One query, four keys: scores, softmax weights, then a mix with V.</p>
+                  <span class="go" data-i18n="cat.attn.go">Play this kernel</span>
+                </span>
+                <p class="mnemonic">QKᵀ → softmax → ×V</p>
+              </a>
+            </li>
+            </ol>
+          </div>
         </section>
 
         <section class="section" id="instructions" aria-labelledby="instructions-title">
           <div class="section-head">
             <h2 id="instructions-title" data-i18n="home.secInstructions">Instructions</h2>
-            <p class="section-note" data-i18n="home.noteInstructions">One page per instruction, each animating the data it moves.</p>
+            <p class="section-note" data-i18n="home.noteInstructions">The opcode reference, numbered to match each page. The kernel tour walks WHILELT, LD1W, FMOPA, and ST1W; the rest sit beside that path.</p>
           </div>
           <ol class="catalog">
             <li>
@@ -243,83 +356,6 @@
           </ol>
         </section>
 
-        <section class="section" id="kernels" aria-labelledby="kernels-title">
-          <div class="section-head">
-            <h2 id="kernels-title" data-i18n="home.secKernels">Kernels</h2>
-            <p class="section-note" data-i18n="home.noteKernels">Instructions composed into a whole that computes.</p>
-          </div>
-          <ol class="catalog">
-            <li>
-              <a class="catalog-link" href="kernels/microkernel/">
-                <span class="num">01</span>
-                <span>
-                  <span class="kicker"><span data-i18n="cat.mk.family">SME</span> · <span class="live" data-i18n="status.live">Live</span></span>
-                  <h3 data-i18n="cat.mk.title">Microkernel</h3>
-                  <p data-i18n="cat.mk.blurb">How pack, the K loop, and the store compose a real GEMM kernel — in every transpose state.</p>
-                  <span class="go" data-i18n="cat.mk.go">Play this kernel</span>
-                </span>
-                <p class="mnemonic">pack → ldr + fmopa ×2 → st1w / stnt1w</p>
-              </a>
-            </li>
-            <li>
-              <a class="catalog-link" href="kernels/tour/">
-                <span class="num">02</span>
-                <span>
-                  <span class="kicker"><span data-i18n="cat.tour.family">SME</span> · <span class="live" data-i18n="status.live">Live</span></span>
-                  <h3 data-i18n="cat.tour.title">Kernel tour</h3>
-                  <p data-i18n="cat.tour.blurb">whilelt, ld1w, fmopa, st1w — the GEMM inner loop, in the order it runs.</p>
-                  <span class="go" data-i18n="cat.tour.go">Start this tour</span>
-                </span>
-                <p class="mnemonic" data-i18n="tour.shape">whilelt → ld1w → fmopa → st1w</p>
-              </a>
-            </li>
-          </ol>
-        </section>
-
-        <section class="section" id="strategy" aria-labelledby="strategy-title">
-          <div class="section-head">
-            <h2 id="strategy-title" data-i18n="home.secStrategy">Strategy</h2>
-            <p class="section-note" data-i18n="home.noteStrategy">The machine-level ideas — how data supply, reuse and latency decide what a kernel can reach.</p>
-          </div>
-          <ol class="catalog">
-            <li>
-              <a class="catalog-link" href="strategy/sme-anatomy/">
-                <span class="num">01</span>
-                <span>
-                  <span class="kicker"><span data-i18n="cat.anatomy.family">Hardware</span> · <span class="live" data-i18n="status.live">Live</span></span>
-                  <h3 data-i18n="cat.anatomy.title">The hardware</h3>
-                  <p data-i18n="cat.anatomy.blurb">A register, the ZA tile, and the compute unit — three names every other page uses.</p>
-                  <span class="go" data-i18n="cat.anatomy.go">Open this page</span>
-                </span>
-                <p class="mnemonic">Z · ZA · ×+</p>
-              </a>
-            </li>
-            <li>
-              <a class="catalog-link" href="strategy/roofline/">
-                <span class="num">02</span>
-                <span>
-                  <span class="kicker"><span data-i18n="cat.roofline.family">Performance model</span> · <span class="live" data-i18n="status.live">Live</span></span>
-                  <h3 data-i18n="cat.roofline.title">Roofline</h3>
-                  <p data-i18n="cat.roofline.blurb">Why reuse, not just FLOPs, decides speed — the memory wall in one picture.</p>
-                  <span class="go" data-i18n="cat.roofline.go">Open this page</span>
-                </span>
-                <p class="mnemonic">performance = min(peak, supply × intensity)</p>
-              </a>
-            </li>
-            <li>
-              <a class="catalog-link" href="strategy/memory-flow/">
-                <span class="num">03</span>
-                <span>
-                  <span class="kicker"><span data-i18n="cat.mflow.family">Cache choreography</span> · <span class="live" data-i18n="status.live">Live</span></span>
-                  <h3 data-i18n="cat.mflow.title">Memory in flight</h3>
-                  <p data-i18n="cat.mflow.blurb">Prefetch and store traffic across two kernels, level by level — and the one slot where HBM reads and writes collide.</p>
-                  <span class="go" data-i18n="cat.mflow.go">Open this page</span>
-                </span>
-                <p class="mnemonic" data-i18n="cat.mflow.mnemonic">pldl2keep / pldl1strm / stnt1w — across kernels</p>
-              </a>
-            </li>
-          </ol>
-        </section>
 
         <section class="section" id="glossary" aria-labelledby="glossary-title">
           <div class="section-head">
@@ -345,6 +381,9 @@
         <a href="https://github.com/0tomhoyt/personal_web"><span data-i18n="footer.source">Source</span></a>
       </footer>
     </div>
+    <script src="assets/js/strings/common.js"></script>
+    <script src="assets/js/strings/instructions.js"></script>
+    <script src="assets/js/strings/course.js"></script>
     <script src="assets/js/i18n.js"></script>
     <script src="assets/js/theme.js"></script>
   </body>

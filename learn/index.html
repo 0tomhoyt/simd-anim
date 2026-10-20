@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title data-i18n="meta.title.learn">Intro to SME · simd-anim</title>
-    <meta name="description" data-i18n-content="meta.desc.learn" content="Five steps into SME: the hardware names, the inner pipeline, the microkernel, the roofline, then memory in flight. The linear-algebra self-check is optional.">
+    <meta name="description" data-i18n-content="meta.desc.learn" content="Two chapters. Chapter 1 is the five-step GEMM intro. Chapter 2 is pack, softmax, and attention. The linear-algebra self-check is optional.">
     <link rel="canonical" href="https://arm-simd.houyuteng.com/learn/">
     <meta property="og:title" content="Intro to SME · simd-anim">
-    <meta property="og:description" content="Five steps into SME: the hardware names, the inner pipeline, the microkernel, the roofline, then memory in flight. The linear-algebra self-check is optional.">
+    <meta property="og:description" content="Two chapters. Chapter 1 is the five-step GEMM intro. Chapter 2 is pack, softmax, and attention. The linear-algebra self-check is optional.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://arm-simd.houyuteng.com/learn/">
     <meta property="og:image" content="https://www.houyuteng.com/og.png">
@@ -16,7 +16,7 @@
     <meta property="og:locale:alternate" content="zh_CN">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Intro to SME · simd-anim">
-    <meta name="twitter:description" content="Five steps into SME: the hardware names, the inner pipeline, the microkernel, the roofline, then memory in flight. The linear-algebra self-check is optional.">
+    <meta name="twitter:description" content="Two chapters. Chapter 1 is the five-step GEMM intro. Chapter 2 is pack, softmax, and attention. The linear-algebra self-check is optional.">
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <meta name="theme-color" content="#f2efe8">
     <script>
@@ -52,8 +52,6 @@
           <nav data-i18n-aria="nav.label" aria-label="Primary">
             <a href="./" aria-current="page"><span data-i18n="nav.learn">Learn</span></a>
             <a href="../#instructions"><span data-i18n="nav.instructions">Instructions</span></a>
-            <a href="../#kernels"><span data-i18n="nav.kernels">Kernels</span></a>
-            <a href="../#strategy"><span data-i18n="nav.strategy">Strategy</span></a>
           </nav>
           <div class="lang-switch" role="group" data-i18n-aria="lang.label" aria-label="Language">
             <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
@@ -70,7 +68,7 @@
         <section class="hero" aria-labelledby="page-title">
           <p class="eyebrow" data-i18n="learn.eyebrow">Curriculum</p>
           <h1 id="page-title" data-i18n="learn.h1">Intro to SME</h1>
-          <p class="lede" data-i18n="learn.lede">Five steps through this lab: the names on the hardware, the four instructions of the inner pipeline, then the microkernel, the roofline, and memory in flight. A linear-algebra self-check sits in front if matrix multiply is rusty.</p>
+          <p class="lede" data-i18n="learn.lede">Two chapters. Chapter 1 is five steps through a GEMM: hardware, the inner pipeline, the microkernel, the roofline, and memory in flight. Chapter 2 is pack, softmax, and one head of attention. A linear-algebra self-check sits in front if matrix multiply is rusty.</p>
           <p class="shape-badge" data-i18n="path.shape">M=4 · N=4 · K=2 · SVL=128</p>
           <div class="hero-actions">
             <a class="button button-primary" href="../strategy/sme-anatomy/"><span data-i18n="learn.start">Start at the hardware</span></a>
@@ -80,10 +78,12 @@
 
         <section class="section" id="path" aria-labelledby="path-title">
           <div class="section-head">
-            <h2 id="path-title" data-i18n="learn.secTitle">Five steps</h2>
-            <p class="section-note" data-i18n="learn.secNote">The self-check is optional. The five steps below are the intro.</p>
+            <h2 id="path-title" data-i18n="learn.secTitle">Two chapters</h2>
+            <p class="section-note" data-i18n="learn.secNote">The self-check is optional. Chapter 1 stays five steps. Chapter 2 starts after memory in flight.</p>
           </div>
-          <ol class="catalog">
+          <div class="chapter">
+            <h3 data-i18n="learn.optTitle">Linear algebra self-check</h3>
+            <ol class="catalog">
             <li>
               <a class="catalog-link" href="../quiz/">
                 <span class="num">–</span>
@@ -96,6 +96,12 @@
                 <p class="mnemonic">M×K · K×N · dot</p>
               </a>
             </li>
+            </ol>
+          </div>
+          <div class="chapter" id="gemm">
+            <h3><span id="kernels"></span><span id="strategy"></span><span data-i18n="learn.ch1Title">Chapter 1 · GEMM</span></h3>
+            <p class="section-note" data-i18n="learn.ch1Note">Five steps, one shape: M=4, N=4, K=2, SVL=128.</p>
+            <ol class="catalog">
             <li>
               <a class="catalog-link" href="../strategy/sme-anatomy/">
                 <span class="num">01</span>
@@ -156,7 +162,50 @@
                 <p class="mnemonic" data-i18n="cat.mflow.mnemonic">pldl2keep / pldl1strm / stnt1w — across kernels</p>
               </a>
             </li>
-          </ol>
+            </ol>
+          </div>
+          <div class="chapter" id="beyond">
+            <h3 data-i18n="learn.ch2Title">Chapter 2 · Beyond GEMM</h3>
+            <p class="section-note" data-i18n="learn.ch2Note">Pack bridges out of the microkernel. Softmax is the step that is not a GEMM. Attention composes both.</p>
+            <ol class="catalog">
+            <li>
+              <a class="catalog-link" href="../kernels/pack/">
+                <span class="num">01</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.pk.family">Beyond GEMM</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.pk.title">Pack</h3>
+                  <p data-i18n="cat.pk.blurb">An 8×8 row-major panel becomes four contiguous 4×4 runs.</p>
+                  <span class="go" data-i18n="cat.pk.go">Play this kernel</span>
+                </span>
+                <p class="mnemonic">8×8 row-major → four 4×4 runs</p>
+              </a>
+            </li>
+            <li>
+              <a class="catalog-link" href="../kernels/softmax/">
+                <span class="num">02</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.smx.family">Beyond GEMM</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.smx.title">Softmax</h3>
+                  <p data-i18n="cat.smx.blurb">Subtract the max before the exp, so a hot score stays finite and the weights still sum to 1.</p>
+                  <span class="go" data-i18n="cat.smx.go">Play this kernel</span>
+                </span>
+                <p class="mnemonic">exp(x − max) / Σ exp</p>
+              </a>
+            </li>
+            <li>
+              <a class="catalog-link" href="../kernels/attention/">
+                <span class="num">03</span>
+                <span>
+                  <span class="kicker"><span data-i18n="cat.attn.family">Beyond GEMM</span> · <span class="live" data-i18n="status.live">Live</span></span>
+                  <h3 data-i18n="cat.attn.title">Attention</h3>
+                  <p data-i18n="cat.attn.blurb">One query, four keys: scores, softmax weights, then a mix with V.</p>
+                  <span class="go" data-i18n="cat.attn.go">Play this kernel</span>
+                </span>
+                <p class="mnemonic">QKᵀ → softmax → ×V</p>
+              </a>
+            </li>
+            </ol>
+          </div>
         </section>
       </main>
 
@@ -165,6 +214,9 @@
         <a href="https://github.com/0tomhoyt/personal_web"><span data-i18n="footer.source">Source</span></a>
       </footer>
     </div>
+    <script src="../assets/js/strings/common.js"></script>
+    <script src="../assets/js/strings/instructions.js"></script>
+    <script src="../assets/js/strings/course.js"></script>
     <script src="../assets/js/i18n.js"></script>
     <script src="../assets/js/theme.js"></script>
   </body>
