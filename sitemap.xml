@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://arm-simd.houyuteng.com/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/learn/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/strategy/sme-anatomy/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/kernels/tour/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/kernels/microkernel/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/strategy/roofline/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/strategy/memory-flow/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/kernels/pack/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/kernels/softmax/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/kernels/attention/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/quiz/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/quiz/matmul/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/instructions/fmopa/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/instructions/ld1w/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/instructions/fmla/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/instructions/st1w/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/instructions/whilelt/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/instructions/addv/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/instructions/uzp1/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/instructions/gather/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/instructions/fmlal/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/instructions/addha/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/instructions/tbl/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/instructions/addva/</loc></url>
+  <url><loc>https://arm-simd.houyuteng.com/instructions/zip1/</loc></url>
+</urlset>
