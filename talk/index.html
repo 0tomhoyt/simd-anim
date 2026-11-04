@@ -114,6 +114,47 @@
           <p class="talk-hint" data-i18n="talk.regHint">→ walks the families · click a card to jump · N next stop</p>
         </section>
 
+        <!-- Kitchen analogy card: the memory-flow stop's story told in a
+             kitchen first — stove/board/fridge/supermarket plus one
+             elevator, so the timeline page later just confirms it. -->
+        <section class="talk-card talk-card-kitchen" data-card="kitchen" data-step="0" hidden>
+          <p class="talk-kicker" data-i18n="talk.kitchenKicker">Strategy · by analogy</p>
+          <h1 class="talk-title talk-title-sm" data-i18n="talk.kitchenTitle">Memory flow, in a kitchen</h1>
+          <div class="reg-map kitchen-map" data-reg-map>
+            <div class="reg-fam kitchen-scene" data-fam="map">
+              <h2 data-i18n="talk.kitchenMap">The scene</h2>
+              <ol class="kitchen-levels">
+                <li class="is-core"><span class="kitchen-name" data-i18n="talk.kitchenCore">Stove · Core</span></li>
+                <li><span class="kitchen-name" data-i18n="talk.kitchenL1">Cutting board · L1</span></li>
+                <li><span class="kitchen-name" data-i18n="talk.kitchenL2">Fridge · L2</span></li>
+                <li><span class="kitchen-name" data-i18n="talk.kitchenHbm">Supermarket · HBM</span></li>
+              </ol>
+            </div>
+            <div class="reg-fam" data-fam="prefetch">
+              <h2 data-i18n="talk.kitchenPrefetch">① Prefetch · pldl2keep</h2>
+              <p data-i18n="talk.kitchenPrefetchBody">Buy the next dish's groceries into the fridge early.</p>
+            </div>
+            <div class="reg-fam" data-fam="ntstore">
+              <h2 data-i18n="talk.kitchenNt">② Write-through · stnt1w</h2>
+              <p data-i18n="talk.kitchenNtBody">Finished dishes leave straight out the window.</p>
+            </div>
+            <div class="reg-fam" data-fam="drain">
+              <h2 data-i18n="talk.kitchenDrain">③ Tail · async drain</h2>
+              <p data-i18n="talk.kitchenDrainBody">Plating overlaps the next dish.</p>
+            </div>
+          </div>
+          <div class="reg-flow" data-reg-flow aria-hidden="true">
+            <span class="reg-chip" data-i18n="talk.kitchenDishUp">dish ↑ 64B</span>
+            <span class="reg-op">+</span>
+            <span class="reg-chip" data-i18n="talk.kitchenTrashDown">trash ↓ 64B</span>
+            <span class="reg-op">vs</span>
+            <span class="reg-chip reg-chip-mem" data-i18n="talk.kitchenBudget">capacity 64B</span>
+            <span class="reg-op">= 128 / 64B</span>
+          </div>
+          <p class="reg-caption" data-reg-caption role="status"></p>
+          <p class="talk-hint" data-i18n="talk.kitchenHint">→ one move at a time · click a card · N next stop</p>
+        </section>
+
         <!-- Closing card. -->
         <section class="talk-card" data-card="end" hidden>
           <h1 class="talk-title talk-title-sm" data-i18n="talk.endTitle">Thanks — questions?</h1>

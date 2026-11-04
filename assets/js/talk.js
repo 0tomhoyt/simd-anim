@@ -124,13 +124,22 @@
       },
     },
     {
+      kind: "card",
+      id: "kitchen",
+      title: { en: "Memory flow, in a kitchen", zh: "厨房里的访存流水" },
+      cue: {
+        en: "The memory-flow story told in a kitchen first: stove Core, board L1, fridge L2, supermarket HBM, one elevator. → walks the three moves; the last step is the collision.",
+        zh: "先用厨房讲访存：灶台 Core、案板 L1、冰箱 L2、超市 HBM、一部电梯。按 → 逐招讲；最后一步是撞车的那一拍。",
+      },
+    },
+    {
       kind: "page",
       href: "../strategy/memory-flow/",
       id: "mflow",
       title: { en: "Memory in flight", zh: "内存时序" },
       cue: {
-        en: "Three moves, said directly: prefetch B into L2; stnt1w writes C without reading old lines; the drain hides under the next kernel. All the cost lands in the one HBM slot that reads and writes at once (128/64) — play and watch that row.",
-        zh: "三招直接说：预取把 B 先拉近 L2；stnt1w 写 C 不读旧行；drain 拖进下个 kernel。代价全落在 HBM 读写同拍那一格（128/64）—— 播放时盯住那一行。",
+        en: "The same play on real hardware: play the timeline and watch just two things — B's load landing in L2 (hit-tagged), and the one HBM slot where read and write share the car (128/64).",
+        zh: "厨房的真机版：播放时间线，只盯两处 —— B 的 load 落在 L2（带命中标签）；HBM 行读+写挤同一拍（128/64）。",
       },
     },
     {
@@ -220,6 +229,7 @@
   var endCard = document.querySelector('[data-card="end"]');
   var registersCard = document.querySelector('[data-card="registers"]');
   var unitsCard = document.querySelector('[data-card="units"]');
+  var kitchenCard = document.querySelector('[data-card="kitchen"]');
   var cueTitle = document.querySelector("[data-stop-title]");
   var cueText = document.querySelector("[data-cue-text]");
   var counterBtn = document.querySelector("[data-counter]");
@@ -248,6 +258,13 @@
       "talk.unitsStep1",
       "talk.unitsStep2",
       "talk.unitsStep3",
+    ],
+    kitchen: [
+      "talk.kitchenStep0",
+      "talk.kitchenStep1",
+      "talk.kitchenStep2",
+      "talk.kitchenStep3",
+      "talk.kitchenStep4",
     ],
   };
 
@@ -388,6 +405,7 @@
     endCard.hidden = !(stop.kind === "card" && stop.id === "end");
     registersCard.hidden = !(stop.kind === "card" && stop.id === "registers");
     unitsCard.hidden = !(stop.kind === "card" && stop.id === "units");
+    kitchenCard.hidden = !(stop.kind === "card" && stop.id === "kitchen");
     var enteringReveal = activeRevealId();
     if (enteringReveal) setRevealStep(enteringReveal, 0);
 
@@ -537,6 +555,7 @@
   var FAM_ORDER = {
     registers: ["x", "p", "z", "za"],
     units: ["cycle", "gflops"],
+    kitchen: ["prefetch", "ntstore", "drain"],
   };
   Object.keys(FAM_ORDER).forEach(function (id) {
     var card = revealCard(id);
