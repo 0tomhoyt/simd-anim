@@ -97,10 +97,10 @@
       kind: "page",
       href: "../instructions/st1w/",
       id: "st1w",
-      title: { en: "ST1W — results leave ZA", zh: "ST1W —— 结果写回" },
+      title: { en: "ZA — load, store, transpose", zh: "ZA —— 读取、存储、转置" },
       cue: {
-        en: "w12 picks the row, one slice leaves at a time. Extension worth saying: load za0h slices, store za0v — ZA doubles as a transpose buffer, at the cost of one extra ZA tile.",
-        zh: "w12 选行，一次一片离开 ZA。值得延伸：横片 za0h 进、竖片 za0v 出 —— ZA 顺手就是转置缓冲，代价是占用额外的 ZA tile。",
+        en: "Read: ld1w fills za0h slices. Store: st1w, w12 picks the row (this page). Transpose: za0h in, za0v out — costs one extra ZA tile.",
+        zh: "读：ld1w 写 za0h 切片；存：st1w 按 w12 选行（本页动画）；转置：横进竖出 za0h→za0v，代价占一个额外 tile。",
       },
     },
     {
