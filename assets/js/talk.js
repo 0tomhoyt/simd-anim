@@ -196,6 +196,10 @@
     ".talk-stop-roofline .bench,.talk-stop-mflow .bench,.talk-stop-attn .bench{grid-column:auto;grid-row:auto;}" +
     ".talk-stop-roofline .insn,.talk-stop-mflow .insn,.talk-stop-attn .insn{align-self:center;}" +
     ".talk-stop-roofline .demo-head,.talk-stop-mflow .demo-head,.talk-stop-attn .demo-head{text-align:center;}" +
+    /* Anatomy page has no bench: its three-card terms grid takes the
+       stage column, and the SVL note rides under the title. */
+    ".talk-stop-anatomy .anatomy-terms{grid-column:2;grid-row:1/span 2;align-self:center;justify-self:center;margin:0;}" +
+    ".talk-stop-anatomy .anatomy-svl{grid-column:1;grid-row:2;align-self:start;color:var(--muted,#5c5952);font-size:0.9rem;}" +
     "[data-whilelt] .col-stack{counter-reset:lane-i;}" +
     "[data-whilelt] .lane[data-vec='x']{counter-increment:lane-i;}" +
     "[data-whilelt] .lane[data-vec='x']::before{content:'i=' counter(lane-i);margin-right:0.35rem;font-family:var(--mono,monospace);font-size:0.6rem;color:#5c5952;}" +
@@ -219,7 +223,7 @@
       doc = null;
     }
     if (!doc || !doc.body) return;
-    var bench = doc.querySelector(".bench");
+    var bench = doc.querySelector(".bench") || doc.querySelector(".anatomy-terms");
     var head = doc.querySelector(".demo-head");
     var insn = doc.querySelector(".insn");
     var vh = doc.documentElement.clientHeight || 0;
