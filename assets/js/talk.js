@@ -36,6 +36,7 @@
     {
       kind: "page",
       href: "../strategy/sme-anatomy/",
+      id: "anatomy",
       title: { en: "The hardware — Z, ZA, compute", zh: "硬件词汇 —— Z、ZA、计算单元" },
       cue: {
         en: "Zoom in from the map: what a z register and a ZA tile actually look like, and how the compute unit wires them together.",
@@ -45,6 +46,7 @@
     {
       kind: "page",
       href: "../instructions/whilelt/",
+      id: "whilelt",
       title: { en: "WHILELT — where predicates come from", zh: "WHILELT —— 谓词从哪来" },
       cue: {
         en: "One comparison per lane: lane i asks is x0+i < x1? With x0=2, x1=5 the left column reads 2,3,4,5 — lanes 0-2 write 1, lane 3 writes 0. Then bump x0 live and watch the pattern slide.",
@@ -54,6 +56,7 @@
     {
       kind: "page",
       href: "../instructions/ld1w/",
+      id: "ld1w",
       title: { en: "LD1W — a predicated load", zh: "LD1W —— 带谓词的加载" },
       cue: {
         en: "Active lanes read memory, /z zeroes the rest. Click a predicate bit mid-animation.",
@@ -63,6 +66,7 @@
     {
       kind: "page",
       href: "../instructions/fmla/",
+      id: "fmla",
       title: { en: "FMLA — the familiar SIMD shape", zh: "FMLA —— 最熟悉的 SIMD 形态" },
       cue: {
         en: "Start with the shape everyone knows: one FMA per lane, vectors in, vectors out — p/m simply decides who participates.",
@@ -72,6 +76,7 @@
     {
       kind: "page",
       href: "../instructions/fmopa/",
+      id: "fmopa",
       title: { en: "FMOPA — the outer product", zh: "FMOPA —— 外积" },
       cue: {
         en: "Now break that shape: fmopa is an outer product, z0 down the rows and z1 across, filling the whole ZA tile — 16 FMAs in one instruction. Step it, then flip to Parallel.",
@@ -81,15 +86,17 @@
     {
       kind: "page",
       href: "../instructions/st1w/",
+      id: "st1w",
       title: { en: "ST1W — results leave ZA", zh: "ST1W —— 结果写回" },
       cue: {
-        en: "One slice at a time; w12 picks the row. Flip the selector and replay.",
-        zh: "结果按切片离开 ZA，w12 选行。切换选择器再重放一次。",
+        en: "w12 picks the row, one slice leaves at a time. Extension worth saying: load za0h slices, store za0v — ZA doubles as a transpose buffer, at the cost of one extra ZA tile.",
+        zh: "w12 选行，一次一片离开 ZA。值得延伸：横片 za0h 进、竖片 za0v 出 —— ZA 顺手就是转置缓冲，代价是占用额外的 ZA tile。",
       },
     },
     {
       kind: "page",
       href: "../kernels/microkernel/",
+      id: "microkernel",
       title: { en: "Microkernel — compose everything", zh: "Microkernel —— 全部拼起来" },
       cue: {
         en: "pack -> ldr + fmopa loop -> store. Toggle the layout selectors: it survives every transpose state.",
@@ -99,6 +106,7 @@
     {
       kind: "page",
       href: "../strategy/roofline/",
+      id: "roofline",
       title: { en: "Roofline — what limits you", zh: "Roofline —— 谁限制了你" },
       cue: {
         en: "Drag the sliders: past the ridge, more bandwidth buys nothing — arithmetic intensity is the currency.",
@@ -108,10 +116,11 @@
     {
       kind: "page",
       href: "../strategy/memory-flow/",
+      id: "mflow",
       title: { en: "Memory in flight", zh: "内存时序" },
       cue: {
-        en: "Latency hides across kernels: prefetch ahead, never read what you overwrite, let the tail hide.",
-        zh: "延迟要跨 kernel 藏：提前预取、不读将被覆盖的数据、让尾巴藏进下一个 kernel。",
+        en: "Three moves, said directly: prefetch B into L2; stnt1w writes C without reading old lines; the drain hides under the next kernel. All the cost lands in the one HBM slot that reads and writes at once (128/64) — play and watch that row.",
+        zh: "三招直接说：预取把 B 先拉近 L2；stnt1w 写 C 不读旧行；drain 拖进下个 kernel。代价全落在 HBM 读写同拍那一格（128/64）—— 播放时盯住那一行。",
       },
     },
     {
@@ -142,7 +151,10 @@
     "[data-whilelt] .lane[data-vec='x']{counter-increment:lane-i;}" +
     "[data-whilelt] .lane[data-vec='x']::before{content:'i=' counter(lane-i);margin-right:0.35rem;font-family:var(--mono,monospace);font-size:0.6rem;color:#5c5952;}" +
     "[data-whilelt] .op-glyph{font-size:1.05rem;font-weight:650;color:#b23e24;}" +
-    "[data-whilelt] .lane.is-live{outline:2px solid #b23e24;outline-offset:2px;}";
+    "[data-whilelt] .lane.is-live{outline:2px solid #b23e24;outline-offset:2px;}" +
+    /* Memory flow, talk-cut: the lede and the op listing leave, the timeline
+       stays — the cue bar carries the three moves directly. */
+    ".talk-stop-mflow .lede,.talk-stop-mflow .insn{display:none !important;}";
 
   /* Projectors are one screen, no scrolling: scale each page so its stage
      and playback controls land inside the viewport. Measured against the
@@ -258,6 +270,10 @@
     }
     if (!doc || !doc.head || !doc.body) return;
 
+    /* Per-stop class so FRAME_CSS can target one stop's page. */
+    var stopId = iframe.getAttribute("data-talk-stop");
+    if (stopId) doc.body.classList.add("talk-stop-" + stopId);
+
     var style = doc.createElement("style");
     style.textContent = FRAME_CSS;
     doc.head.appendChild(style);
@@ -287,6 +303,7 @@
       var iframe = document.createElement("iframe");
       iframe.className = "talk-frame";
       iframe.title = stopText(stop, "title");
+      if (stop.id) iframe.setAttribute("data-talk-stop", stop.id);
       iframe.addEventListener("load", function () {
         dressFrame(iframe);
       });
