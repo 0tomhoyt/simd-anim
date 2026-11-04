@@ -124,23 +124,26 @@
             <div class="reg-fam kitchen-scene" data-fam="map">
               <h2 data-i18n="talk.kitchenMap">The scene</h2>
               <ol class="kitchen-levels">
-                <li class="is-core"><span class="kitchen-name" data-i18n="talk.kitchenCore">Stove · Core</span></li>
-                <li><span class="kitchen-name" data-i18n="talk.kitchenL1">Cutting board · L1</span></li>
-                <li><span class="kitchen-name" data-i18n="talk.kitchenL2">Fridge · L2</span></li>
-                <li><span class="kitchen-name" data-i18n="talk.kitchenHbm">Supermarket · HBM</span></li>
+                <li class="is-core"><span class="kitchen-name" data-i18n="talk.kitchenCore">Stove · Core</span><span class="fam-chip" data-i18n="talk.kitchenCyCore">32 FLOP/tick</span></li>
+                <li><span class="kitchen-name" data-i18n="talk.kitchenL1">Cutting board · L1</span><span class="fam-chip" data-i18n="talk.kitchenCyL1">~4 ticks</span></li>
+                <li><span class="kitchen-name" data-i18n="talk.kitchenL2">Fridge · L2</span><span class="fam-chip" data-i18n="talk.kitchenCyL2">~14 ticks</span></li>
+                <li><span class="kitchen-name" data-i18n="talk.kitchenHbm">Supermarket · HBM</span><span class="fam-chip" data-i18n="talk.kitchenCyHbm">~300+ ticks</span></li>
               </ol>
             </div>
             <div class="reg-fam" data-fam="prefetch">
               <h2 data-i18n="talk.kitchenPrefetch">① Prefetch · pldl2keep</h2>
               <p data-i18n="talk.kitchenPrefetchBody">Buy the next dish's groceries into the fridge early.</p>
+              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.kitchenPrefetchChip">HBM → L2 one trip early</span></div>
             </div>
             <div class="reg-fam" data-fam="ntstore">
               <h2 data-i18n="talk.kitchenNt">② Write-through · stnt1w</h2>
               <p data-i18n="talk.kitchenNtBody">Finished dishes leave straight out the window.</p>
+              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.kitchenNtChip">out 64B · in 0B</span></div>
             </div>
             <div class="reg-fam" data-fam="drain">
               <h2 data-i18n="talk.kitchenDrain">③ Tail · async drain</h2>
               <p data-i18n="talk.kitchenDrainBody">Plating overlaps the next dish.</p>
+              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.kitchenDrainChip">async · zero stove ticks</span></div>
             </div>
           </div>
           <div class="reg-flow" data-reg-flow aria-hidden="true">
@@ -190,6 +193,16 @@
         <section class="talk-card" data-card="end" hidden>
           <h1 class="talk-title talk-title-sm" data-i18n="talk.endTitle">Thanks — questions?</h1>
           <p class="talk-sub" data-i18n="talk.endBody">The lab stays online; every page is one click from the home page.</p>
+          <div class="talk-next">
+            <p class="talk-next-kicker" data-i18n="talk.nextKicker">Next talk · teaser</p>
+            <h2 data-i18n="talk.nextTitle">Big matrices × many NUMA nodes</h2>
+            <p class="talk-next-body" data-i18n="talk.nextBody">Why data must move across nodes, and why it needs a communication ledger.</p>
+            <div class="fam-chips" aria-hidden="true">
+              <span class="fam-chip" data-i18n="talk.nextChip1">matrix tiling</span>
+              <span class="fam-chip" data-i18n="talk.nextChip2">cross-NUMA traffic</span>
+              <span class="fam-chip fam-chip-ok" data-i18n="talk.nextChip3">the communication ledger</span>
+            </div>
+          </div>
           <p class="talk-links">
             <a class="button button-primary" href="../" target="_blank" rel="noopener" data-i18n="talk.endLab">Open the lab</a>
             <a class="button" href="https://github.com/0tomhoyt/simd-anim" target="_blank" rel="noopener" data-i18n="talk.endSource">Source on GitHub</a>
