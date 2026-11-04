@@ -1,0 +1,36 @@
+/* Shared palette and typefaces for the lab and lecture. */
+:root {
+  --bg: #f2efe8;
+  --surface: #e7e1d4;
+  --paper: #f7f4ee;
+  --ink: #1a1916;
+  --muted: #5c5952;
+  --line: #cdc6b8;
+  --line-strong: #b7af9f;
+  --accent: #b23e24;
+  --accent-fill: #cf4d2f;
+  --on-accent: #f7f4ee;
+  --raised: #f8f6f1;
+  --wash: rgba(255, 255, 255, 0.35);
+  --sans: Inter, "Helvetica Neue", "PingFang SC", "Noto Sans SC", "Noto Sans CJK SC", system-ui, sans-serif;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Songti SC", "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", Georgia, serif;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --lane: 4.4rem;
+  --pred: 2.15rem;
+  --gap: 0.45rem;
+}
+
+:root[data-theme="dark"] {
+  --bg: #161512;
+  --surface: #262218;
+  --paper: #201d18;
+  --ink: #e9e4d8;
+  --muted: #a49c8b;
+  --line: #37342b;
+  --line-strong: #514b3c;
+  --accent: #d96a4a;
+  --accent-fill: #cf4d2f;
+  --on-accent: #161512;
+  --raised: #1d1b17;
+  --wash: rgba(233, 228, 216, 0.05);
+}

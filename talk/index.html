@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title data-i18n="talk.ui.meta">30 分钟看懂 ARM 计算 · simd-anim</title>
-<link rel="icon" href="../favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#edf1f6">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#f2efe8">
 <script>try { var forced=new URLSearchParams(location.search).get('lang'); if(forced==='zh'||forced==='en')localStorage.setItem('site-lang',forced); } catch(error) {}</script>
+<script>try { var th=localStorage.getItem('site-theme'); if(th!=='dark'&&th!=='light')th=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',th); } catch(error) {document.documentElement.setAttribute('data-theme','light');}</script>
 <link rel="stylesheet" href="../assets/css/talk.css">
 </head>
 <body>
@@ -16,6 +17,7 @@
 <button class="control-button" id="open-notes" data-command="notes" data-i18n="talk.ui.notes" title="C" aria-expanded="false">提词</button>
 <button class="control-button secondary-control" id="fullscreen" data-command="fullscreen" data-i18n="talk.ui.fullscreen" title="F">全屏</button>
 <button class="control-button secondary-control" id="blackout" data-command="blackout" data-i18n="talk.ui.blackout" title="B">黑屏</button>
+<button class="control-button theme-toggle" type="button" aria-label="切换主题 / Toggle theme" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/></svg></button>
 <div class="lang-switch" role="group" aria-label="Language / 语言"><button type="button" data-lang="zh" lang="zh-Hans" aria-pressed="true">中文</button><button type="button" data-lang="en" lang="en" aria-pressed="false">EN</button></div>
 </div></header>
 <main class="slide" id="slide" aria-label="讲座舞台" data-i18n-aria="talk.ui.stage">
@@ -31,5 +33,7 @@
 <dialog class="notes-dialog" id="notes-dialog" aria-labelledby="notes-title"><header><h2 id="notes-title" data-i18n="talk.ui.notesTitle">讲者提示</h2><button class="control-button" id="close-notes" data-command="closeNotes" data-i18n="talk.ui.close">关闭</button></header><p class="notes-stop" id="notes-stop"></p><h3 id="notes-heading"></h3><p id="notes-copy"></p><p class="notes-transition" id="notes-transition"></p></dialog>
 <div class="blackout-layer" id="blackout-layer" tabindex="-1" role="dialog" aria-label="黑屏" data-i18n-aria="talk.ui.blackout" hidden><span data-i18n="talk.ui.blackoutHint">按 B 或 Esc 返回</span></div>
 <noscript><p>请启用 JavaScript 以使用交互讲座。Enable JavaScript to use the lecture.</p></noscript>
+<script src="../assets/js/theme.js"></script>
 <script src="../assets/js/strings/talk.js"></script><script src="../assets/js/talk-content.js"></script><script src="../assets/js/talk-model.js"></script><script src="../assets/js/talk-scenes.js"></script><script src="../assets/js/i18n.js"></script><script src="../assets/js/talk.js"></script>
 </body></html>
+
