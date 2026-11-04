@@ -37,6 +37,38 @@
           <p class="talk-hint"><span data-i18n="talk.start">Press N to begin</span> · <span data-i18n="talk.kbdTalk">N next stop · P previous · O all stops · F fullscreen · B blackout · C cue bar</span></p>
         </section>
 
+        <!-- Units card: cycle and GFLOPS, the two yardsticks every later
+             number is measured with. Arrow-key reveal like the register map. -->
+        <section class="talk-card talk-card-units" data-card="units" data-step="0" hidden>
+          <p class="talk-kicker" data-i18n="talk.unitsKicker">Basics · the two yardsticks</p>
+          <h1 class="talk-title talk-title-sm" data-i18n="talk.unitsTitle">Cycles and GFLOPS</h1>
+          <div class="reg-map units-map" data-reg-map>
+            <div class="reg-fam" data-fam="cycle">
+              <div class="reg-fig units-fig-cycle" aria-hidden="true">
+                <span class="units-ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+              </div>
+              <h2 data-i18n="talk.unitsCycle">Cycle · the clock tick</h2>
+              <p data-i18n="talk.unitsCycleBody">One cycle = one clock period.</p>
+              <p class="units-stats" aria-hidden="true"><span>L1 · ~4</span><span>L2 · ~14</span><span>HBM · ~300</span></p>
+            </div>
+            <div class="reg-fam" data-fam="gflops">
+              <div class="reg-fig units-fig-gflops" aria-hidden="true">
+                <span class="reg-chip">fmopa</span><span class="reg-op">=</span><span class="reg-chip">16 MAC</span><span class="reg-op">=</span><span class="reg-chip reg-chip-mem">32 FLOP</span>
+              </div>
+              <h2 data-i18n="talk.unitsGflops">GFLOPS · the performance currency</h2>
+              <p data-i18n="talk.unitsGflopsBody">A FLOP is one float add or multiply — a MAC counts as 2.</p>
+            </div>
+          </div>
+          <div class="reg-flow" data-reg-flow aria-hidden="true">
+            <span class="reg-chip">32 FLOP / fmopa</span><span class="reg-op" data-i18n="talk.unitsPerCycle">× 1 per cycle</span>
+            <span class="reg-op" data-i18n="talk.unitsFreq">× frequency (GHz)</span>
+            <span class="reg-op" data-i18n="talk.unitsCores">× cores</span>
+            <span class="reg-chip reg-chip-mem"><span data-i18n="talk.unitsPeak">peak</span> GFLOPS</span>
+          </div>
+          <p class="reg-caption" data-reg-caption role="status"></p>
+          <p class="talk-hint" data-i18n="talk.unitsHint">→ walks the yardsticks · N next stop</p>
+        </section>
+
         <!-- Register map card: the four register families, walked with
              the arrow keys, ending in the data path the next stops walk. -->
         <section class="talk-card talk-card-reg" data-card="registers" data-step="0" hidden>

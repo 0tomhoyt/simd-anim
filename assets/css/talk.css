@@ -575,3 +575,79 @@
     grid-template-columns: repeat(2, minmax(12rem, 1fr));
   }
 }
+
+/* --- Units card (cycles / GFLOPS) ------------------------------------ */
+
+.talk-card-units .reg-map {
+  grid-template-columns: repeat(2, minmax(17rem, 25rem));
+  gap: 1rem;
+}
+
+.talk-card-units[data-step="1"] .reg-fam:not([data-fam="cycle"]),
+.talk-card-units[data-step="2"] .reg-fam:not([data-fam="gflops"]) {
+  opacity: 0.32;
+}
+
+.talk-card-units[data-step="1"] .reg-fam[data-fam="cycle"],
+.talk-card-units[data-step="2"] .reg-fam[data-fam="gflops"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(178, 62, 36, 0.16);
+}
+
+.talk-card-units[data-step="3"] .reg-flow {
+  display: flex;
+}
+
+.units-fig-cycle {
+  gap: 0.3rem;
+}
+
+.units-ticks {
+  display: inline-flex;
+  gap: 0.3rem;
+  align-items: flex-end;
+  height: 1.9rem;
+}
+
+.units-ticks i {
+  width: 0.14rem;
+  height: 100%;
+  background: var(--line-strong);
+  border-radius: 1px;
+}
+
+.units-ticks i:nth-child(4) {
+  background: var(--accent);
+  height: 100%;
+}
+
+.units-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+}
+
+.units-stats span {
+  padding: 0.16rem 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.units-fig-gflops {
+  gap: 0.35rem;
+}
+
+.units-fig-gflops .reg-chip {
+  font-size: 0.74rem;
+}
+
+@media (max-width: 960px) {
+  .talk-card-units .reg-map {
+    grid-template-columns: minmax(12rem, 1fr);
+  }
+}

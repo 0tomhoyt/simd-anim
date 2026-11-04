@@ -12,8 +12,9 @@
   var DATE = "2026-11-05";
 
   /* One guided pass for a 15-20 minute mixed-background talk:
-     vocabulary -> the SVE ideas -> the SME outer product -> composition
-     -> the two strategy pages that say what speed actually is. */
+     the hardware names -> cycles/GFLOPS -> the register map -> the SVE
+     ideas -> the SME outer product -> composition -> the two strategy
+     pages that say what speed actually is. */
   var STOPS = [
     {
       kind: "card",
@@ -25,22 +26,31 @@
       },
     },
     {
+      kind: "page",
+      href: "../strategy/sme-anatomy/",
+      id: "anatomy",
+      title: { en: "The hardware — Z, ZA, compute", zh: "硬件词汇 —— Z、ZA、计算单元" },
+      cue: {
+        en: "Three names before anything else: a Z register, the ZA tile, the compute unit — every later page uses them.",
+        zh: "先立三个名字：Z 寄存器、ZA tile、计算单元 —— 后面每一页都在用它们。",
+      },
+    },
+    {
+      kind: "card",
+      id: "units",
+      title: { en: "Cycles and GFLOPS", zh: "两把标尺 —— Cycle 与 GFLOPS" },
+      cue: {
+        en: "The two units every later number is measured with: the cycle for time (L1 a few ticks, HBM hundreds), GFLOPS for speed (cores x frequency x FLOPs per cycle). → walks them.",
+        zh: "后面所有数字用的两把尺子：量时间的 cycle（L1 几拍、HBM 几百拍），量速度的 GFLOPS（核数 × 频率 × 每拍 FLOP）。按 → 逐把讲。",
+      },
+    },
+    {
       kind: "card",
       id: "registers",
       title: { en: "Registers — four families", zh: "寄存器 —— 四个家族" },
       cue: {
         en: "All four families on one map: x general, p predicate, z vector, ZA matrix. → walks them; the last step is the route for the next stops.",
         zh: "四个家族一张图：x 通用、p 谓词、z 向量、ZA 矩阵。按 → 逐个细讲；最后一步是接下来几站的路线。",
-      },
-    },
-    {
-      kind: "page",
-      href: "../strategy/sme-anatomy/",
-      id: "anatomy",
-      title: { en: "The hardware — Z, ZA, compute", zh: "硬件词汇 —— Z、ZA、计算单元" },
-      cue: {
-        en: "Zoom in from the map: what a z register and a ZA tile actually look like, and how the compute unit wires them together.",
-        zh: "从全景拉近：z 寄存器和 ZA tile 到底长什么样，计算单元怎么把它们接起来。",
       },
     },
     {
@@ -209,7 +219,7 @@
   var titleCard = document.querySelector('[data-card="title"]');
   var endCard = document.querySelector('[data-card="end"]');
   var registersCard = document.querySelector('[data-card="registers"]');
-  var regCaption = document.querySelector("[data-reg-caption]");
+  var unitsCard = document.querySelector('[data-card="units"]');
   var cueTitle = document.querySelector("[data-stop-title]");
   var cueText = document.querySelector("[data-cue-text]");
   var counterBtn = document.querySelector("[data-counter]");
@@ -220,30 +230,50 @@
   var frames = {}; /* stop index -> iframe, kept alive once created */
   var current = -1;
 
-  /* Register-map reveal: 0 all four families, 1-4 one family each,
-     5 the data path. Arrow keys and clicks drive it; N/P still move
-     stops, so the card and the talk clock stay out of each other's way. */
-  var REG_CAPTIONS = [
-    "talk.regStep0",
-    "talk.regStep1",
-    "talk.regStep2",
-    "talk.regStep3",
-    "talk.regStep4",
-    "talk.regStep5",
-  ];
+  /* Card reveals (register map, units): step 0 shows the whole card,
+     then one block each, then the closing strip. Arrow keys and clicks
+     drive the reveal; N/P still move stops, so the card and the talk
+     clock stay out of each other's way. */
+  var REVEALS = {
+    registers: [
+      "talk.regStep0",
+      "talk.regStep1",
+      "talk.regStep2",
+      "talk.regStep3",
+      "talk.regStep4",
+      "talk.regStep5",
+    ],
+    units: [
+      "talk.unitsStep0",
+      "talk.unitsStep1",
+      "talk.unitsStep2",
+      "talk.unitsStep3",
+    ],
+  };
 
-  function setRegistersStep(n) {
-    n = Math.max(0, Math.min(REG_CAPTIONS.length - 1, n));
-    registersCard.setAttribute("data-step", String(n));
-    regCaption.textContent = t(REG_CAPTIONS[n]);
+  function revealCard(id) {
+    return document.querySelector('[data-card="' + id + '"]');
   }
 
-  function onRegistersStop() {
-    return (
-      current >= 0 &&
-      STOPS[current].kind === "card" &&
-      STOPS[current].id === "registers"
-    );
+  function activeRevealId() {
+    if (current < 0) return null;
+    var stop = STOPS[current];
+    return stop.kind === "card" && REVEALS[stop.id] ? stop.id : null;
+  }
+
+  function setRevealStep(id, n) {
+    var keys = REVEALS[id];
+    var card = revealCard(id);
+    if (!keys || !card) return;
+    n = Math.max(0, Math.min(keys.length - 1, n));
+    card.setAttribute("data-step", String(n));
+    var caption = card.querySelector("[data-reg-caption]");
+    if (caption) caption.textContent = t(keys[n]);
+  }
+
+  function revealStepOf(id) {
+    var card = revealCard(id);
+    return card ? Number(card.getAttribute("data-step")) || 0 : 0;
   }
 
   function lang() {
@@ -357,7 +387,9 @@
     titleCard.hidden = !(stop.kind === "card" && stop.id === "title");
     endCard.hidden = !(stop.kind === "card" && stop.id === "end");
     registersCard.hidden = !(stop.kind === "card" && stop.id === "registers");
-    if (!registersCard.hidden) setRegistersStep(0);
+    unitsCard.hidden = !(stop.kind === "card" && stop.id === "units");
+    var enteringReveal = activeRevealId();
+    if (enteringReveal) setRevealStep(enteringReveal, 0);
 
     var active = ensureFrame(current);
     Object.keys(frames).forEach(function (key) {
@@ -452,17 +484,18 @@
     if (event.defaultPrevented) return;
     if (event.metaKey || event.ctrlKey || event.altKey) return;
     var key = event.key;
-    /* On the register card the arrows and space walk the reveal; every
-       other stop hands those keys to the page animation instead. The
+    /* On reveal cards (register map, units) the arrows and space walk the
+       reveal; every other stop hands those keys to the page animation. The
        overview must be closed first, so arrows never fight its list. */
-    if (onRegistersStop() && overviewEl.hidden && (key === "ArrowRight" || key === " ")) {
+    var revealId = activeRevealId();
+    if (revealId && overviewEl.hidden && (key === "ArrowRight" || key === " ")) {
       event.preventDefault();
-      setRegistersStep(Number(registersCard.getAttribute("data-step")) + 1);
+      setRevealStep(revealId, revealStepOf(revealId) + 1);
       return;
     }
-    if (onRegistersStop() && overviewEl.hidden && key === "ArrowLeft") {
+    if (revealId && overviewEl.hidden && key === "ArrowLeft") {
       event.preventDefault();
-      setRegistersStep(Number(registersCard.getAttribute("data-step")) - 1);
+      setRevealStep(revealId, revealStepOf(revealId) - 1);
       return;
     }
     var m = null;
@@ -500,12 +533,19 @@
     if (event.target === overviewEl) closeOverview();
   });
 
-  /* Clicking a family card jumps the reveal to that family. */
-  var FAM_ORDER = ["x", "p", "z", "za"];
-  registersCard.querySelectorAll(".reg-fam").forEach(function (fam) {
-    fam.addEventListener("click", function () {
-      var idx = FAM_ORDER.indexOf(fam.getAttribute("data-fam"));
-      if (idx >= 0) setRegistersStep(idx + 1);
+  /* Clicking a block on a reveal card jumps the reveal to that block. */
+  var FAM_ORDER = {
+    registers: ["x", "p", "z", "za"],
+    units: ["cycle", "gflops"],
+  };
+  Object.keys(FAM_ORDER).forEach(function (id) {
+    var card = revealCard(id);
+    if (!card) return;
+    card.querySelectorAll(".reg-fam").forEach(function (fam) {
+      fam.addEventListener("click", function () {
+        var idx = FAM_ORDER[id].indexOf(fam.getAttribute("data-fam"));
+        if (idx >= 0) setRevealStep(id, idx + 1);
+      });
     });
   });
 
@@ -513,9 +553,8 @@
      re-rendered themselves, the shell data and live frames follow here. */
   document.addEventListener("site-lang", function () {
     titleCard.querySelector("[data-card-date]").textContent = DATE;
-    if (!registersCard.hidden) {
-      setRegistersStep(Number(registersCard.getAttribute("data-step")));
-    }
+    var langReveal = activeRevealId();
+    if (langReveal) setRevealStep(langReveal, revealStepOf(langReveal));
     Object.keys(frames).forEach(function (key) {
       var iframe = frames[key];
       iframe.title = stopText(STOPS[Number(key)], "title");
