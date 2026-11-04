@@ -179,12 +179,23 @@
      room. Scaling to fit is applied by fitFrame() below. */
   var FRAME_CSS =
     ".skip-link,.site-header,.site-footer,.back,.spec-note{display:none !important;}" +
-    ".path-bar,.path-steps,.path-hint,.kbd-note,.mflow-plan,.notes{display:none !important;}" +
-    ".page{width:min(100% - 2rem,84rem);}" +
-    ".demo-head{padding:0.4rem 0 0.7rem;}" +
-    ".demo-head h1{font-size:clamp(2.4rem,5.5vw,3.6rem);}" +
-    ".demo-head .lede{font-size:1rem;}" +
-    ".insn{margin-bottom:0.8rem;}" +
+    ".path-bar,.path-steps,.path-hint,.path-end,.kbd-note,.mflow-plan,.notes{display:none !important;}" +
+    ".page{width:100%;padding:0 3rem;}" +
+    /* Slide layout: title/instruction left, the animated stage right,
+       both vertically centered — pages read like slides, not articles.
+       The two 1fr rows plus fixed height lock the grid to the viewport,
+       so the stage column always centers exactly. */
+    ".demo-main{display:grid;grid-template-columns:minmax(20rem,2fr) 3fr;grid-template-rows:1fr 1fr;column-gap:3rem;align-items:center;height:100vh;padding:0;}" +
+    ".demo-head{grid-column:1;grid-row:1;align-self:end;padding:0 0 0.9rem;}" +
+    ".insn{grid-column:1;grid-row:2;align-self:start;width:fit-content;max-width:100%;margin:0;padding:0.75rem 1rem 0.85rem;}" +
+    ".bench{grid-column:2;grid-row:1/span 2;width:fit-content;max-width:100%;margin:0 auto;}" +
+    ".demo-head h1{font-size:clamp(2rem,3.4vw,3rem);}" +
+    ".demo-head .lede{font-size:1.02rem;}" +
+    /* Wide-stage pages keep one centered column. */
+    ".talk-stop-roofline .demo-main,.talk-stop-mflow .demo-main,.talk-stop-attn .demo-main{display:flex;flex-direction:column;align-items:center;justify-content:center;}" +
+    ".talk-stop-roofline .bench,.talk-stop-mflow .bench,.talk-stop-attn .bench{grid-column:auto;grid-row:auto;}" +
+    ".talk-stop-roofline .insn,.talk-stop-mflow .insn,.talk-stop-attn .insn{align-self:center;}" +
+    ".talk-stop-roofline .demo-head,.talk-stop-mflow .demo-head,.talk-stop-attn .demo-head{text-align:center;}" +
     "[data-whilelt] .col-stack{counter-reset:lane-i;}" +
     "[data-whilelt] .lane[data-vec='x']{counter-increment:lane-i;}" +
     "[data-whilelt] .lane[data-vec='x']::before{content:'i=' counter(lane-i);margin-right:0.35rem;font-family:var(--mono,monospace);font-size:0.6rem;color:#5c5952;}" +
@@ -194,10 +205,12 @@
        stays — the cue bar carries the three moves directly. */
     ".talk-stop-mflow .lede,.talk-stop-mflow .insn{display:none !important;}";
 
-  /* Projectors are one screen, no scrolling: scale each page so its stage
-     and playback controls land inside the viewport. Measured against the
-     controls (falling back to the bench), clamped so text never gets
-     absurdly small or huge, and re-run when the window resizes. */
+  /* Projectors are one screen, no scrolling: scale each page so its
+     content fills the viewport without spilling. Two-column slides
+     budget the taller of (title column, stage); the wide-stage pages
+     stack title over stage, so they budget the sum. Measured at zoom 1,
+     clamped so text never gets absurdly small or huge, then verified
+     with one correction pass after the zoom lands. */
   function fitFrame(iframe) {
     var doc = null;
     try {
@@ -206,15 +219,41 @@
       doc = null;
     }
     if (!doc || !doc.body) return;
-    var anchor =
-      doc.querySelector(".controls") || doc.querySelector(".bench") || doc.querySelector("main");
+    var bench = doc.querySelector(".bench");
+    var head = doc.querySelector(".demo-head");
+    var insn = doc.querySelector(".insn");
     var vh = doc.documentElement.clientHeight || 0;
-    if (!anchor || vh < 400) return;
+    if (!bench || vh < 400) return;
+    var flexPage =
+      doc.body.classList.contains("talk-stop-roofline") ||
+      doc.body.classList.contains("talk-stop-mflow") ||
+      doc.body.classList.contains("talk-stop-attn");
     doc.body.style.zoom = "";
-    var bottom = anchor.getBoundingClientRect().bottom;
-    if (bottom < 1) return;
-    var target = Math.min(1.3, Math.max(0.72, (vh * 0.96) / bottom));
+    var benchH = bench.getBoundingClientRect().height;
+    var headH = head ? head.getBoundingClientRect().height : 0;
+    var insnH = insn && getComputedStyle(insn).display !== "none"
+      ? insn.getBoundingClientRect().height
+      : 0;
+    var contentH = flexPage ? headH + insnH + benchH : Math.max(headH + insnH, benchH);
+    if (contentH < 80) return;
+    var main = doc.querySelector(".demo-main");
+    var byHeight = (vh * 0.9) / contentH;
+    var byWidth = (doc.documentElement.clientWidth * 0.96) / Math.max(1, bench.getBoundingClientRect().width);
+    var target = Math.max(0.72, Math.min(1.3, byHeight, byWidth));
     doc.body.style.zoom = String(target);
+    /* zoom scales vh-sized containers too (100vh renders as vh*zoom), so
+       pin the main column to the real viewport height at the new zoom. */
+    if (main) main.style.height = (vh / target) + "px";
+    /* One correction pass: layout may have settled differently under zoom. */
+    window.requestAnimationFrame(function () {
+      var box = bench.getBoundingClientRect();
+      var spill = box.height + 24 - vh;
+      if (spill > 0 && target > 0.72) {
+        var next = Math.max(0.72, target * (vh / (vh + spill)));
+        doc.body.style.zoom = String(next);
+        if (main) main.style.height = (vh / next) + "px";
+      }
+    });
   }
 
   var resizeTimer = null;
