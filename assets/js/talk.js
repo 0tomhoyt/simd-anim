@@ -47,8 +47,8 @@
       href: "../instructions/whilelt/",
       title: { en: "WHILELT — where predicates come from", zh: "WHILELT —— 谓词从哪来" },
       cue: {
-        en: "A predicate is just bits: lane i is on while x0 + i < x1. Step x0 live with the steppers.",
-        zh: "谓词就是一组比特：x0 + i < x1 时第 i 通道亮。用步进器现场改 x0。",
+        en: "One comparison per lane: lane i asks is x0+i < x1? With x0=2, x1=5 the left column reads 2,3,4,5 — lanes 0-2 write 1, lane 3 writes 0. Then bump x0 live and watch the pattern slide.",
+        zh: "每路只做一次比较：第 i 路问 x0+i < x1 吗？x0=2、x1=5 时左列是 2,3,4,5 —— 前三路写 1，第 3 路写 0。再现场加 x0，看位图整体平移。",
       },
     },
     {
@@ -62,20 +62,20 @@
     },
     {
       kind: "page",
-      href: "../instructions/fmopa/",
-      title: { en: "FMOPA — the outer product", zh: "FMOPA —— 外积" },
+      href: "../instructions/fmla/",
+      title: { en: "FMLA — the familiar SIMD shape", zh: "FMLA —— 最熟悉的 SIMD 形态" },
       cue: {
-        en: "The star: ZA[i,j] += z0[i] x z1[j]. Play step-by-step, then switch to Parallel — one instruction, 16 FMAs.",
-        zh: "主角：ZA[i,j] += z0[i] × z1[j]。先逐步播放，再切 Parallel —— 一条指令 16 个乘加。",
+        en: "Start with the shape everyone knows: one FMA per lane, vectors in, vectors out — p/m simply decides who participates.",
+        zh: "先讲人人都熟的形态：逐通道乘加，向量进、向量出 —— p/m 只决定谁参与。",
       },
     },
     {
       kind: "page",
-      href: "../instructions/fmla/",
-      title: { en: "FMLA — lane-wise, for contrast", zh: "FMLA —— 逐通道，作对比" },
+      href: "../instructions/fmopa/",
+      title: { en: "FMOPA — the outer product", zh: "FMOPA —— 外积" },
       cue: {
-        en: "SVE's vector FMA for contrast: vectors in, vectors out — no tile, no accumulation across rows.",
-        zh: "对比 SVE 的向量 FMA：向量进向量出 —— 没有 tile，也不跨行累加。",
+        en: "Now break that shape: fmopa is an outer product, z0 down the rows and z1 across, filling the whole ZA tile — 16 FMAs in one instruction. Step it, then flip to Parallel.",
+        zh: "再打破这个形态：fmopa 是外积，z0 竖着铺行、z1 横着铺列，一次填满整个 ZA tile —— 一条指令 16 个乘加。先逐步播放，再切 Parallel。",
       },
     },
     {
@@ -125,16 +125,24 @@
     },
   ];
 
-  /* Hidden inside every page stop: the site header/footer and the back
-     link, plus the types note (the speaker narrates it; it stays in the
-     notes section below). Scaling to fit is applied by fitFrame() below. */
+  /* Hidden inside every page stop: the site header/footer, the back link,
+     the course-path chrome (chapter counters, prev/next), the types note,
+     and the memory-flow strategy prose (the cue bar narrates all of these).
+     The wider .page and the whilelt lane labels buy landscape projection
+     room. Scaling to fit is applied by fitFrame() below. */
   var FRAME_CSS =
     ".skip-link,.site-header,.site-footer,.back,.spec-note{display:none !important;}" +
-    ".page{width:min(100% - 2rem,76rem);}" +
+    ".path-bar,.path-steps,.path-hint,.kbd-note,.mflow-plan{display:none !important;}" +
+    ".page{width:min(100% - 2rem,84rem);}" +
     ".demo-head{padding:0.4rem 0 0.7rem;}" +
     ".demo-head h1{font-size:clamp(2.4rem,5.5vw,3.6rem);}" +
     ".demo-head .lede{font-size:1rem;}" +
-    ".insn{margin-bottom:0.8rem;}";
+    ".insn{margin-bottom:0.8rem;}" +
+    "[data-whilelt] .col-stack{counter-reset:lane-i;}" +
+    "[data-whilelt] .lane[data-vec='x']{counter-increment:lane-i;}" +
+    "[data-whilelt] .lane[data-vec='x']::before{content:'i=' counter(lane-i);margin-right:0.35rem;font-family:var(--mono,monospace);font-size:0.6rem;color:#5c5952;}" +
+    "[data-whilelt] .op-glyph{font-size:1.05rem;font-weight:650;color:#b23e24;}" +
+    "[data-whilelt] .lane.is-live{outline:2px solid #b23e24;outline-offset:2px;}";
 
   /* Projectors are one screen, no scrolling: scale each page so its stage
      and playback controls land inside the viewport. Measured against the
@@ -338,6 +346,17 @@
     Object.keys(frames).forEach(function (key) {
       frames[key].classList.toggle("is-active", frames[key] === active);
     });
+
+    /* Refit the stop becoming visible: pages can settle after their load
+       fit (fonts, late relabels, control rows wrapping), and a page fitted
+       while preloading hidden measures a slightly different box. */
+    if (active) {
+      window.requestAnimationFrame(function () {
+        window.setTimeout(function () {
+          fitFrame(active);
+        }, 120);
+      });
+    }
 
     /* Warm the next stop so the talk never shows a loading flash. */
     ensureFrame(current + 1);
