@@ -155,6 +155,34 @@
           <p class="talk-hint" data-i18n="talk.kitchenHint">→ one move at a time · click a card · N next stop</p>
         </section>
 
+        <!-- Softmax-fusion outlook card: the attention pipeline with the
+             softmax kept in registers — three moves, then the ledger
+             contrasting the naive and fused data paths. -->
+        <section class="talk-card talk-card-fuse" data-card="fuse" data-step="0" hidden>
+          <p class="talk-kicker" data-i18n="talk.fuseKicker">Outlook · LLM kernels</p>
+          <h1 class="talk-title talk-title-sm" data-i18n="talk.fuseTitle">Fusing softmax into GEMM</h1>
+          <div class="reg-map fuse-map" data-reg-map>
+            <div class="reg-fam" data-fam="stay">
+              <h2 data-i18n="talk.fuseStay">① The scores never leave ZA</h2>
+              <p data-i18n="talk.fuseStayBody">GEMM one's output tile stays in ZA.</p>
+            </div>
+            <div class="reg-fam" data-fam="softmax">
+              <h2 data-i18n="talk.fuseSoftmax">② Softmax in place, on slices</h2>
+              <p data-i18n="talk.fuseSoftmaxBody">Row slice into z: max, subtract, exp, sum, normalize.</p>
+            </div>
+            <div class="reg-fam" data-fam="feed">
+              <h2 data-i18n="talk.fuseFeed">③ GEMM two eats it directly</h2>
+              <p data-i18n="talk.fuseFeedBody">P's row slices become the fmopa operands.</p>
+            </div>
+          </div>
+          <div class="reg-flow fuse-flows" data-reg-flow aria-hidden="true">
+            <p class="fuse-row"><span class="reg-chip" data-i18n="talk.fuseNaive">naive</span><span class="reg-op">GEMM1</span><span class="reg-chip fuse-mem" data-i18n="talk.fuseMem">memory</span><span class="reg-op">softmax</span><span class="reg-chip fuse-mem" data-i18n="talk.fuseMem">memory</span><span class="reg-op">GEMM2</span></p>
+            <p class="fuse-row"><span class="reg-chip" data-i18n="talk.fused">fused</span><span class="reg-op">GEMM1</span><span class="reg-chip">ZA</span><span class="reg-op" data-i18n="talk.fuseInPlace">softmax in place</span><span class="reg-chip reg-chip-mem">fmopa ×V</span></p>
+          </div>
+          <p class="reg-caption" data-reg-caption role="status"></p>
+          <p class="talk-hint" data-i18n="talk.fuseHint">→ three moves · N next stop</p>
+        </section>
+
         <!-- Closing card. -->
         <section class="talk-card" data-card="end" hidden>
           <h1 class="talk-title talk-title-sm" data-i18n="talk.endTitle">Thanks — questions?</h1>

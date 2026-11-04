@@ -143,6 +143,25 @@
       },
     },
     {
+      kind: "page",
+      href: "../kernels/attention/",
+      id: "attn",
+      title: { en: "Attention — the whole pipeline", zh: "Attention —— 整条流水线" },
+      cue: {
+        en: "One play, two GEMMs: QKᵀ gives scores, softmax weights them, the mix with V writes the output. Leave the question hanging: where do the scores sit between the two?",
+        zh: "一次播放两个 GEMM：QKᵀ 出分数，softmax 变权重，与 V 混合写输出。留个问题挂着：两个 GEMM 之间，分数停在哪？",
+      },
+    },
+    {
+      kind: "card",
+      id: "fuse",
+      title: { en: "Fusing softmax into GEMM", zh: "Softmax×GEMM 融合" },
+      cue: {
+        en: "The answer the fast kernels give: the scores never leave ZA — softmax happens on the tile, and GEMM two eats the slices directly. → three moves, then the ledger.",
+        zh: "快 kernel 的答案：分数不出 ZA —— softmax 在 tile 上原地做，第二个 GEMM 直接吃切片。按 → 三招，最后是账本。",
+      },
+    },
+    {
       kind: "card",
       id: "end",
       title: { en: "Q&A", zh: "提问" },
@@ -230,6 +249,7 @@
   var registersCard = document.querySelector('[data-card="registers"]');
   var unitsCard = document.querySelector('[data-card="units"]');
   var kitchenCard = document.querySelector('[data-card="kitchen"]');
+  var fuseCard = document.querySelector('[data-card="fuse"]');
   var cueTitle = document.querySelector("[data-stop-title]");
   var cueText = document.querySelector("[data-cue-text]");
   var counterBtn = document.querySelector("[data-counter]");
@@ -265,6 +285,13 @@
       "talk.kitchenStep2",
       "talk.kitchenStep3",
       "talk.kitchenStep4",
+    ],
+    fuse: [
+      "talk.fuseStep0",
+      "talk.fuseStep1",
+      "talk.fuseStep2",
+      "talk.fuseStep3",
+      "talk.fuseStep4",
     ],
   };
 
@@ -406,6 +433,7 @@
     registersCard.hidden = !(stop.kind === "card" && stop.id === "registers");
     unitsCard.hidden = !(stop.kind === "card" && stop.id === "units");
     kitchenCard.hidden = !(stop.kind === "card" && stop.id === "kitchen");
+    fuseCard.hidden = !(stop.kind === "card" && stop.id === "fuse");
     var enteringReveal = activeRevealId();
     if (enteringReveal) setRevealStep(enteringReveal, 0);
 
@@ -556,6 +584,7 @@
     registers: ["x", "p", "z", "za"],
     units: ["cycle", "gflops"],
     kitchen: ["prefetch", "ntstore", "drain"],
+    fuse: ["stay", "softmax", "feed"],
   };
   Object.keys(FAM_ORDER).forEach(function (id) {
     var card = revealCard(id);
