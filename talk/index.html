@@ -44,19 +44,24 @@
           <h1 class="talk-title talk-title-sm" data-i18n="talk.unitsTitle">Cycles and GFLOPS</h1>
           <div class="reg-map units-map" data-reg-map>
             <div class="reg-fam" data-fam="cycle">
-              <div class="reg-fig units-fig-cycle" aria-hidden="true">
-                <span class="units-ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+              <div class="reg-fig units-fig-axis" aria-hidden="true">
+                <span class="axis-line"></span>
+                <span class="axis-mark is-core"><b>Core</b><span class="fam-chip" data-i18n="talk.kitchenCyCore">32 FLOP/tick</span></span>
+                <span class="axis-mark"><b>L1</b><span class="fam-chip" data-i18n="talk.kitchenCyL1">~4 ticks</span></span>
+                <span class="axis-mark"><b>L2</b><span class="fam-chip" data-i18n="talk.kitchenCyL2">~14 ticks</span></span>
+                <span class="axis-mark is-far"><b>HBM</b><span class="fam-chip" data-i18n="talk.kitchenCyHbm">~300+ ticks</span></span>
               </div>
               <h2 data-i18n="talk.unitsCycle">Cycle · the clock tick</h2>
               <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.unitsCycleChip">1 tick = 1 clock period</span></div>
-              <p class="units-stats" aria-hidden="true"><span>L1 · ~4</span><span>L2 · ~14</span><span>HBM · ~300</span></p>
             </div>
             <div class="reg-fam" data-fam="gflops">
-              <div class="reg-fig units-fig-gflops" aria-hidden="true">
-                <span class="reg-chip">fmopa</span><span class="reg-op">=</span><span class="reg-chip">16 MAC</span><span class="reg-op">=</span><span class="reg-chip reg-chip-mem">32 FLOP</span>
+              <div class="reg-fig units-fig-ladder" aria-hidden="true">
+                <span class="ladder-row" data-i18n="talk.unitsRowAdd">add → 1 FLOP</span>
+                <span class="ladder-row" data-i18n="talk.unitsRowMul">mul → 1 FLOP</span>
+                <span class="ladder-row is-mac" data-i18n="talk.unitsRowMac">MAC → 2 FLOP</span>
               </div>
               <h2 data-i18n="talk.unitsGflops">GFLOPS · the performance currency</h2>
-              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.unitsGflopsChip1">add / mul = 1 FLOP</span><span class="fam-chip">MAC = 2</span></div>
+              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.unitsGflopsChip1">add / mul = 1 FLOP</span><span class="fam-chip fam-chip-ok">fmopa = 16 MAC = 32 FLOP</span></div>
             </div>
           </div>
           <div class="reg-flow" data-reg-flow aria-hidden="true">

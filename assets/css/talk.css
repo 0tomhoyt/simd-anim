@@ -598,53 +598,6 @@
   display: flex;
 }
 
-.units-fig-cycle {
-  gap: 0.3rem;
-}
-
-.units-ticks {
-  display: inline-flex;
-  gap: 0.3rem;
-  align-items: flex-end;
-  height: 1.9rem;
-}
-
-.units-ticks i {
-  width: 0.14rem;
-  height: 100%;
-  background: var(--line-strong);
-  border-radius: 1px;
-}
-
-.units-ticks i:nth-child(4) {
-  background: var(--accent);
-  height: 100%;
-}
-
-.units-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin: 0;
-}
-
-.units-stats span {
-  padding: 0.16rem 0.5rem;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--muted);
-}
-
-.units-fig-gflops {
-  gap: 0.35rem;
-}
-
-.units-fig-gflops .reg-chip {
-  font-size: 0.74rem;
-}
 
 @media (max-width: 960px) {
   .talk-card-units .reg-map {
@@ -807,4 +760,90 @@
   color: var(--muted);
   font-family: var(--mono);
   font-size: 0.72rem;
+}
+
+/* --- Units card: latency axis and FLOP ladder ------------------------- */
+
+.talk-card-units .reg-map {
+  grid-template-columns: repeat(2, minmax(16rem, 23rem));
+}
+
+.units-fig-axis {
+  position: relative;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: stretch;
+  padding: 1.15rem 0.2rem 0.3rem;
+  min-height: 6.4rem;
+}
+
+.axis-line {
+  position: absolute;
+  top: 1.45rem;
+  left: 0.4rem;
+  right: 0.4rem;
+  height: 2px;
+  background: var(--line-strong);
+  border-radius: 1px;
+}
+
+.axis-mark {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  flex: 1;
+}
+
+.axis-mark b {
+  position: relative;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-bottom: 0.2rem;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  font-size: 0;
+}
+
+.axis-mark.is-core b {
+  background: var(--ink);
+}
+
+.axis-mark.is-far b {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.axis-mark.is-core {
+  flex: 1.5;
+}
+
+.axis-mark.is-far {
+  flex: 2;
+}
+
+.units-fig-ladder {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  padding: 0.55rem 0.9rem;
+}
+
+.ladder-row {
+  padding: 0.34rem 0.65rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--ink);
+  text-align: left;
+}
+
+.ladder-row.is-mac {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
 }
