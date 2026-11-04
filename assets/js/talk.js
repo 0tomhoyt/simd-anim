@@ -25,12 +25,21 @@
       },
     },
     {
+      kind: "card",
+      id: "registers",
+      title: { en: "Registers — four families", zh: "寄存器 —— 四个家族" },
+      cue: {
+        en: "All four families on one map: x general, p predicate, z vector, ZA matrix. → walks them; the last step is the route for the next stops.",
+        zh: "四个家族一张图：x 通用、p 谓词、z 向量、ZA 矩阵。按 → 逐个细讲；最后一步是接下来几站的路线。",
+      },
+    },
+    {
       kind: "page",
       href: "../strategy/sme-anatomy/",
       title: { en: "The hardware — Z, ZA, compute", zh: "硬件词汇 —— Z、ZA、计算单元" },
       cue: {
-        en: "Three names first: a Z register, the ZA tile, the compute unit. Every later page uses them.",
-        zh: "先立三个词：Z 寄存器、ZA tile、计算单元。后面每一页都在用它们。",
+        en: "Zoom in from the map: what a z register and a ZA tile actually look like, and how the compute unit wires them together.",
+        zh: "从全景拉近：z 寄存器和 ZA tile 到底长什么样，计算单元怎么把它们接起来。",
       },
     },
     {
@@ -179,6 +188,8 @@
   var stage = document.querySelector("[data-stage]");
   var titleCard = document.querySelector('[data-card="title"]');
   var endCard = document.querySelector('[data-card="end"]');
+  var registersCard = document.querySelector('[data-card="registers"]');
+  var regCaption = document.querySelector("[data-reg-caption]");
   var cueTitle = document.querySelector("[data-stop-title]");
   var cueText = document.querySelector("[data-cue-text]");
   var counterBtn = document.querySelector("[data-counter]");
@@ -188,6 +199,32 @@
 
   var frames = {}; /* stop index -> iframe, kept alive once created */
   var current = -1;
+
+  /* Register-map reveal: 0 all four families, 1-4 one family each,
+     5 the data path. Arrow keys and clicks drive it; N/P still move
+     stops, so the card and the talk clock stay out of each other's way. */
+  var REG_CAPTIONS = [
+    "talk.regStep0",
+    "talk.regStep1",
+    "talk.regStep2",
+    "talk.regStep3",
+    "talk.regStep4",
+    "talk.regStep5",
+  ];
+
+  function setRegistersStep(n) {
+    n = Math.max(0, Math.min(REG_CAPTIONS.length - 1, n));
+    registersCard.setAttribute("data-step", String(n));
+    regCaption.textContent = t(REG_CAPTIONS[n]);
+  }
+
+  function onRegistersStop() {
+    return (
+      current >= 0 &&
+      STOPS[current].kind === "card" &&
+      STOPS[current].id === "registers"
+    );
+  }
 
   function lang() {
     return window.siteI18n && window.siteI18n.lang() === "zh" ? "zh" : "en";
@@ -294,6 +331,8 @@
 
     titleCard.hidden = !(stop.kind === "card" && stop.id === "title");
     endCard.hidden = !(stop.kind === "card" && stop.id === "end");
+    registersCard.hidden = !(stop.kind === "card" && stop.id === "registers");
+    if (!registersCard.hidden) setRegistersStep(0);
 
     var active = ensureFrame(current);
     Object.keys(frames).forEach(function (key) {
@@ -377,6 +416,19 @@
     if (event.defaultPrevented) return;
     if (event.metaKey || event.ctrlKey || event.altKey) return;
     var key = event.key;
+    /* On the register card the arrows and space walk the reveal; every
+       other stop hands those keys to the page animation instead. The
+       overview must be closed first, so arrows never fight its list. */
+    if (onRegistersStop() && overviewEl.hidden && (key === "ArrowRight" || key === " ")) {
+      event.preventDefault();
+      setRegistersStep(Number(registersCard.getAttribute("data-step")) + 1);
+      return;
+    }
+    if (onRegistersStop() && overviewEl.hidden && key === "ArrowLeft") {
+      event.preventDefault();
+      setRegistersStep(Number(registersCard.getAttribute("data-step")) - 1);
+      return;
+    }
     var m = null;
     if (key === "n" || key === "N" || key === "PageDown") m = "next";
     else if (key === "p" || key === "P" || key === "PageUp") m = "prev";
@@ -412,10 +464,22 @@
     if (event.target === overviewEl) closeOverview();
   });
 
+  /* Clicking a family card jumps the reveal to that family. */
+  var FAM_ORDER = ["x", "p", "z", "za"];
+  registersCard.querySelectorAll(".reg-fam").forEach(function (fam) {
+    fam.addEventListener("click", function () {
+      var idx = FAM_ORDER.indexOf(fam.getAttribute("data-fam"));
+      if (idx >= 0) setRegistersStep(idx + 1);
+    });
+  });
+
   /* i18n dispatches this after every language change: the data-i18n spans
      re-rendered themselves, the shell data and live frames follow here. */
   document.addEventListener("site-lang", function () {
     titleCard.querySelector("[data-card-date]").textContent = DATE;
+    if (!registersCard.hidden) {
+      setRegistersStep(Number(registersCard.getAttribute("data-step")));
+    }
     Object.keys(frames).forEach(function (key) {
       var iframe = frames[key];
       iframe.title = stopText(STOPS[Number(key)], "title");

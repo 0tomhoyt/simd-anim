@@ -37,6 +37,51 @@
           <p class="talk-hint"><span data-i18n="talk.start">Press N to begin</span> · <span data-i18n="talk.kbdTalk">N next stop · P previous · O all stops · F fullscreen · B blackout · C cue bar</span></p>
         </section>
 
+        <!-- Register map card: the four register families, walked with
+             the arrow keys, ending in the data path the next stops walk. -->
+        <section class="talk-card talk-card-reg" data-card="registers" data-step="0" hidden>
+          <p class="talk-kicker" data-i18n="talk.regKicker">Hardware · the register file</p>
+          <h1 class="talk-title talk-title-sm" data-i18n="talk.regTitle">Four families of registers</h1>
+          <div class="reg-map" data-reg-map>
+            <div class="reg-fam" data-fam="x">
+              <div class="reg-fig reg-fig-x" aria-hidden="true"><span class="reg-xbar"><i class="reg-wlow"></i><span class="reg-xlab">x0</span><span class="reg-wlab">w0</span></span></div>
+              <h2 data-i18n="talk.regX">General · x0–x30</h2>
+              <p data-i18n="talk.regXBody">64-bit x registers (w is the low-32 view).</p>
+            </div>
+            <div class="reg-fam" data-fam="p">
+              <div class="reg-fig reg-fig-p" aria-hidden="true">
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+              <h2 data-i18n="talk.regP">Predicate · p0–p15</h2>
+              <p data-i18n="talk.regPBody">One bit per byte lane.</p>
+            </div>
+            <div class="reg-fam" data-fam="z">
+              <div class="reg-fig reg-fig-z" aria-hidden="true">
+                <span class="reg-zlane">.s</span><span class="reg-zlane">.s</span><span class="reg-zlane">.s</span><span class="reg-zlane">.s</span>
+              </div>
+              <h2 data-i18n="talk.regZ">Vector · z0–z31</h2>
+              <p data-i18n="talk.regZBody">One SVL-wide vector per register.</p>
+            </div>
+            <div class="reg-fam" data-fam="za">
+              <div class="reg-fig reg-fig-za" aria-hidden="true">
+                <span class="reg-tile"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+                <span class="reg-tilenote">za0.s ×4</span>
+              </div>
+              <h2 data-i18n="talk.regZA">Matrix · ZA</h2>
+              <p data-i18n="talk.regZABody">An SVL×SVL-bit tile array.</p>
+            </div>
+          </div>
+          <div class="reg-flow" data-reg-flow aria-hidden="true">
+            <span class="reg-chip">x0/x1</span><span class="reg-op">whilelt</span>
+            <span class="reg-chip">p0</span><span class="reg-op">ld1w</span>
+            <span class="reg-chip">z0</span><span class="reg-op">fmopa</span>
+            <span class="reg-chip">ZA</span><span class="reg-op">st1w</span>
+            <span class="reg-chip reg-chip-mem" data-i18n="talk.regMem">memory</span>
+          </div>
+          <p class="reg-caption" data-reg-caption role="status"></p>
+          <p class="talk-hint" data-i18n="talk.regHint">→ walks the families · click a card to jump · N next stop</p>
+        </section>
+
         <!-- Closing card. -->
         <section class="talk-card" data-card="end" hidden>
           <h1 class="talk-title talk-title-sm" data-i18n="talk.endTitle">Thanks — questions?</h1>

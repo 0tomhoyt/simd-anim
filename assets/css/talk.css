@@ -346,3 +346,232 @@
     display: none;
   }
 }
+
+/* --- Register map card ---------------------------------------------- */
+
+.talk-card-reg {
+  gap: 0.7rem;
+  overflow: auto;
+  justify-content: center;
+}
+
+.talk-card-reg .talk-title-sm {
+  margin-bottom: 0.2rem;
+}
+
+.reg-map {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(13rem, 17rem));
+  gap: 0.8rem;
+  width: min(100%, 74rem);
+}
+
+.reg-fam {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.9rem 0.95rem 0.8rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: opacity 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.reg-fam h2 {
+  margin: 0.15rem 0 0;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1.02rem;
+  font-weight: 650;
+}
+
+.reg-fam p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+/* Reveal walk: steps 1-4 light one family, step 5 lights all + the flow. */
+.talk-card-reg[data-step="1"] .reg-fam:not([data-fam="x"]),
+.talk-card-reg[data-step="2"] .reg-fam:not([data-fam="p"]),
+.talk-card-reg[data-step="3"] .reg-fam:not([data-fam="z"]),
+.talk-card-reg[data-step="4"] .reg-fam:not([data-fam="za"]) {
+  opacity: 0.32;
+}
+
+.talk-card-reg[data-step="1"] .reg-fam[data-fam="x"],
+.talk-card-reg[data-step="2"] .reg-fam[data-fam="p"],
+.talk-card-reg[data-step="3"] .reg-fam[data-fam="z"],
+.talk-card-reg[data-step="4"] .reg-fam[data-fam="za"] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(178, 62, 36, 0.16);
+}
+
+.reg-fig {
+  display: flex;
+  min-height: 3.2rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.reg-fig-x {
+  width: 100%;
+}
+
+.reg-xbar {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 1.15rem;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+}
+
+.reg-wlow {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 50%;
+  height: 100%;
+  background: rgba(178, 62, 36, 0.22);
+  border-right: 1px dashed var(--line-strong);
+  border-radius: 3px 0 0 3px;
+}
+
+.reg-xlab,
+.reg-wlab {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--ink);
+}
+
+.reg-xlab {
+  right: 0.45rem;
+}
+
+.reg-wlab {
+  left: 0.45rem;
+  color: var(--accent);
+}
+
+.reg-fig-p {
+  gap: 0.28rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.reg-fig-p i {
+  width: 0.8rem;
+  height: 0.8rem;
+  background: var(--ink);
+  border-radius: 3px;
+}
+
+.reg-fig-p i:nth-child(n+9) {
+  background: none;
+  border: 1px solid var(--line-strong);
+}
+
+.reg-fig-z {
+  gap: 0.2rem;
+  width: 100%;
+}
+
+.reg-zlane {
+  flex: 1;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--muted);
+}
+
+.reg-fig-za {
+  gap: 0.5rem;
+}
+
+.reg-tile {
+  display: grid;
+  grid-template-columns: repeat(4, 0.72rem);
+  grid-auto-rows: 0.72rem;
+  gap: 2px;
+}
+
+.reg-tile i {
+  background: rgba(178, 62, 36, 0.3);
+  border-radius: 2px;
+}
+
+.reg-tile i:nth-child(-n + 4) {
+  background: rgba(178, 62, 36, 0.55);
+}
+
+.reg-tilenote {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.reg-flow {
+  display: none;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 0.2rem;
+}
+
+.talk-card-reg[data-step="5"] .reg-flow {
+  display: flex;
+}
+
+.reg-chip {
+  padding: 0.28rem 0.7rem;
+  background: var(--ink);
+  border-radius: 999px;
+  color: var(--bg);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+
+.reg-chip-mem {
+  background: var(--accent);
+}
+
+.reg-op {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.reg-op::before {
+  content: "→ ";
+  color: var(--line-strong);
+}
+
+.reg-caption {
+  min-height: 1.6em;
+  margin: 0.35rem auto 0;
+  max-width: 46rem;
+  color: var(--ink);
+  font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+  line-height: 1.5;
+  text-align: center;
+}
+
+@media (max-width: 960px) {
+  .reg-map {
+    grid-template-columns: repeat(2, minmax(12rem, 1fr));
+  }
+}
