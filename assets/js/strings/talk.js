@@ -1,0 +1,46 @@
+/* Guided talk mode strings. Loaded only by talk/index.html. */
+(function () {
+  window.simdStringParts = window.simdStringParts || [];
+  window.simdStringParts.push({
+    "en": {
+      "meta.title.talk": "Guided talk · simd-anim",
+      "talk.prev": "Previous stop",
+      "talk.next": "Next stop",
+      "talk.overview": "All stops",
+      "talk.closeOverview": "Close",
+      "talk.fullscreen": "Fullscreen",
+      "talk.blackout": "Blackout",
+      "talk.counter": "Stop {n} / {m}",
+      "talk.kbdPage": "← → step the animation · space plays or pauses",
+      "talk.kbdTalk": "N next stop · P previous · O all stops · F fullscreen · B blackout · C cue bar",
+      "talk.cardKicker": "Team talk",
+      "talk.cardSub": "ARM SIMD & SME — from one instruction to a whole kernel",
+      "talk.cardSpeaker": "Hou Yuteng",
+      "talk.start": "Press N to begin",
+      "talk.endTitle": "Thanks — questions?",
+      "talk.endBody": "The lab stays online; every page is one click from the home page.",
+      "talk.endLab": "Open the lab",
+      "talk.endSource": "Source on GitHub",
+    },
+    "zh": {
+      "meta.title.talk": "引导式讲演 · simd-anim",
+      "talk.prev": "上一站",
+      "talk.next": "下一站",
+      "talk.overview": "全部站点",
+      "talk.closeOverview": "关闭",
+      "talk.fullscreen": "全屏",
+      "talk.blackout": "黑屏",
+      "talk.counter": "第 {n} / {m} 站",
+      "talk.kbdPage": "← → 逐步执行 · 空格 播放/暂停",
+      "talk.kbdTalk": "N 下一站 · P 上一站 · O 目录 · F 全屏 · B 黑屏 · C 提示条",
+      "talk.cardKicker": "组内讲座",
+      "talk.cardSub": "ARM SIMD 与 SME —— 从一条指令到一个完整 kernel",
+      "talk.cardSpeaker": "侯宇腾",
+      "talk.start": "按 N 开始",
+      "talk.endTitle": "谢谢 —— 提问时间",
+      "talk.endBody": "实验室一直在线，首页一次点击就能到达任何一页。",
+      "talk.endLab": "打开实验室",
+      "talk.endSource": "GitHub 源码",
+    },
+  });
+})();

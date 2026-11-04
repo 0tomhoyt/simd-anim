@@ -1,0 +1,348 @@
+/* Talk mode shell: the stage is the viewport, the site chrome inside each
+   iframe is hidden by talk.js, and this file only styles the shell itself.
+   Colors and type come from site.css variables loaded alongside. */
+
+.talk {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.talk[hidden] {
+  display: none;
+}
+
+/* --- Stage ------------------------------------------------------- */
+
+.talk-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.talk-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--bg);
+  visibility: hidden;
+}
+
+.talk-frame.is-active {
+  visibility: visible;
+}
+
+/* --- Opening / closing cards -------------------------------------- */
+
+.talk-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 2rem;
+  text-align: center;
+  background: var(--bg);
+}
+
+.talk-card[hidden] {
+  display: none;
+}
+
+.talk-kicker {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.talk-title {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: clamp(3.4rem, 9vw, 6.5rem);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.talk-title-sm {
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+}
+
+.talk-sub {
+  margin: 0;
+  max-width: 34rem;
+  color: var(--ink);
+  font-size: clamp(1.05rem, 2.4vw, 1.4rem);
+  line-height: 1.5;
+}
+
+.talk-speaker {
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.talk-hint {
+  margin: 1.6rem 0 0;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+}
+
+.talk-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 0.8rem 0 0;
+}
+
+/* --- Cue bar ------------------------------------------------------ */
+
+.talk-cue {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.8rem;
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+  font-size: 0.92rem;
+}
+
+.talk-cuebar-off .talk-cue {
+  display: none;
+}
+
+.cue-main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: baseline;
+  gap: 0.7rem;
+  overflow: hidden;
+}
+
+.cue-title {
+  flex: none;
+  max-width: 40%;
+  overflow: hidden;
+  color: var(--ink);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cue-text {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cue-sep {
+  width: 1px;
+  height: 1.35rem;
+  background: var(--line-strong);
+}
+
+.talk-btn {
+  flex: none;
+  min-width: 2.2rem;
+  padding: 0.3rem 0.55rem;
+  background: none;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.talk-btn:hover,
+.talk-btn:focus-visible {
+  background: var(--surface);
+  border-color: var(--ink);
+  outline: none;
+}
+
+.talk-btn[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.talk-btn[disabled]:hover,
+.talk-btn[disabled]:focus-visible {
+  background: none;
+  border-color: var(--line-strong);
+}
+
+.talk-lang {
+  flex: none;
+}
+
+.talk-btn-dark {
+  color: var(--bg);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.talk-btn-dark:hover,
+.talk-btn-dark:focus-visible {
+  background: #33302a;
+}
+
+.talk-counter {
+  flex: none;
+  padding: 0.3rem 0.2rem;
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.talk-counter:hover,
+.talk-counter:focus-visible {
+  color: var(--accent);
+  outline: none;
+}
+
+/* --- Overview ------------------------------------------------------ */
+
+.talk-overview {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(26, 25, 22, 0.55);
+}
+
+.talk-overview[hidden] {
+  display: none;
+}
+
+.talk-overview-panel {
+  display: flex;
+  flex-direction: column;
+  max-width: 52rem;
+  max-height: min(86vh, 44rem);
+  padding: 1.2rem 1.3rem;
+  background: var(--paper);
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+}
+
+.talk-overview-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14.5rem, 1fr));
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.talk-overview-list button {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  padding: 0.5rem 0.65rem;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.talk-overview-list button:hover,
+.talk-overview-list button:focus-visible {
+  background: var(--surface);
+  border-color: var(--line-strong);
+  outline: none;
+}
+
+.talk-overview-list .num {
+  flex: none;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+
+.talk-overview-list li {
+  display: flex;
+}
+
+.talk-overview-list li.is-current button {
+  background: var(--surface);
+  border-color: var(--ink);
+}
+
+.talk-overview-list li.is-current .num {
+  color: var(--accent);
+}
+
+.talk-overview-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-top: 0.9rem;
+  margin-top: 0.9rem;
+  border-top: 1px solid var(--line);
+}
+
+.talk-overview-foot p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.talk-overview-foot .talk-hint {
+  margin: 0;
+  font-size: 0.72rem;
+}
+
+.talk-overview-foot .button {
+  align-self: flex-end;
+  margin-top: 0.5rem;
+}
+
+/* --- Blackout ------------------------------------------------------ */
+
+.talk-blackout {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #000;
+}
+
+.talk-blackout[hidden] {
+  display: none;
+}
+
+/* Hide the cue bar when the shell itself prints small viewports. */
+@media (max-width: 640px) {
+  .cue-title {
+    display: none;
+  }
+}

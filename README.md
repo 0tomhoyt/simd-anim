@@ -22,6 +22,12 @@ Then visit <http://localhost:8080/>. No build step. The site is plain HTML, CSS,
 
 `node tools/check.mjs` verifies internal links, the bilingual string table, and that any `.wasm` file is a real WebAssembly binary. CI runs the same check and publishes `main` to GitHub Pages on every push. English and 中文 strings are split across `assets/js/strings/common.js`, `instructions.js`, and `course.js`; `assets/js/i18n.js` merges those packs and applies the active language. Page chrome stays duplicated HTML on purpose: there is no build step.
 
+## Talk mode
+
+`/talk/` strings the pages into one guided order for a live presentation: an opening card, the nine stops that carry a 15–20 minute talk (hardware vocabulary → WHILELT → LD1W → FMOPA → FMLA → ST1W → the microkernel → roofline → memory in flight), and a closing Q&A card. Each stop loads as a same-origin iframe with the site chrome hidden and its content auto-scaled so the stage and playback controls fit the viewport (recomputed on resize, so plugging in a projector just works). Stops stay alive once visited, so jumping back restores the animation state. The talk shell lives only in this repository — the personal_web `/lab/` mirror does not include it.
+
+Keys: **N / P** (or PageDown / PageUp) move between stops — the plain arrow keys and space keep driving the animation inside the current page, exactly as on the site. **O** opens the stop list, **F** fullscreen, **B** blackout, **C** collapses the cue bar; the bottom bar shows the current stop's title and a one-line cue for what to say or click. `?lang=zh|en` pins the language on a borrowed machine; the EN / 中文 switch in the cue bar reloads the stops live. Serve the site over HTTP (not `file://`) so the shell can hide the site chrome inside each stop.
+
 ## Pages
 
 | Path | What it shows |
@@ -51,6 +57,7 @@ Then visit <http://localhost:8080/>. No build step. The site is plain HTML, CSS,
 | `/strategy/memory-flow/` | A four-row timeline (Core / L1 / L2 / HBM) playing one kernel's store drain and the next kernel's prefetch across the cache hierarchy |
 | `/quiz/` | Optional three-question linear-algebra self-check |
 | `/quiz/matmul/` | The primer behind the self-check: matrix multiply as rows, columns, and dot products |
+| `/talk/` | Guided talk mode — the stops, keys, and cue bar for presenting this lab live |
 
 The FMOPA page draws a single-precision ZA tile at a streaming vector length of 128 bits, so the tile is 4×4. `z0.s` is the column operand (the first source is the SVL×1 vector), `z1.s` is the row operand, and each active pair does `ZA[i, j] += z0.s[i] × z1.s[j]`. LD1W walks contiguous words from memory into a Z register and zeroes inactive lanes; FMLA pairs two vectors lane by lane and merges; ST1W writes one W12-selected slice of ZA back to memory; WHILELT shows where predicates come from; UADDV collapses lanes into a 64-bit scalar; UZP1 shuffles whole vectors with no predicate at all, and ZIP1 interleaves the low halves back. ADDVA is ADDHA's vertical twin: the same vector runs down every active column.
 

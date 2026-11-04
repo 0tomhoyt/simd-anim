@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title data-i18n="meta.title.talk">Guided talk · simd-anim</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#f2efe8">
+    <script>
+      /* Same preflight as every page, plus a one-shot ?lang=zh|en override so
+         the shell can pin the language on a borrowed machine. */
+      try {
+        var forced = new URLSearchParams(location.search).get("lang");
+        if (forced === "zh" || forced === "en") {
+          localStorage.setItem("site-lang", forced);
+        }
+        var saved = localStorage.getItem("site-lang");
+        var zh = saved === "zh" || (saved !== "en" && (navigator.language || "en").toLowerCase().indexOf("zh") === 0);
+        if (zh) {
+          document.documentElement.classList.add("i18n-wait");
+          document.documentElement.lang = "zh-Hans";
+        }
+      } catch (error) {}
+    </script>
+    <link rel="stylesheet" href="../assets/css/site.css">
+    <link rel="stylesheet" href="../assets/css/talk.css">
+  </head>
+  <body>
+    <main class="talk" data-talk>
+      <div class="talk-stage" data-stage>
+        <!-- Opening card: shell-rendered, no iframe. -->
+        <section class="talk-card" data-card="title" hidden>
+          <p class="talk-kicker"><span data-i18n="talk.cardKicker">Team talk</span> · <span data-card-date></span></p>
+          <h1 class="talk-title">simd-anim</h1>
+          <p class="talk-sub" data-i18n="talk.cardSub">ARM SIMD &amp; SME — from one instruction to a whole kernel</p>
+          <p class="talk-speaker" data-i18n="talk.cardSpeaker">Hou Yuteng</p>
+          <p class="talk-hint"><span data-i18n="talk.start">Press N to begin</span> · <span data-i18n="talk.kbdTalk">N next stop · P previous · O all stops · F fullscreen · B blackout · C cue bar</span></p>
+        </section>
+
+        <!-- Closing card. -->
+        <section class="talk-card" data-card="end" hidden>
+          <h1 class="talk-title talk-title-sm" data-i18n="talk.endTitle">Thanks — questions?</h1>
+          <p class="talk-sub" data-i18n="talk.endBody">The lab stays online; every page is one click from the home page.</p>
+          <p class="talk-links">
+            <a class="button button-primary" href="../" target="_blank" rel="noopener" data-i18n="talk.endLab">Open the lab</a>
+            <a class="button" href="https://github.com/0tomhoyt/simd-anim" target="_blank" rel="noopener" data-i18n="talk.endSource">Source on GitHub</a>
+          </p>
+          <p class="talk-hint" data-i18n="talk.kbdPage">← → step the animation · space plays or pauses</p>
+        </section>
+
+        <!-- Page stops load here as same-origin iframes, one per stop, kept
+             alive so going back restores the animation state. -->
+      </div>
+
+      <footer class="talk-cue" data-cuebar>
+        <button class="talk-btn" type="button" data-go="prev" data-i18n-aria="talk.prev" aria-label="Previous stop" title="P">←</button>
+        <div class="cue-main">
+          <span class="cue-title" data-stop-title></span>
+          <span class="cue-text" data-cue-text></span>
+        </div>
+        <button class="talk-counter" type="button" data-overview-open data-counter aria-label="Stops">1 / 11</button>
+        <button class="talk-btn" type="button" data-go="next" data-i18n-aria="talk.next" aria-label="Next stop" title="N">→</button>
+        <span class="cue-sep" aria-hidden="true"></span>
+        <div class="lang-switch talk-lang" role="group" data-i18n-aria="lang.label" aria-label="Language">
+          <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
+          <button type="button" data-lang="zh" lang="zh-Hans" aria-pressed="false">中文</button>
+        </div>
+        <button class="talk-btn" type="button" data-overview-open data-i18n-aria="talk.overview" aria-label="All stops" title="O">☰</button>
+        <button class="talk-btn" type="button" data-fullscreen data-i18n-aria="talk.fullscreen" aria-label="Fullscreen" title="F">⛶</button>
+        <button class="talk-btn talk-btn-dark" type="button" data-blackout data-i18n-aria="talk.blackout" aria-label="Blackout" title="B">●</button>
+      </footer>
+
+      <div class="talk-overview" data-overview hidden>
+        <div class="talk-overview-panel" role="dialog" data-i18n-aria="talk.overview" aria-label="All stops">
+          <ol class="talk-overview-list" data-overview-list></ol>
+          <footer class="talk-overview-foot">
+            <p><span data-i18n="talk.kbdTalk">N next stop · P previous · O all stops · F fullscreen · B blackout · C cue bar</span></p>
+            <p class="talk-hint"><span data-i18n="talk.kbdPage">← → step the animation · space plays or pauses</span></p>
+            <button class="button" type="button" data-overview-close data-i18n="talk.closeOverview">Close</button>
+          </footer>
+        </div>
+      </div>
+
+      <div class="talk-blackout" data-blackout-layer hidden></div>
+    </main>
+    <script src="../assets/js/strings/talk.js"></script>
+    <script src="../assets/js/i18n.js"></script>
+    <script src="../assets/js/talk.js"></script>
+  </body>
+</html>
