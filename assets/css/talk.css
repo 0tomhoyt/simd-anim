@@ -774,3 +774,37 @@
     grid-template-columns: repeat(2, minmax(12rem, 1fr));
   }
 }
+
+/* --- Fact chips and op chains on the reveal cards --------------------- */
+
+.fam-chips,
+.fam-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.32rem;
+  margin: 0.15rem 0 0;
+}
+
+.fam-chip {
+  padding: 0.17rem 0.55rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.fam-chip-ok {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+
+.chain-arrow {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}

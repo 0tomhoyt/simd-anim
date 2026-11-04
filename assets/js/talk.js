@@ -179,7 +179,7 @@
      room. Scaling to fit is applied by fitFrame() below. */
   var FRAME_CSS =
     ".skip-link,.site-header,.site-footer,.back,.spec-note{display:none !important;}" +
-    ".path-bar,.path-steps,.path-hint,.kbd-note,.mflow-plan{display:none !important;}" +
+    ".path-bar,.path-steps,.path-hint,.kbd-note,.mflow-plan,.notes{display:none !important;}" +
     ".page{width:min(100% - 2rem,84rem);}" +
     ".demo-head{padding:0.4rem 0 0.7rem;}" +
     ".demo-head h1{font-size:clamp(2.4rem,5.5vw,3.6rem);}" +

@@ -48,7 +48,7 @@
                 <span class="units-ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
               </div>
               <h2 data-i18n="talk.unitsCycle">Cycle · the clock tick</h2>
-              <p data-i18n="talk.unitsCycleBody">One cycle = one clock period.</p>
+              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.unitsCycleChip">1 tick = 1 clock period</span></div>
               <p class="units-stats" aria-hidden="true"><span>L1 · ~4</span><span>L2 · ~14</span><span>HBM · ~300</span></p>
             </div>
             <div class="reg-fam" data-fam="gflops">
@@ -56,7 +56,7 @@
                 <span class="reg-chip">fmopa</span><span class="reg-op">=</span><span class="reg-chip">16 MAC</span><span class="reg-op">=</span><span class="reg-chip reg-chip-mem">32 FLOP</span>
               </div>
               <h2 data-i18n="talk.unitsGflops">GFLOPS · the performance currency</h2>
-              <p data-i18n="talk.unitsGflopsBody">A FLOP is one float add or multiply — a MAC counts as 2.</p>
+              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.unitsGflopsChip1">add / mul = 1 FLOP</span><span class="fam-chip">MAC = 2</span></div>
             </div>
           </div>
           <div class="reg-flow" data-reg-flow aria-hidden="true">
@@ -78,21 +78,21 @@
             <div class="reg-fam" data-fam="x">
               <div class="reg-fig reg-fig-x" aria-hidden="true"><span class="reg-xbar"><i class="reg-wlow"></i><span class="reg-xlab">x0</span><span class="reg-wlab">w0</span></span></div>
               <h2 data-i18n="talk.regX">General · x0–x30</h2>
-              <p data-i18n="talk.regXBody">64-bit x registers (w is the low-32 view).</p>
+              <div class="fam-chips" aria-hidden="true"><span class="fam-chip">×31</span><span class="fam-chip" data-i18n="talk.regXChip1">64-bit x · 32-bit w</span><span class="fam-chip">x31 = SP / XZR</span></div>
             </div>
             <div class="reg-fam" data-fam="p">
               <div class="reg-fig reg-fig-p" aria-hidden="true">
                 <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
               </div>
               <h2 data-i18n="talk.regP">Predicate · p0–p15</h2>
-              <p data-i18n="talk.regPBody">One bit per byte lane.</p>
+              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.regPChip1">1 bit / byte lane</span><span class="fam-chip" data-i18n="talk.regPChip2">/m keep · /z zero</span><span class="fam-chip">SME p0–p7</span></div>
             </div>
             <div class="reg-fam" data-fam="z">
               <div class="reg-fig reg-fig-z" aria-hidden="true">
                 <span class="reg-zlane">.s</span><span class="reg-zlane">.s</span><span class="reg-zlane">.s</span><span class="reg-zlane">.s</span>
               </div>
               <h2 data-i18n="talk.regZ">Vector · z0–z31</h2>
-              <p data-i18n="talk.regZBody">One SVL-wide vector per register.</p>
+              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.regZChip1">SVL-wide · 128 drawn</span><span class="fam-chip" data-i18n="talk.regZChip2">v = low 128</span><span class="fam-chip">×32</span></div>
             </div>
             <div class="reg-fam" data-fam="za">
               <div class="reg-fig reg-fig-za" aria-hidden="true">
@@ -100,7 +100,7 @@
                 <span class="reg-tilenote">za0.s ×4</span>
               </div>
               <h2 data-i18n="talk.regZA">Matrix · ZA</h2>
-              <p data-i18n="talk.regZABody">An SVL×SVL-bit tile array.</p>
+              <div class="fam-chips" aria-hidden="true"><span class="fam-chip">SVL × SVL</span><span class="fam-chip">.s ×4 · 4×4</span><span class="fam-chip" data-i18n="talk.regZAChip1">fmopa in · st1w out</span></div>
             </div>
           </div>
           <div class="reg-flow" data-reg-flow aria-hidden="true">
@@ -165,14 +165,17 @@
             <div class="reg-fam" data-fam="stay">
               <h2 data-i18n="talk.fuseStay">① The scores never leave ZA</h2>
               <p data-i18n="talk.fuseStayBody">GEMM one's output tile stays in ZA.</p>
+              <div class="fam-chain" aria-hidden="true"><span class="fam-chip">GEMM1</span><span class="chain-arrow">→</span><span class="fam-chip fam-chip-ok">ZA</span><span class="chain-arrow">→</span><span class="fam-chip fuse-mem" data-i18n="talk.fuseMem">memory</span></div>
             </div>
             <div class="reg-fam" data-fam="softmax">
               <h2 data-i18n="talk.fuseSoftmax">② Softmax in place, on slices</h2>
               <p data-i18n="talk.fuseSoftmaxBody">Row slice into z: max, subtract, exp, sum, normalize.</p>
+              <div class="fam-chain" aria-hidden="true"><span class="fam-chip">max</span><span class="chain-arrow">→</span><span class="fam-chip">sub</span><span class="chain-arrow">→</span><span class="fam-chip">exp</span><span class="chain-arrow">→</span><span class="fam-chip">sum</span><span class="chain-arrow">→</span><span class="fam-chip">÷</span></div>
             </div>
             <div class="reg-fam" data-fam="feed">
               <h2 data-i18n="talk.fuseFeed">③ GEMM two eats it directly</h2>
               <p data-i18n="talk.fuseFeedBody">P's row slices become the fmopa operands.</p>
+              <div class="fam-chain" aria-hidden="true"><span class="fam-chip">ZA</span><span class="chain-arrow">→</span><span class="fam-chip">z</span><span class="chain-arrow">→</span><span class="fam-chip fam-chip-ok">fmopa ×V</span></div>
             </div>
           </div>
           <div class="reg-flow fuse-flows" data-reg-flow aria-hidden="true">
