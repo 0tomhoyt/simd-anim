@@ -1,257 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title data-i18n="meta.title.talk">Guided talk · simd-anim</title>
-    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-    <meta name="theme-color" content="#f2efe8">
-    <script>
-      /* Same preflight as every page, plus a one-shot ?lang=zh|en override so
-         the shell can pin the language on a borrowed machine. */
-      try {
-        var forced = new URLSearchParams(location.search).get("lang");
-        if (forced === "zh" || forced === "en") {
-          localStorage.setItem("site-lang", forced);
-        }
-        var saved = localStorage.getItem("site-lang");
-        var zh = saved === "zh" || (saved !== "en" && (navigator.language || "en").toLowerCase().indexOf("zh") === 0);
-        if (zh) {
-          document.documentElement.classList.add("i18n-wait");
-          document.documentElement.lang = "zh-Hans";
-        }
-      } catch (error) {}
-    </script>
-    <link rel="stylesheet" href="../assets/css/site.css">
-    <link rel="stylesheet" href="../assets/css/talk.css">
-  </head>
-  <body>
-    <main class="talk" data-talk>
-      <div class="talk-stage" data-stage>
-        <!-- Opening card: shell-rendered, no iframe. -->
-        <section class="talk-card" data-card="title" hidden>
-          <p class="talk-kicker"><span data-i18n="talk.cardKicker">Team talk</span> · <span data-card-date></span></p>
-          <h1 class="talk-title">simd-anim</h1>
-          <p class="talk-sub" data-i18n="talk.cardSub">ARM SIMD &amp; SME — from one instruction to a whole kernel</p>
-          <p class="talk-speaker" data-i18n="talk.cardSpeaker">Hou Yuteng</p>
-          <p class="talk-hint"><span data-i18n="talk.start">Press N to begin</span> · <span data-i18n="talk.kbdTalk">N next stop · P previous · O all stops · F fullscreen · B blackout · C cue bar</span></p>
-        </section>
-
-        <!-- Units card: cycle and GFLOPS, the two yardsticks every later
-             number is measured with. Arrow-key reveal like the register map. -->
-        <section class="talk-card talk-card-units" data-card="units" data-step="0" hidden>
-          <p class="talk-kicker" data-i18n="talk.unitsKicker">Basics · the two yardsticks</p>
-          <h1 class="talk-title talk-title-sm" data-i18n="talk.unitsTitle">Cycles and GFLOPS</h1>
-          <div class="reg-map units-map" data-reg-map>
-            <div class="reg-fam" data-fam="cycle">
-              <div class="reg-fig units-fig-axis" aria-hidden="true">
-                <span class="axis-line"></span>
-                <span class="axis-mark is-core"><b>Core</b><span class="fam-chip" data-i18n="talk.kitchenCyCore">32 FLOP/tick</span></span>
-                <span class="axis-mark"><b>L1</b><span class="fam-chip" data-i18n="talk.kitchenCyL1">~4 ticks</span></span>
-                <span class="axis-mark"><b>L2</b><span class="fam-chip" data-i18n="talk.kitchenCyL2">~14 ticks</span></span>
-                <span class="axis-mark is-far"><b>HBM</b><span class="fam-chip" data-i18n="talk.kitchenCyHbm">~300+ ticks</span></span>
-              </div>
-              <h2 data-i18n="talk.unitsCycle">Cycle · the clock tick</h2>
-              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.unitsCycleChip">1 tick = 1 clock period</span></div>
-            </div>
-            <div class="reg-fam" data-fam="gflops">
-              <div class="reg-fig units-fig-ladder" aria-hidden="true">
-                <span class="ladder-row" data-i18n="talk.unitsRowAdd">add → 1 FLOP</span>
-                <span class="ladder-row" data-i18n="talk.unitsRowMul">mul → 1 FLOP</span>
-                <span class="ladder-row is-mac" data-i18n="talk.unitsRowMac">MAC → 2 FLOP</span>
-              </div>
-              <h2 data-i18n="talk.unitsGflops">GFLOPS · the performance currency</h2>
-              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.unitsGflopsChip1">add / mul = 1 FLOP</span><span class="fam-chip fam-chip-ok">fmopa = 16 MAC = 32 FLOP</span></div>
-            </div>
-          </div>
-          <div class="reg-flow" data-reg-flow aria-hidden="true">
-            <span class="reg-chip">32 FLOP / fmopa</span><span class="reg-op" data-i18n="talk.unitsPerCycle">× 1 per cycle</span>
-            <span class="reg-op" data-i18n="talk.unitsFreq">× frequency (GHz)</span>
-            <span class="reg-op" data-i18n="talk.unitsCores">× cores</span>
-            <span class="reg-chip reg-chip-mem"><span data-i18n="talk.unitsPeak">peak</span> GFLOPS</span>
-          </div>
-          <p class="reg-caption" data-reg-caption role="status"></p>
-          <p class="talk-hint" data-i18n="talk.unitsHint">→ walks the yardsticks · N next stop</p>
-        </section>
-
-        <!-- Register map card: the four register families, walked with
-             the arrow keys, ending in the data path the next stops walk. -->
-        <section class="talk-card talk-card-reg" data-card="registers" data-step="0" hidden>
-          <p class="talk-kicker" data-i18n="talk.regKicker">Hardware · the register file</p>
-          <h1 class="talk-title talk-title-sm" data-i18n="talk.regTitle">Four families of registers</h1>
-          <div class="reg-map" data-reg-map>
-            <div class="reg-fam" data-fam="x">
-              <div class="reg-fig reg-fig-x" aria-hidden="true"><span class="reg-xbar"><i class="reg-wlow"></i><span class="reg-xlab">x0</span><span class="reg-wlab">w0</span></span></div>
-              <h2 data-i18n="talk.regX">General · x0–x30</h2>
-              <div class="fam-chips" aria-hidden="true"><span class="fam-chip">×31</span><span class="fam-chip" data-i18n="talk.regXChip1">64-bit x · 32-bit w</span><span class="fam-chip">x31 = SP / XZR</span></div>
-            </div>
-            <div class="reg-fam" data-fam="p">
-              <div class="reg-fig reg-fig-p" aria-hidden="true">
-                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-              </div>
-              <h2 data-i18n="talk.regP">Predicate · p0–p15</h2>
-              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.regPChip1">1 bit / byte lane</span><span class="fam-chip" data-i18n="talk.regPChip2">/m keep · /z zero</span><span class="fam-chip">SME p0–p7</span></div>
-            </div>
-            <div class="reg-fam" data-fam="z">
-              <div class="reg-fig reg-fig-z" aria-hidden="true">
-                <span class="reg-zlane">.s</span><span class="reg-zlane">.s</span><span class="reg-zlane">.s</span><span class="reg-zlane">.s</span>
-              </div>
-              <h2 data-i18n="talk.regZ">Vector · z0–z31</h2>
-              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.regZChip1">SVL-wide · 128 drawn</span><span class="fam-chip" data-i18n="talk.regZChip2">v = low 128</span><span class="fam-chip">×32</span></div>
-            </div>
-            <div class="reg-fam" data-fam="za">
-              <div class="reg-fig reg-fig-za" aria-hidden="true">
-                <span class="reg-tile"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
-                <span class="reg-tilenote">za0.s ×4</span>
-              </div>
-              <h2 data-i18n="talk.regZA">Matrix · ZA</h2>
-              <div class="fam-chips" aria-hidden="true"><span class="fam-chip">SVL × SVL</span><span class="fam-chip">.s ×4 · 4×4</span><span class="fam-chip" data-i18n="talk.regZAChip1">fmopa in · st1w out</span></div>
-            </div>
-          </div>
-          <div class="reg-flow" data-reg-flow aria-hidden="true">
-            <span class="reg-chip">x0/x1</span><span class="reg-op">whilelt</span>
-            <span class="reg-chip">p0</span><span class="reg-op">ld1w</span>
-            <span class="reg-chip">z0</span><span class="reg-op">fmopa</span>
-            <span class="reg-chip">ZA</span><span class="reg-op">st1w</span>
-            <span class="reg-chip reg-chip-mem" data-i18n="talk.regMem">memory</span>
-          </div>
-          <p class="reg-caption" data-reg-caption role="status"></p>
-          <p class="talk-hint" data-i18n="talk.regHint">→ walks the families · click a card to jump · N next stop</p>
-        </section>
-
-        <!-- Kitchen analogy card: the memory-flow stop's story told in a
-             kitchen first — stove/board/fridge/supermarket plus one
-             elevator, so the timeline page later just confirms it. -->
-        <section class="talk-card talk-card-kitchen" data-card="kitchen" data-step="0" hidden>
-          <p class="talk-kicker" data-i18n="talk.kitchenKicker">Strategy · by analogy</p>
-          <h1 class="talk-title talk-title-sm" data-i18n="talk.kitchenTitle">Memory flow, in a kitchen</h1>
-          <div class="reg-map kitchen-map" data-reg-map>
-            <div class="reg-fam kitchen-scene" data-fam="map">
-              <h2 data-i18n="talk.kitchenMap">The scene</h2>
-              <ol class="kitchen-levels">
-                <li class="is-core"><span class="kitchen-name" data-i18n="talk.kitchenCore">Stove · Core</span><span class="fam-chip" data-i18n="talk.kitchenCyCore">32 FLOP/tick</span></li>
-                <li><span class="kitchen-name" data-i18n="talk.kitchenL1">Cutting board · L1</span><span class="fam-chip" data-i18n="talk.kitchenCyL1">~4 ticks</span></li>
-                <li><span class="kitchen-name" data-i18n="talk.kitchenL2">Fridge · L2</span><span class="fam-chip" data-i18n="talk.kitchenCyL2">~14 ticks</span></li>
-                <li><span class="kitchen-name" data-i18n="talk.kitchenHbm">Supermarket · HBM</span><span class="fam-chip" data-i18n="talk.kitchenCyHbm">~300+ ticks</span></li>
-              </ol>
-            </div>
-            <div class="reg-fam" data-fam="prefetch">
-              <h2 data-i18n="talk.kitchenPrefetch">① Prefetch · pldl2keep</h2>
-              <p data-i18n="talk.kitchenPrefetchBody">Buy the next dish's groceries into the fridge early.</p>
-              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.kitchenPrefetchChip">HBM → L2 one trip early</span></div>
-            </div>
-            <div class="reg-fam" data-fam="ntstore">
-              <h2 data-i18n="talk.kitchenNt">② Write-through · stnt1w</h2>
-              <p data-i18n="talk.kitchenNtBody">Finished dishes leave straight out the window.</p>
-              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.kitchenNtChip">out 64B · in 0B</span></div>
-            </div>
-            <div class="reg-fam" data-fam="drain">
-              <h2 data-i18n="talk.kitchenDrain">③ Tail · async drain</h2>
-              <p data-i18n="talk.kitchenDrainBody">Plating overlaps the next dish.</p>
-              <div class="fam-chips" aria-hidden="true"><span class="fam-chip" data-i18n="talk.kitchenDrainChip">async · zero stove ticks</span></div>
-            </div>
-          </div>
-          <div class="reg-flow" data-reg-flow aria-hidden="true">
-            <span class="reg-chip" data-i18n="talk.kitchenDishUp">dish ↑ 64B</span>
-            <span class="reg-op">+</span>
-            <span class="reg-chip" data-i18n="talk.kitchenTrashDown">trash ↓ 64B</span>
-            <span class="reg-op">vs</span>
-            <span class="reg-chip reg-chip-mem" data-i18n="talk.kitchenBudget">capacity 64B</span>
-            <span class="reg-op">= 128 / 64B</span>
-          </div>
-          <p class="reg-caption" data-reg-caption role="status"></p>
-          <p class="talk-hint" data-i18n="talk.kitchenHint">→ one move at a time · click a card · N next stop</p>
-        </section>
-
-        <!-- Softmax-fusion outlook card: the attention pipeline with the
-             softmax kept in registers — three moves, then the ledger
-             contrasting the naive and fused data paths. -->
-        <section class="talk-card talk-card-fuse" data-card="fuse" data-step="0" hidden>
-          <p class="talk-kicker" data-i18n="talk.fuseKicker">Outlook · LLM kernels</p>
-          <h1 class="talk-title talk-title-sm" data-i18n="talk.fuseTitle">Fusing softmax into GEMM</h1>
-          <div class="reg-map fuse-map" data-reg-map>
-            <div class="reg-fam" data-fam="stay">
-              <h2 data-i18n="talk.fuseStay">① The scores never leave ZA</h2>
-              <p data-i18n="talk.fuseStayBody">GEMM one's output tile stays in ZA.</p>
-              <div class="fam-chain" aria-hidden="true"><span class="fam-chip">GEMM1</span><span class="chain-arrow">→</span><span class="fam-chip fam-chip-ok">ZA</span><span class="chain-arrow">→</span><span class="fam-chip fuse-mem" data-i18n="talk.fuseMem">memory</span></div>
-            </div>
-            <div class="reg-fam" data-fam="softmax">
-              <h2 data-i18n="talk.fuseSoftmax">② Softmax in place, on slices</h2>
-              <p data-i18n="talk.fuseSoftmaxBody">Row slice into z: max, subtract, exp, sum, normalize.</p>
-              <div class="fam-chain" aria-hidden="true"><span class="fam-chip">max</span><span class="chain-arrow">→</span><span class="fam-chip">sub</span><span class="chain-arrow">→</span><span class="fam-chip">exp</span><span class="chain-arrow">→</span><span class="fam-chip">sum</span><span class="chain-arrow">→</span><span class="fam-chip">÷</span></div>
-            </div>
-            <div class="reg-fam" data-fam="feed">
-              <h2 data-i18n="talk.fuseFeed">③ GEMM two eats it directly</h2>
-              <p data-i18n="talk.fuseFeedBody">P's row slices become the fmopa operands.</p>
-              <div class="fam-chain" aria-hidden="true"><span class="fam-chip">ZA</span><span class="chain-arrow">→</span><span class="fam-chip">z</span><span class="chain-arrow">→</span><span class="fam-chip fam-chip-ok">fmopa ×V</span></div>
-            </div>
-          </div>
-          <div class="reg-flow fuse-flows" data-reg-flow aria-hidden="true">
-            <p class="fuse-row"><span class="reg-chip" data-i18n="talk.fuseNaive">naive</span><span class="reg-op">GEMM1</span><span class="reg-chip fuse-mem" data-i18n="talk.fuseMem">memory</span><span class="reg-op">softmax</span><span class="reg-chip fuse-mem" data-i18n="talk.fuseMem">memory</span><span class="reg-op">GEMM2</span></p>
-            <p class="fuse-row"><span class="reg-chip" data-i18n="talk.fused">fused</span><span class="reg-op">GEMM1</span><span class="reg-chip">ZA</span><span class="reg-op" data-i18n="talk.fuseInPlace">softmax in place</span><span class="reg-chip reg-chip-mem">fmopa ×V</span></p>
-          </div>
-          <p class="reg-caption" data-reg-caption role="status"></p>
-          <p class="talk-hint" data-i18n="talk.fuseHint">→ three moves · N next stop</p>
-        </section>
-
-        <!-- Closing card. -->
-        <section class="talk-card" data-card="end" hidden>
-          <h1 class="talk-title talk-title-sm" data-i18n="talk.endTitle">Thanks — questions?</h1>
-          <p class="talk-sub" data-i18n="talk.endBody">The lab stays online; every page is one click from the home page.</p>
-          <div class="talk-next">
-            <p class="talk-next-kicker" data-i18n="talk.nextKicker">Next talk · teaser</p>
-            <h2 data-i18n="talk.nextTitle">Big matrices × many NUMA nodes</h2>
-            <p class="talk-next-body" data-i18n="talk.nextBody">Why data must move across nodes, and why it needs a communication ledger.</p>
-            <div class="fam-chips" aria-hidden="true">
-              <span class="fam-chip" data-i18n="talk.nextChip1">matrix tiling</span>
-              <span class="fam-chip" data-i18n="talk.nextChip2">cross-NUMA traffic</span>
-              <span class="fam-chip fam-chip-ok" data-i18n="talk.nextChip3">the communication ledger</span>
-            </div>
-          </div>
-          <p class="talk-links">
-            <a class="button button-primary" href="../" target="_blank" rel="noopener" data-i18n="talk.endLab">Open the lab</a>
-            <a class="button" href="https://github.com/0tomhoyt/simd-anim" target="_blank" rel="noopener" data-i18n="talk.endSource">Source on GitHub</a>
-          </p>
-          <p class="talk-hint" data-i18n="talk.kbdPage">← → step the animation · space plays or pauses</p>
-        </section>
-
-        <!-- Page stops load here as same-origin iframes, one per stop, kept
-             alive so going back restores the animation state. -->
-      </div>
-
-      <footer class="talk-cue" data-cuebar>
-        <button class="talk-btn" type="button" data-go="prev" data-i18n-aria="talk.prev" aria-label="Previous stop" title="P">←</button>
-        <div class="cue-main">
-          <span class="cue-title" data-stop-title></span>
-          <span class="cue-text" data-cue-text></span>
-        </div>
-        <button class="talk-counter" type="button" data-overview-open data-counter aria-label="Stops">1 / 11</button>
-        <button class="talk-btn" type="button" data-go="next" data-i18n-aria="talk.next" aria-label="Next stop" title="N">→</button>
-        <span class="cue-sep" aria-hidden="true"></span>
-        <div class="lang-switch talk-lang" role="group" data-i18n-aria="lang.label" aria-label="Language">
-          <button type="button" data-lang="en" lang="en" aria-pressed="true">EN</button>
-          <button type="button" data-lang="zh" lang="zh-Hans" aria-pressed="false">中文</button>
-        </div>
-        <button class="talk-btn" type="button" data-overview-open data-i18n-aria="talk.overview" aria-label="All stops" title="O">☰</button>
-        <button class="talk-btn" type="button" data-fullscreen data-i18n-aria="talk.fullscreen" aria-label="Fullscreen" title="F">⛶</button>
-        <button class="talk-btn talk-btn-dark" type="button" data-blackout data-i18n-aria="talk.blackout" aria-label="Blackout" title="B">●</button>
-      </footer>
-
-      <div class="talk-overview" data-overview hidden>
-        <div class="talk-overview-panel" role="dialog" data-i18n-aria="talk.overview" aria-label="All stops">
-          <ol class="talk-overview-list" data-overview-list></ol>
-          <footer class="talk-overview-foot">
-            <p><span data-i18n="talk.kbdTalk">N next stop · P previous · O all stops · F fullscreen · B blackout · C cue bar</span></p>
-            <p class="talk-hint"><span data-i18n="talk.kbdPage">← → step the animation · space plays or pauses</span></p>
-            <button class="button" type="button" data-overview-close data-i18n="talk.closeOverview">Close</button>
-          </footer>
-        </div>
-      </div>
-
-      <div class="talk-blackout" data-blackout-layer hidden></div>
-    </main>
-    <script src="../assets/js/strings/talk.js"></script>
-    <script src="../assets/js/i18n.js"></script>
-    <script src="../assets/js/talk.js"></script>
-  </body>
-</html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="talk.ui.meta">30 分钟看懂 ARM 计算 · simd-anim</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml"><meta name="theme-color" content="#edf1f6">
+<script>try { var forced=new URLSearchParams(location.search).get('lang'); if(forced==='zh'||forced==='en')localStorage.setItem('site-lang',forced); } catch(error) {}</script>
+<link rel="stylesheet" href="../assets/css/talk.css">
+</head>
+<body>
+<div class="talk-app" id="talk-app">
+<header class="preview-bar talk-toolbar"><a class="talk-brand" href="../" data-i18n="talk.ui.brand">从寄存器到矩阵乘法</a><div class="toolbar-actions">
+<button class="control-button" id="previous-slide" data-command="previous" data-i18n-aria="talk.ui.prev" aria-label="上一页" title="P">←</button>
+<button class="control-button" id="next-slide" data-command="next" data-i18n-aria="talk.ui.next" aria-label="下一页" title="N">→</button>
+<button class="control-button" id="open-overview" data-command="overview" data-i18n="talk.ui.overview" title="O">目录</button>
+<button class="control-button" id="open-notes" data-command="notes" data-i18n="talk.ui.notes" title="C" aria-expanded="false">提词</button>
+<button class="control-button secondary-control" id="fullscreen" data-command="fullscreen" data-i18n="talk.ui.fullscreen" title="F">全屏</button>
+<button class="control-button secondary-control" id="blackout" data-command="blackout" data-i18n="talk.ui.blackout" title="B">黑屏</button>
+<div class="lang-switch" role="group" aria-label="Language / 语言"><button type="button" data-lang="zh" lang="zh-Hans" aria-pressed="true">中文</button><button type="button" data-lang="en" lang="en" aria-pressed="false">EN</button></div>
+</div></header>
+<main class="slide" id="slide" aria-label="讲座舞台" data-i18n-aria="talk.ui.stage">
+<nav class="chapter-track" id="chapters" aria-label="讲座进度" data-i18n-aria="talk.ui.progress"></nav>
+<header class="hero"><div><h1 id="slide-title"></h1><p id="slide-subtitle"></p></div><div class="scope"><span data-i18n="talk.ui.scope">图示采用 streaming 模式</span><br><code>SVL = 128 bit · FP32</code></div></header>
+<div class="instruction" id="instruction" hidden></div>
+<div class="workspace" id="workspace"><section class="diagram" id="diagram" aria-label="交互示意图" data-i18n-aria="talk.ui.diagram"><div class="scene-content" id="scene-board"></div><div id="detail-extra" hidden></div><div class="scene-controls" id="scene-controls" hidden></div></section><aside class="detail" aria-label="当前讲解重点" data-i18n-aria="talk.ui.focus"><p class="detail-eyebrow" id="detail-step"></p><p class="detail-code" id="detail-code"></p><h2 id="detail-heading"></h2><p class="detail-copy" id="detail-copy"></p><div class="detail-explanation" id="detail-explanation"></div><a class="reference-link" id="reference-link" target="_blank" rel="noopener" hidden data-i18n="talk.ui.reference">打开独立实验页</a></aside></div>
+<div class="takeaway"><p id="takeaway"></p></div>
+<footer class="controls"><nav class="step-tabs" id="step-tabs" aria-label="讲解步骤" data-i18n-aria="talk.ui.steps"></nav><div class="right-controls"><span class="key-hint" data-i18n="talk.ui.keys">N / P 翻页 · ← → 步进 · 空格播放</span><button class="control-button" id="reset" data-command="reset" data-i18n="talk.ui.reset">重置</button><button class="control-button" id="play" data-command="play" data-i18n="talk.ui.play" aria-pressed="false">播放</button><button class="control-button primary" id="step-next" data-command="step"></button></div></footer>
+<p class="sr-only" id="announcement" role="status" aria-live="polite" aria-atomic="true"></p>
+</main></div>
+<dialog class="overview-dialog" id="overview-dialog" aria-labelledby="overview-title"><header><div><h2 id="overview-title" data-i18n="talk.ui.overview">目录</h2><p data-i18n="talk.ui.mainTrack">主讲 30 分钟</p></div><button class="control-button" id="close-overview" data-command="closeOverview" data-i18n="talk.ui.close">关闭</button></header><ol id="overview-list"></ol><p class="dialog-keys" data-i18n="talk.ui.keysMore">O 目录 · C 提词 · F 全屏 · B 黑屏 · R 重置</p></dialog>
+<dialog class="notes-dialog" id="notes-dialog" aria-labelledby="notes-title"><header><h2 id="notes-title" data-i18n="talk.ui.notesTitle">讲者提示</h2><button class="control-button" id="close-notes" data-command="closeNotes" data-i18n="talk.ui.close">关闭</button></header><p class="notes-stop" id="notes-stop"></p><h3 id="notes-heading"></h3><p id="notes-copy"></p><p class="notes-transition" id="notes-transition"></p></dialog>
+<div class="blackout-layer" id="blackout-layer" tabindex="-1" role="dialog" aria-label="黑屏" data-i18n-aria="talk.ui.blackout" hidden><span data-i18n="talk.ui.blackoutHint">按 B 或 Esc 返回</span></div>
+<noscript><p>请启用 JavaScript 以使用交互讲座。Enable JavaScript to use the lecture.</p></noscript>
+<script src="../assets/js/strings/talk.js"></script><script src="../assets/js/talk-content.js"></script><script src="../assets/js/talk-model.js"></script><script src="../assets/js/talk-scenes.js"></script><script src="../assets/js/i18n.js"></script><script src="../assets/js/talk.js"></script>
+</body></html>
